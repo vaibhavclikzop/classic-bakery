@@ -1,0 +1,84 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\finish_products_mst;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+
+class RecipeController extends Controller
+{
+    public function createRecipe(Request $request)
+    {
+        $products =  finish_products_mst::get();
+        return view("create-recipe", compact("products"));
+    }
+
+    public function saveRecipe(Request $request)
+    {
+
+
+
+
+        $prod_list = json_decode($request->prod_list);
+        if (!$prod_list) {
+            return redirect()->back()->with('error', "Select at least one product");
+        }
+
+
+
+        DB::beginTransaction();
+        try {
+
+            foreach ($prod_list as $key => $value) {
+                $wo_no = 'WO_' . date('dmyhis');
+                $mst_id = DB::table("recipe_mst")->insertGetId(array(
+                    "name" => $value->name,
+                    "f_product_id" => $value->product_id,
+                    "qty" => $value->qty,
+                    "description" => $value->description,
+                    "wo_no" => $wo_no,
+                    "user_id" => $request->user->id,
+                ));
+
+                $finish_products_det = DB::table("finish_products_det")->where("mst_id", $value->product_id)->get();
+                foreach ($finish_products_det as $k => $v) {
+                    DB::table("recipe_det")->insert(array(
+                        "mst_id" => $mst_id,
+                        "product_id" => $v->product_id,
+                        "qty" => $v->qty,
+                    ));
+                }
+            }
+            DB::commit();
+
+            return redirect("recipe-view/" . $mst_id)->with('success', "Save Successfully");
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+
+
+    public function recipeList(Request $request)
+    {
+        $data = DB::table('recipe_mst')->orderBy("id", "desc")->get();
+        return view("recipe-list", compact("data"));
+    }
+
+    public function recipeView(Request $request, $id)
+    {
+        $data = DB::table("recipe_mst as a")
+            ->select("a.*", "b.name", "c.name as category", "b.article_no", "b.hsn_code")
+            ->join("finish_products_mst as b", "a.f_product_id", "b.id")
+            ->join("f_product_category as c", "b.f_category_id", "c.id")
+            ->where("a.id", $id)->first();
+        $det =  DB::table("recipe_det as a")
+            ->select("a.*","b.name as product","c.name as uom")
+            ->join("products as b", "a.product_id", "b.id")
+            ->join("unit_type as c", "b.uom", "c.id")
+            ->where("a.mst_id", $id)->get();
+        return view("recipe-view", compact("data", "det"));
+    }
+}

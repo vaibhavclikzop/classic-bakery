@@ -1,0 +1,1 @@
+ALTER TABLE `customer_type_product` ADD `margin` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `price`;
