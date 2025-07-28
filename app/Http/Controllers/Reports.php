@@ -308,7 +308,7 @@ class Reports extends Controller
         $params = [$fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt];
 
         $data = DB::select($sql . " ORDER BY invoice_date LIMIT ? OFFSET ?", array_merge($params, [$limit, $offset]));
-    
+
         return response()->json([
             'data' => $data
         ]);

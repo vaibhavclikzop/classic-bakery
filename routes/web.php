@@ -19,6 +19,7 @@ use App\Http\Controllers\ResetSoftware;
 use App\Http\Controllers\SaleReturn;
 use App\Http\Controllers\StockReport;
 use Illuminate\Database\Console\Migrations\ResetCommand;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -62,6 +63,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   // ajax call
 
   Route::post('getLastPurchasePriceRM', [AjaxController::class, 'getLastPurchasePriceRM'])->name('getLastPurchasePriceRM');
+  Route::post('getLastPurchasePriceFG', [AjaxController::class, 'getLastPurchasePriceFG'])->name('getLastPurchasePriceFG');
 
 
   Route::post('GetCity', [Masters::class, 'GetCity'])->name('GetCity');
@@ -285,7 +287,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   Route::post('GetWordOrder', [OrderManagement::class, 'GetWordOrder'])->name('GetWordOrder');
 
-
+  Route::post('convertInvoiceDelivered', [OrderManagement::class, 'convertInvoiceDelivered'])->name('convertInvoiceDelivered');
   //bulk import routes 
   Route::post('ImportProducts', [BulkImport::class, 'ImportProducts'])->name('ImportProducts');
   Route::post('ImportFinishProducts', [BulkImport::class, 'ImportFinishProducts'])->name('ImportFinishProducts');
@@ -457,8 +459,9 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   //recipe
   Route::get('create-recipe', [RecipeController::class, 'createRecipe'])->name('create-recipe');
   Route::post('SaveRecipe', [RecipeController::class, 'SaveRecipe'])->name('SaveRecipe');
-   Route::get('recipe-list', [RecipeController::class, 'recipeList'])->name('recipe-list');
-   Route::get('recipe-view/{id}', [RecipeController::class, 'recipeView'])->name('recipe-view');
+  Route::get('recipe-list', [RecipeController::class, 'recipeList'])->name('recipe-list');
+  Route::get('recipe-view/{id}', [RecipeController::class, 'recipeView'])->name('recipe-view');
+  Route::get('make-recipe/{id}', [RecipeController::class, 'makeRecipe'])->name('make-recipe');
 
   //daily reports
   Route::get('purchase-variation-report', [Reports::class, 'PurchaseVariationReport'])->name('purchase-variation-report');

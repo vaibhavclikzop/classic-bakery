@@ -58,7 +58,7 @@
                     </div>
                     <div class="col-md-3 mt-3">
                         <label>Delivery Charges</label>
-                        <input type="text" name="delivery_charges" id="delivery_charges" class="form-control"
+                        <input type="number" step="0.01" name="delivery_charges" id="delivery_charges" class="form-control"
                             placeholder="Enter Delivery Charges." value="0" required>
 
                     </div>
@@ -85,6 +85,7 @@
                                     <th>Received Qty</th>
                                     <th>Inward Qty</th>
                                     <th>Price</th>
+                                    <th>Total</th>
 
                                     <th>Action</th>
                                 </tr>
@@ -94,7 +95,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="8">Total </th>
+                                    <th colspan="9">Total </th>
                                     <th id="subtotal"></th>
                                     <th></th>
                                 </tr>
@@ -201,7 +202,7 @@
                             var po_id = element.mst_id;
                             var cess_tax = element.cess_tax;
 
-                            if (r_qty > 0) {
+                      
 
 
                                 html += `
@@ -209,15 +210,17 @@
                                         <td>${sno++}</td>    
                                         <td>${element.product_name}</td>    
                                         <td>${element.article_no}</td>    
-                                        <td>${element.gst}</td>    
-                                        <td>${element.cess_tax}</td>    
-                                        <td>${element.qty}</td>    
-                                        <td>${element.received_qty}</td>    
+                                        <td>${formatQtyPrice(element.gst)}</td>    
+                                        <td>${formatQtyPrice(element.cess_tax)}</td>    
+                                        <td>${formatQtyPrice(element.qty)}</td>    
+                                        <td>${formatQtyPrice(element.received_qty)}</td>    
                                         <td>
                                             <input type="number" step="0.01" class="form-control qty"  data-product_id="${product_id}"  value="${r_qty}" data-received_qty="${element.received_qty}" data-actual_qty="${element.qty}">
                                             </td>    
                                        
-                                        <td><input type="number" step="0.01" class="form-control price"  data-id="${product_id}"   value="${element.price}"></td>    
+                                        <td style="min-width: 162px;"><input type="number" step="0.01" class="form-control price"  data-id="${product_id}"   value="${formatQtyPrice(element.price)}"></td>    
+                                        <td>${(element.price * r_qty * (1 + element.gst / 100 + element.cess_tax / 100)).toFixed(2)}</td>
+ 
 
                                         
                                         <td><button class="btn btn-sm btn-danger remove" type="button" data-id="${product_id}" ><i class="fa fa-trash" aria-hidden="true"></i></button></td>    
@@ -235,7 +238,7 @@
                                     cess_tax
                                 });
 
-                            }
+                  
 
                         });
 
@@ -344,15 +347,33 @@
                 let total = 0;
 
                 product_list.forEach(item => {
-                    const base_total = item.qty * item.price;
+                    const base_total = item.qty * item.price + (item.qty * item.price / 100 * item.gst) + (
+                        item.qty * item.price / 100 * item.cess_tax);
 
                     total += base_total;
                 });
+                let delivery_charges = parseFloat($("#delivery_charges").val());
+                console.log(total+delivery_charges);
 
-                $("#subtotal").text(parseFloat(total).toFixed(2));
+                $("#subtotal").text(parseFloat(total + delivery_charges).toFixed(2));
 
 
             }
+            $("#delivery_charges").on("keyup", function() {
+                calculate_total(product_list)
+            })
+
+            $(window).on("pageshow", function(event) {
+                if (event.originalEvent.persisted) {
+                    // Browser back button used
+                    $("#formMain")[0].reset();
+                    product_list = [];
+                    $("#productList").html("");
+                    $("#subtotal").text("");
+                    $("#prod_List").val("");
+                    $("#po_id").val("")
+                }
+            });
 
         });
     </script>

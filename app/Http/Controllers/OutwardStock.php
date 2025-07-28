@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -309,37 +310,53 @@ class OutwardStock extends Controller
     public function OutwardCustomerOrderList(Request $request)
     {
         $status = request("status", "dispatch");
-        $date = request("date");
- 
+        $date = request("date", date("Y-m-d"));
+        $customer_id = request("customer_id");
+        $order_type = request("order_type");
+
+
         $dat1 = DB::table("outward_customer_order_mst as a")
-            ->select("a.*", "c.name as customer", "d.name as user", "e.name as transport", "e.contact_person", "e.number", "e.vehicle_no", "b.delivery_date")
+            ->select("a.*", "c.name as customer", "d.name as user", "e.name as transport", "e.contact_person", "e.number", "e.vehicle_no", "b.delivery_date", "b.order_type")
             ->join("order_mst as b", "a.order_id", "b.id")
             ->join("customers as c", "b.customer_id", "c.id")
             ->join("users as d", "a.user_id", "d.id")
             ->leftJoin("mode_of_transport as e", "a.mode_of_transport", "e.id")
             ->where("a.status", $status)
-            ->where("order_type", "customer");
+            ->where("b.order_type", "customer");
         if ($date) {
             $dat1->whereDate("a.invoice_date", $date);
         }
+        if ($customer_id) {
+            $dat1->where("b.customer_id", $customer_id);
+        }
+
+
 
         $dat2 = DB::table("outward_customer_order_mst as a")
-            ->select("a.*", "c.outlet_name as customer", "d.name as user", "e.name as transport", "e.contact_person", "e.number", "e.vehicle_no", "b.delivery_date")
+            ->select("a.*", "c.outlet_name as customer", "d.name as user", "e.name as transport", "e.contact_person", "e.number", "e.vehicle_no", "b.delivery_date", "b.order_type")
             ->join("order_mst as b", "a.order_id", "b.id")
             ->join("outlet as c", "b.customer_id", "c.id")
             ->join("users as d", "a.user_id", "d.id")
             ->leftJoin("mode_of_transport as e", "a.mode_of_transport", "e.id")
             ->where("a.status", $status)
-            ->where("order_type", "outlet");
+            ->where("b.order_type", "outlet");
         if ($date) {
             $dat2->whereDate("a.invoice_date", $date);
         }
+        if ($customer_id) {
+            $dat2->where("b.customer_id", $customer_id);
+        }
 
-
+        //   $data=$dat2->get();
+        //     dd($data);
+        //     die;  
 
         $data =  $dat1->union($dat2)->get();
 
-        return view("outward-customer-order-list", compact("data"));
+
+        $customers = DB::table("customers")->get();
+
+        return view("outward-customer-order-list", compact("data", "customers"));
     }
 
     public function CustomerOutwardChallanView(Request $request, $id)
@@ -421,6 +438,9 @@ class OutwardStock extends Controller
     }
     public function Invoices(Request $request)
     {
+        $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
+        $toDt = $request->input("toDt") ?: Carbon::now()->toDateString();
+
         $status = request("status", "dispatch");
         $customer = DB::table("outward_customer_order_mst as a")
             ->select("a.*", "c.name as customer", "d.name as user", "e.name as transport", "e.contact_person", "e.number", "e.vehicle_no")
@@ -430,8 +450,14 @@ class OutwardStock extends Controller
             ->leftJoin("mode_of_transport as e", "a.mode_of_transport", "e.id")
             ->where("a.is_invoice", 1)
             ->where("b.order_type", "customer")
-            ->orderBy("a.id", "desc")
-            ->get();
+            ->orderBy("a.id", "desc");
+        if ($fromDt) {
+            $customer->whereDate("a.invoice_date", ">=", $fromDt);
+        }
+        if ($toDt) {
+            $customer->whereDate("a.invoice_date", "<=", $toDt);
+        }
+        $customers = $customer->get();
 
 
         $outlet = DB::table("outward_customer_order_mst as a")
@@ -442,10 +468,16 @@ class OutwardStock extends Controller
             ->leftJoin("mode_of_transport as e", "a.mode_of_transport", "e.id")
             ->where("a.is_invoice", 1)
             ->where("b.order_type", "outlet")
-            ->orderBy("a.id", "desc")
-            ->get();
+            ->orderBy("a.id", "desc");
+        if ($fromDt) {
+            $outlet->whereDate("a.invoice_date", ">=", $fromDt);
+        }
+        if ($toDt) {
+            $outlet->whereDate("a.invoice_date", "<=", $toDt);
+        }
+        $outlets = $outlet->get();
 
-        $data = $customer->union($outlet);
+        $data = $customers->union($outlets);
 
         return view("invoices", compact("data"));
     }

@@ -345,7 +345,7 @@ class OrderManagement extends Controller
         $store = DB::table("store")->get();
         $finish_products_mst = DB::table("finish_products_mst")->get();
         $gst = DB::table("gst")->get();
-        $order_type = DB::table("order_type")->orderBy("name","asc")->get();
+        $order_type = DB::table("order_type")->orderBy("name", "asc")->get();
 
         return view("create-order", compact("customers", "store", "finish_products_mst", "gst", "order_type"));
     }
@@ -1052,9 +1052,9 @@ class OrderManagement extends Controller
 
     public function GetCustomerTypeProducts(Request $request)
     {
-        if($request->order_type=="customer"){
+        if ($request->order_type == "customer") {
             $customers = DB::table("customers")->where("id", $request->customer_id)->first();
-        }else{
+        } else {
             $customers = DB::table("outlet")->where("id", $request->customer_id)->first();
         }
 
@@ -1067,7 +1067,7 @@ class OrderManagement extends Controller
             ->join("f_product_sub_category as e", "b.f_sub_category_id", "e.id")
             ->where("a.customer_type_id", $customers->customer_type_id)
             ->whereIn("e.id", explode(', ', $order_type->f_sub_category_id))
-            ->orderBy("b.name","asc")
+            ->orderBy("b.name", "asc")
             ->get();
         return $customer_type_product;
     }
@@ -1281,6 +1281,52 @@ class OrderManagement extends Controller
                 "is_invoice" => 1,
             ));
             DB::table("company_settings")->where("id", 1)->increment("invoice_no", 1);
+        } catch (\Throwable $th) {
+            return  redirect()->back()->with("error", $th->getMessage());
+        }
+        return  redirect()->back()->with("success", "Save Successfully");
+    }
+
+    public function convertInvoiceDelivered(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'updateType' => 'required',
+            "outward_ids" => "required"
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->with('error', $validator->errors()->first());
+        }
+
+      
+        $company_settings =   DB::table("company_settings")->where("id", 1)->first();
+        $invoice = $company_settings->invoice_prefix . $company_settings->invoice_no;
+        try {
+
+            foreach ($request->outward_ids as $key => $value) {
+
+ 
+                if ($request->updateType == "delivered") {
+
+                    DB::table("outward_customer_order_mst")->where("id", $value)->update(array(
+                        "status" => "delivered"
+                    ));
+                } else if ($request->updateType == "invoice") {
+                    DB::table('outward_customer_order_mst')->where("id", $value)->update(array(
+                        "invoice_no" => $invoice,
+                        "is_invoice" => 1,
+                    ));
+                    DB::table("company_settings")->where("id", 1)->increment("invoice_no", 1);
+                } else {
+                    DB::table('outward_customer_order_mst')->where("id", $value)->update(array(
+                        "invoice_no" => $invoice,
+                        "is_invoice" => 1,
+                        "status" => "delivered"
+                    ));
+                    DB::table("company_settings")->where("id", 1)->increment("invoice_no", 1);
+                }
+            }
         } catch (\Throwable $th) {
             return  redirect()->back()->with("error", $th->getMessage());
         }

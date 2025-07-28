@@ -75,6 +75,7 @@
                         <th>Pending Qty</th>
 
                         <th>Price</th>
+                        <th>Total</th>
                     </thead>
                     <tbody>
                         @foreach ($order_det as $item)
@@ -82,10 +83,11 @@
                                 <td>{{ $sno++ }}</td>
                                 <td>{{ $item->sub_category }}</td>
                                 <td>{{ $item->product }}</td>
-                                <td>{{ $item->qty }}</td>
-                                <td>{{ $item->booked_qty }}</td>
+                                <td>{{ formatQtyPrice($item->qty) }}</td>
+                                <td>{{ formatQtyPrice($item->booked_qty) }}</td>
                                 <td>{{ $item->qty - $item->booked_qty }}</td>
-                                <td>{{ $item->price }}</td>
+                                <td>{{ formatQtyPrice($item->price )}}</td>
+                                         <td>{{ formatQtyPrice($item->price *$item->qty)}}</td>
                             </tr>
                         @endforeach
 

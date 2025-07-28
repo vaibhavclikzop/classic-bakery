@@ -21,7 +21,7 @@
                     <tr>
                         <th>S.No</th>
                         <th>Name</th>
-                        <th>Qty</th>
+
                         <th>Description</th>
                         <th>Action</th>
                     </tr>
@@ -31,15 +31,17 @@
                         $sno = 1;
                     @endphp
                     @foreach ($data as $item)
-                    <tr>
-                        <td>{{$sno++}}</td>
-                        <td>{{$item->name}}</td>
-                        <td>{{$item->qty}}</td>
-                        <td>{{$item->description}}</td>
-                        <td>
-                            <a href="/recipe-view/{{$item->id}}" class="btn btn-primary btn-sm"> <i class="fa fa-eye" aria-hidden="true"></i> </a>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td>{{ $sno++ }}</td>
+                            <td>{{ $item->name }}</td>
+
+                            <td>{{ $item->description }}</td>
+                            <td>
+                                <a href="/recipe-view/{{ $item->id }}" class="btn btn-primary btn-sm"> <i class="fa fa-eye"
+                                        aria-hidden="true"></i> </a>
+                                        <a href="/make-recipe/{{$item->id}}" class="btn btn-dark btn-sm"> Make Recipe </a>
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
 

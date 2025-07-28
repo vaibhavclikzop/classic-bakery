@@ -12,6 +12,27 @@
                 $status = request('status');
             @endphp
 
+            <div>
+                <form action="" method="GET" class="d-flex">
+                    <div>
+                        <label for="">From</label>
+                        <input type="date" name="fromDt" class="form-control" onchange="this.form.submit()"
+                            value="{{ request('fromDt') ?? \Carbon\Carbon::now()->startOfMonth()->toDateString() }}">
+
+                    </div>
+
+                    <div>
+                        <label for="">To</label>
+                        <input type="date" name="toDt" class="form-control" onchange="this.form.submit()"
+                            value="{{ request('toDt') ?? \Carbon\Carbon::now()->toDateString() }}">
+
+                    </div>
+                </form>
+
+            </div>
+            <div>
+                
+            </div>
         </div>
         <div class="card-body">
             <table class="table dataTable">
@@ -52,8 +73,8 @@
                             <td>{{ $item->user }}</td>
                             <td>
 
-                                <a class="btn btn-primary btn-sm" href="/invoice-view/{{ $item->id }}"><i class="fa fa-eye"
-                                        aria-hidden="true"></i></a>
+                                <a class="btn btn-primary btn-sm" href="/invoice-view/{{ $item->id }}"><i
+                                        class="fa fa-eye" aria-hidden="true"></i></a>
 
 
 

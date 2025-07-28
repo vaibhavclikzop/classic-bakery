@@ -3,7 +3,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
-                <h4>Inward Stock</h4>
+                <h4>Inward Stock Finish Goods</h4>
             </div>
             <div class="">
 
@@ -73,6 +73,7 @@
                                     <th>Received Qty</th>
                                     <th>Inward Qty</th>
                                     <th>Price</th>
+                                    <th>Total</th>
 
                                     <th>Action</th>
                                 </tr>
@@ -82,7 +83,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="6">Total </th>
+                                    <th colspan="7">Total </th>
                                     <th id="subtotal"></th>
                                     <th></th>
                                 </tr>
@@ -204,7 +205,8 @@
                                             </td>    
                                        
                                         <td><input type="number" step="0.01" class="form-control price"  data-id="${product_id}"   value="${element.price}"></td>    
-
+                     
+                                        <td>${r_qty*element.price}</td>   
                                         
                                         <td><button class="btn btn-sm btn-danger remove" type="button" data-id="${product_id}" ><i class="fa fa-trash" aria-hidden="true"></i></button></td>    
                                         </tr>
@@ -337,6 +339,18 @@
 
 
 
+        });
+
+        $(window).on("pageshow", function(event) {
+            if (event.originalEvent.persisted) {
+                // Browser back button used
+                $("#formMain")[0].reset();
+                product_list = [];
+                $("#productList").html("");
+                $("#subtotal").text("");
+                $("#productList").val("");
+                $("#po_id").val("")
+            }
         });
     </script>
 @endsection

@@ -85,11 +85,11 @@
                                 <td>{{ $sno++ }}</td>
 
                                 <td>{{ $item->product_name }}</td>
-                                <td>{{ $item->qty }}</td>
-                                <td>{{ $item->price }}</td>
+                                <td>{{formatQtyPrice( $item->qty )}}</td>
+                                <td>{{ formatQtyPrice($item->price) }}</td>
 
-                                <td>{{ $item->gst }}</td>
-                                <td>{{ $item->cess_tax }}</td>
+                                <td>{{ formatQtyPrice($item->gst) }}</td>
+                                <td>{{ formatQtyPrice($item->cess_tax) }}</td>
 
 
 

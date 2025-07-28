@@ -144,7 +144,32 @@
             });
 
             $("#product_id").on("change", function() {
-                $("#price").val($(this).find(":selected").data("price") || '');
+                var product_price = $(this).find(":selected").data("price");
+
+                $.ajax({
+                    url: "/getLastPurchasePriceFG",
+                    type: "POST",
+                    data: {
+                        product_id: $(this).val(),
+                        vendor_id: $("#vendor_id").val(),
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    beforeSend: function() {
+                        $("#loader").show();
+                    },
+                    success: function(result) {
+                        $("#product_price").val(product_price)
+                        $("#price").val(result)
+                    },
+                    complete: function() {
+                        $("#loader").hide();
+                    },
+                    error: function(result) {
+                        toastr.error(result.responseJSON.message);
+                    }
+                });
             });
 
             $("#addProduct").on("click", function() {
@@ -275,6 +300,16 @@
                 $("#prod_list").val(JSON.stringify(product_list));
                 $("#frmMain").submit();
             });
+        });
+        $(window).on("pageshow", function(event) {
+            if (event.originalEvent.persisted) {
+                // Browser back button used
+                $("#frmMain")[0].reset();
+                product_list = [];
+                $("#prodList").html("");
+                $("#subtotal").text("");
+                $("#prod_list").val("");
+            }
         });
     </script>
 @endsection

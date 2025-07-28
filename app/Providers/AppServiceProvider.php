@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\App;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,12 +24,18 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
+
+
+        if (request('lang')) {
+            App::setLocale(request('lang') == 'Hindi' ? 'hi' : 'en');
+        }
+
         $state = DB::table("state_city")->distinct('state')->select("state")->get();
-        $setting = DB::table("company_settings")->where("id",1)->first();
+        $setting = DB::table("company_settings")->where("id", 1)->first();
         $Leadstatus = DB::table("status")->get();
 
-    
-   
+
+
         View::share('state', $state);
         View::share('setting', $setting);
         View::share('Leadstatus', $Leadstatus);

@@ -10,7 +10,7 @@
             </div>
             <div class="">
 
-
+                <button class="btn btn-info float-end mx-1" type="button" id="btnSyncHindi">Sync Hindi Name</button>
                 <button type="button" class="btn btn-dark float-end" data-bs-toggle="modal" data-bs-target="#importModal"><i
                         class="fa fa-download"></i> Import Products</button>
                 <button type="button" class="btn btn-primary add float-end mx-2"><i class="fa fa-plus"></i> Add
@@ -430,5 +430,9 @@
                 $(".checkb").prop("checked", false);
             }
         });
+
+        $("#btnSyncHindi").on("click",function(){
+            
+        })
     </script>
 @endsection

@@ -24,4 +24,19 @@ class AjaxController extends Controller
 
         return $data?->price;
     }
+    public function getLastPurchasePriceFG(Request $request)
+    {
+
+        $data = DB::table('stock_inward_det_finish_goods as a')
+            ->select("a.price")
+            ->where("a.product_id", $request->product_id)
+            ->orderBy("a.id", "desc")
+            ->first()
+            ?? DB::table("finish_products_mst")
+            ->select("price")
+            ->where("id", $request->product_id)
+            ->first();
+
+        return $data?->price;
+    }
 }

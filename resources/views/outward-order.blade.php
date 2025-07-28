@@ -176,6 +176,8 @@
                 qty,
 
             });
+            $("#product_id").val(null).trigger("change");
+            $("#qty").val("")
 
         });
 
@@ -199,11 +201,27 @@
             product_list = product_list.filter(item => item.product_id !== id);
 
         });
-        $("#UploadForm").on("submit", function() {
+        $("#UploadForm").on("submit", function(e) {
+            // Prevent default submission temporarily
+            e.preventDefault();
 
+            // 1. Check HTML5 form validation
+            if (!this.checkValidity()) {
+                this.classList.add('was-validated'); // Optional Bootstrap style
+                return false;
+            }
+
+            // 2. Check product list is not empty
+            if (product_list.length === 0) {
+                return toastr.error("Add at least one product.");
+            }
+
+            // 3. All checks passed — inject JSON and disable button
             $('#prod_list').val(JSON.stringify(product_list));
-            $("#btnSubmit").attr("disabled", "disabled")
+            $("#btnSubmit").attr("disabled", true);
 
-        })
+            // 4. Submit form manually
+            this.submit();
+        });
     </script>
 @endsection

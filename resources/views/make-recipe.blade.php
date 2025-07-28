@@ -1,11 +1,26 @@
 @extends('layouts.main')
 @section('main-section')
+  
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
                 <h4> Recipe View </h4>
+                <form action="">
+                    <div class="input-group has-validation">
 
+                        <input type="text" class="form-control" name="qty" value="{{ request('qty') ?? 1 }}" required>
+                        <button class="input-group-text btn btn-dark"> Generate </button>
+                    </div>
+                </form>
 
+            </div>
+            <div>
+                <form action="">
+                    <select name="lang" id="" class="form-control" onchange="this.form.submit()">
+                        <option value="English" {{ request('lang') == 'English' ? 'selected' : '' }}>English</option>
+                        <option value="Hindi" {{ request('lang') == 'Hindi' ? 'selected' : '' }}>Hindi</option>
+                    </select>
+                </form>
             </div>
             <div class="">
 
@@ -47,16 +62,16 @@
             <div class="mt-3">
                 <table class="table">
                     <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Per Unit</th>
+                        <th>{{ __('messages.name') }}</th>
+                        <th>{{ __('messages.description') }}</th>
+                        <th>{{ __('messages.per_unit') }}</th>
 
                     </tr>
                     <tr>
 
                         <th>{{ $data->name }}</th>
                         <th>{{ $data->description }}</th>
-                        <th>1</th>
+                        <th> {{ request('qty', 1) }} </th>
 
 
                     </tr>
@@ -87,13 +102,13 @@
                         @endphp
                         @foreach ($det as $item)
                             @php
-                                $total += $item->qty;
+                                $total += $item->qty * request('qty', 1);
                             @endphp
                             <tr>
                                 <td>{{ $sno++ }}</td>
                                 <td>{{ $item->category }}</td>
-                                <td>{{ $item->product }}</td>
-                                <td>{{ $item->qty }}</td>
+                                <td>{{$item->product}}</td>
+                                <td>{{ $item->qty * request('qty', 1) }}</td>
                                 <td>{{ $item->uom }}</td>
                             </tr>
                         @endforeach

@@ -53,6 +53,7 @@
 <!-- Custom JS -->
 <script src="/js/theme-script.js"></script>
 <script src="/js/script.js"></script>
+<script src="/js/custom.js"></script>
 
 
 </body>

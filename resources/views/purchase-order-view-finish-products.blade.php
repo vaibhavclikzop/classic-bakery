@@ -90,20 +90,20 @@
                                 <td>{{ $sno++ }}</td>
                                 <td>{{ $item->sub_category }}</td>
                                 <td>{{ $item->product_name }}</td>
-                                <td>{{ $item->qty }}</td>
-                                <td>{{ $item->price }}</td>
+                                <td>{{formatQtyPrice($item->qty) }}</td>
+                                <td>{{ formatQtyPrice($item->price) }}</td>
                                 @if ($item->gst_type == 'Inner GST')
-                                    <td>{{ $item->gst }}</td>
+                                    <td>{{formatQtyPrice( $item->gst) }}</td>
                                 @else
                                     <td>0</td>
                                 @endif
 
                                 @if ($item->gst_type == 'Outer GST')
-                                    <td>{{ $item->gst }}</td>
+                                    <td>{{ formatQtyPrice($item->gst) }}</td>
                                 @else
                                     <td>0</td>
                                 @endif
-                                <td>{{ $item->cess_tax }}</td>
+                                <td>{{formatQtyPrice( $item->cess_tax) }}</td>
 
                                 <td>{{ $item->price * $item->qty + (($item->price * $item->qty) / 100) * $item->gst }}</td>
                                 @if (request('edit') == 1)

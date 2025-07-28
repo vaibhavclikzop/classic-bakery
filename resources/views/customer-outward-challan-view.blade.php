@@ -81,6 +81,7 @@
                         <th>Article No</th>
                         <th>Qty</th>
                         <th>Price</th>
+                        <th>Total</th>
 
                     </thead>
                     <tbody>
@@ -96,15 +97,16 @@
                                 <td>{{ $item->sub_category }}</td>
                                 <td>{{ $item->product }}</td>
                                 <td>{{ $item->article_no }}</td>
-                                <td>{{ $item->qty }}</td>
-                                <td>{{ $item->price }}</td>
+                                <td>{{formatQtyPrice( $item->qty )}}</td>
+                                <td>{{formatQtyPrice( $item->price )}}</td>
+                                <td>{{formatQtyPrice( $item->price* $item->qty )}}</td>
 
                             </tr>
                         @endforeach
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="5">Total</th>
+                            <th colspan="6">Total</th>
                             <th>{{$total}}</th>
                         </tr>
                     </tfoot>

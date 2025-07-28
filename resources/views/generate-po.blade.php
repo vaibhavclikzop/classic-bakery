@@ -67,7 +67,7 @@
                                         <input type="number" name="qty" id="qty" min="1" value="1"
                                             class="form-control" placeholder="Enter Qty">
                                     </th>
-                                     
+
                                     <th>
                                         <label for=""> Price</label>
                                         <input type="number" step="0.01" name="price" id="price"
@@ -354,7 +354,7 @@
                     const base_total = item.qty * item.price;
                     const gst_amount = item.gst ? (base_total * item.gst / 100) : 0;
                     const cess_amount = item.cess ? (base_total * item.cess / 100) : 0;
-                    total += base_total + gst_amount+cess_amount;
+                    total += base_total + gst_amount + cess_amount;
                 });
 
                 $("#subtotal").text(parseFloat(total).toFixed(5));
@@ -427,6 +427,17 @@
 
                 calculate_total(product_list);
                 $('#editProductModal').modal('hide');
+            });
+            $(window).on("pageshow", function(event) {
+                if (event.originalEvent.persisted) {
+                    // Browser back button used
+                    $("#frmMain")[0].reset();
+                    product_list = [];
+                    $("#prodList").html("");
+                    $("#subtotal").text("");
+                    $("#prodList").val("");
+                    $("#po_id").val("")
+                }
             });
         });
     </script>

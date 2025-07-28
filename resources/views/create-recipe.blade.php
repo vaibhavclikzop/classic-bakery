@@ -23,25 +23,7 @@
                 @csrf
 
                 <div class="row">
-                    <div class="col-md-3">
-                        <label>Product</label>
-                        <select name="product_id" id="product_id" class="form-control">
-                            <option value="">Select Product</option>
-                            @foreach ($products as $item)
-                                <option value="{{ $item->id }}" data-city="{{ $item->city }}">
-                                    {{ $item->company_name }} ( {{ $item->name }})
-                                </option>
-                            @endforeach
 
-                        </select>
-
-                    </div>
-                    <div class="col-md-2">
-                        <label for="">Qty</label>
-                        <input type="number" step="0.01" name="qty" id="qty" class="form-control"
-                            placeholder="Enter Qty.">
-
-                    </div>
                     <div class="col-md-3">
                         <label for="">Recipe Name</label>
                         <input type="text" name="name" id="name" class="form-control"
@@ -54,9 +36,7 @@
                             placeholder="Enter  Description">
 
                     </div>
-                    <div class="col-md-1">
-                        <button class="btn btn-primary mt-3" id="addProduct" type="button">Add</button>
-                    </div>
+
                 </div>
                 <hr>
                 <div class="row">
@@ -65,11 +45,35 @@
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <td colspan="3">
+                                        Products <br>
+                                        <select name="product_id" id="product_id" class="form-control">
+                                            <option value="">Select Product</option>
+                                            @foreach ($products as $item)
+                                                <option value="{{ $item->id }}" data-uom="{{ $item->unitType->name }}">
+                                                    {{ $item->name }} </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        Qty <br>
+                                        <div class="input-group has-validation">
+                                            <input type="number" step="0.01" id="qty" class="form-control"
+                                                required>
+                                            <span class="input-group-text btn btn-dark" id="inputGroupPrepend"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary mt-3" type="button" id="addProduct">Add</button>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <thead>
+                                <tr>
                                     <th>S.No</th>
                                     <th>Product</th>
                                     <th> Qty</th>
-                                    <th> Name</th>
-                                    <th> Description</th>
+                                    <th> UOM</th>
                                     <th> Action</th>
                                 </tr>
                             </thead>
@@ -107,12 +111,17 @@
             $("#product_id").select2();
 
 
+            $("#product_id").on("change", function() {
+                var uom = $(this).find(":selected").data("uom");
+                $("#inputGroupPrepend").text(uom)
+            });
+
 
             $("#addProduct").on("click", function() {
                 var product_id = parseInt($("#product_id").val())
                 var product_name = $("#product_id").find(":selected").text()
-                var name = $("#name").val()
-                var description = $("#description").val()
+
+                var uom = $("#inputGroupPrepend").text();
                 var qty = parseFloat($("#qty").val())
 
 
@@ -139,8 +148,8 @@
                             <td>${sno++}</td>    
                             <td>${product_name}</td>    
                             <td>${qty}</td>    
-                            <td>${name}</td>    
-                            <td>${description}</td>    
+                            <td>${uom}</td>    
+                       
                                        
                             <td> 
 
@@ -155,10 +164,7 @@
                 product_list.push({
                     product_id,
                     qty,
-                    name,
-                    description
-
-
+                    uom,
                 });
                 calculate_total(product_list);
                 $("#qty").val("")

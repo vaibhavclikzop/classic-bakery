@@ -82,7 +82,7 @@
                     </div>
                     <div class="col-md-3 mt-3">
                         <label for="">Product</label>
-                        <select name="product_id" id="product_id" class="form-control" >
+                        <select name="product_id" id="product_id" class="form-control">
                             <option value="">Select product</option>
 
                         </select>
@@ -95,7 +95,7 @@
                     </div>
                     <div class="col-md-2 mt-3">
                         <label for="">Qty</label>
-                        <input type="number" class="form-control" id="qty" name="qty" >
+                        <input type="number" class="form-control" id="qty" name="qty">
 
                     </div>
                     <div class="col-md-1 mt-3">
@@ -357,11 +357,26 @@
             product_list = product_list.filter(item => item.product_id !== id);
 
         });
-        $("#UploadForm").on("submit", function() {
+        $("#UploadForm").on("submit", function(e) {
+
 
             $('#prod_list').val(JSON.stringify(product_list));
-            $("#btnSubmit").attr("disabled", "disabled")
-
-        })
+            if (product_list.length === 0) {
+                e.preventDefault();
+                return toastr.error("Add at least one product.");
+            }
+            $("#btnSubmit").attr("disabled", true);
+        });
+        $(window).on("pageshow", function(event) {
+            if (event.originalEvent.persisted) {
+                // Browser back button used
+                $("#formMain")[0].reset();
+                product_list = [];
+                $("#productList").html("");
+                $("#subtotal").text("");
+                $("#productList").val("");
+                $("#po_id").val("")
+            }
+        });
     </script>
 @endsection

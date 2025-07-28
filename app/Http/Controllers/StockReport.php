@@ -86,11 +86,11 @@ class StockReport extends Controller
 
             ->join("users as e", "a.user_id", "e.id");
             if ($fromDt) {
-                $filter->whereDate("a.invoice_date",">=",$fromDt);
+                $filter->whereDate("a.received_material_date",">=",$fromDt);
             }
 
               if ($toDt) {
-                $filter->whereDate("a.invoice_date","<=",$toDt);
+                $filter->whereDate("a.received_material_date","<=",$toDt);
             }
             $stock_inward_mst=$filter->orderBy("a.id","desc")->get();
         return view("inward-report", compact("stock_inward_mst"));
