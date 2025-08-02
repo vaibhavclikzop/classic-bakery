@@ -811,6 +811,7 @@ class OrderManagement extends Controller
             $order_det =  DB::table("order_det as a")
                 ->select("a.*", "b.department_id")
                 ->join("finish_products_mst as b", "a.product_id", "b.id")
+                ->where("b.f_category_id",1)
                 ->where("a.mst_id", $value)->get();
             foreach ($order_det as $k => $v) {
                 if ($v->qty - $v->booked_qty > 0) {

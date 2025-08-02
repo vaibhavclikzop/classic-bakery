@@ -39,20 +39,7 @@
             </div>
             <table class="w-100  ">
                 <thead>
-                    <tr style="border: solid 1px; padding:5px; background: #f0f0f0;">
-                        <th style="border: solid 1px; padding:5px">S.No</th>
-                        <th style="border: solid 1px; padding:5px">Customer</th>
-                        <th style="border: solid 1px; padding:5px">Invoice Number</th>
-                        <th style="border: solid 1px; padding:5px">Invoice Date</th>
-                        <th style="border: solid 1px; padding:5px">Sub Total</th>
-                        <th style="border: solid 1px; padding:5px">MRP</th>
-                        <th style="border: solid 1px; padding:5px">Tax Amt.</th>
-                        <th style="border: solid 1px; padding:5px">CESS</th>
-                        <th style="border: solid 1px; padding:5px">CGST</th>
-                        <th style="border: solid 1px; padding:5px">SGST</th>
-                        <th style="border: solid 1px; padding:5px">IGST</th>
-                        <th style="border: solid 1px; padding:5px">TCS Amt.</th>
-                    </tr>
+
                 </thead>
                 <tbody id="sales-data">
                     <!-- JavaScript will populate rows grouped by Shop here -->
@@ -120,7 +107,25 @@
                         let sno = 1;
                         // Shop Header Row
                         html +=
-                            `<tr><td colspan="12" style="font-weight:bold; background:#d1ecf1; border: solid 1px; padding:5px;">Shop : ${shopName}</td></tr>`;
+                            `
+                            
+                            <tr><td colspan="12" style="font-weight:bold; background:#d1ecf1; border: solid 1px; padding:5px;">Shop : ${shopName}</td></tr>
+                            
+                              <tr style="border: solid 1px; padding:5px; background: #f0f0f0;">
+                        <th style="border: solid 1px; padding:5px">S.No</th>
+                        <th style="border: solid 1px; padding:5px">Order Type</th>
+                        <th style="border: solid 1px; padding:5px">Invoice Number</th>
+                        <th style="border: solid 1px; padding:5px">Invoice Date</th>
+                        <th style="border: solid 1px; padding:5px">Sub Total</th>
+                        <th style="border: solid 1px; padding:5px">MRP</th>
+                        <th style="border: solid 1px; padding:5px">Tax Amt.</th>
+                        <th style="border: solid 1px; padding:5px">CESS</th>
+                        <th style="border: solid 1px; padding:5px">CGST</th>
+                        <th style="border: solid 1px; padding:5px">SGST</th>
+                        <th style="border: solid 1px; padding:5px">IGST</th>
+                        <th style="border: solid 1px; padding:5px">TCS Amt.</th>
+                    </tr>
+                            `;
 
                         items.forEach((item, index) => {
                             const itemTax = parseFloat(item.igst) + parseFloat(item.cgst) +
@@ -138,7 +143,7 @@
 
                             html += `<tr style="border: solid 1px; padding:5px">
                 <td style="border: solid 1px; padding:5px">${sno++}</td>
-                <td style="border: solid 1px; padding:5px">${item.name}<br>${item.order_type}</td>
+                <td style="border: solid 1px; padding:5px"> ${item.order_type}</td>
                 <td style="border: solid 1px; padding:5px">${item.id}</td>
                 <td style="border: solid 1px; padding:5px">${item.invoice_date}</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.sub_total)}</td>

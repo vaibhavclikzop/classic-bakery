@@ -440,5 +440,15 @@
                 }
             });
         });
-    </script>
+ 
+    $(document).ready(function () {
+        // Bind keydown event on all relevant inputs
+        $('#product_id, #qty, #price').on('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();  
+                $('#addProduct').click(); 
+            }
+        });
+    });
+</script>
 @endsection

@@ -280,7 +280,7 @@ class Reports extends Controller
     FROM adv_order_mst a
     JOIN adv_order_det b ON a.id = b.mst_id
     JOIN customers c ON a.outlet_id = c.id
-    WHERE a.customer_type = 'customer'
+    WHERE a.customer_type = 'customer' and  a.status = 'dispatch'
       AND a.order_date BETWEEN ? AND ?
     GROUP BY a.order_date, a.id, c.name
 

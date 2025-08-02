@@ -112,7 +112,7 @@
 
             var stock = $(this).find(":selected").data("stock");
             $("#stock").val(stock)
-            if (parseInt(stock) <= 0) {
+            if (parseInt(stock) < 0) {
                 toastr.error("This product current stock is zero");
                 $("#product_id").val("");
                 return;
@@ -130,7 +130,7 @@
             var product_id = parseInt($("#product_id").val())
             var product_name = $("#product_id").find(":selected").text()
             var qty = parseFloat($("#qty").val())
-            var stock = parseInt($("#product_id").find(":selected").data("stock"))
+            var stock = parseFloat($("#product_id").find(":selected").data("stock"))
 
 
             if (!product_id || isNaN(product_id)) {
@@ -222,6 +222,16 @@
 
             // 4. Submit form manually
             this.submit();
+        });
+        $(document).ready(function() {
+    
+ 
+            $('#product_id, #qty').on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    $('#addProduct').click();
+                }
+            });
         });
     </script>
 @endsection

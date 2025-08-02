@@ -145,6 +145,33 @@
     </div>
 
 
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit_product_id">
+                    <div class="mb-3">
+                        <label for="edit_qty" class="form-label">Quantity</label>
+                        <input type="number" min="1" class="form-control" id="edit_qty">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_price" class="form-label">Price</label>
+                        <input type="number" step="0.01" class="form-control" id="edit_price">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="updateProduct" class="btn btn-primary">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         $(document).ready(function() {
 
@@ -329,6 +356,9 @@
                         
                           
                             <td> 
+                                  <button type="button" class="btn btn-primary edit btn-sm" data-id="${product_id}" data-price="${price}" data-qty="${qty}">
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </button>
                                 <button type="button"  class="btn btn-danger remove btn-sm"  data-id="${product_id}">
                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                 </button>
@@ -344,6 +374,7 @@
                 gst,
                 gst_type
             });
+            console.log(product_list);
             $("#qty").val("")
             $("#price").val("")
             $("#product_id").val(null).trigger("change");
@@ -377,6 +408,79 @@
                 $("#productList").val("");
                 $("#po_id").val("")
             }
+        });
+
+
+        $(document).on("click", ".edit", function() {
+            const id = $(this).data("id");
+            const price = $(this).data("price");
+            const qty = $(this).data("qty");
+
+            currentEditId = id;
+            $("#edit_product_id").val(id);
+            $("#edit_qty").val(qty);
+            $("#edit_price").val(price);
+
+            $('#editProductModal').modal('show');
+        });
+
+
+             $("#updateProduct").on("click", function() {
+                const id = parseInt($("#edit_product_id").val());
+                const newQty = parseFloat($("#edit_qty").val());
+                const newPrice = parseFloat($("#edit_price").val());
+
+                if (!newQty || newQty <= 0 || !newPrice || newPrice <= 0) {
+                    toastr.error("Enter valid quantity and price");
+                    return;
+                }
+
+                // Update the row
+                let row = $(`.product${id}`);
+                const product_name = row.find("td").eq(1).text();
+        
+                // const total = (newPrice * newQty) + ((newPrice * newQty * parseFloat(gst)) / 100);
+
+                row.html(`
+                    <td>${row.index() + 1}</td>
+                    <td>${product_name}</td>
+                    <td>${newQty}</td>
+                    <td>${newPrice}</td>
+               
+        
+                    <td>
+                        <button type="button" class="btn btn-primary edit btn-sm" data-id="${id}" data-price="${newPrice}" data-qty="${newQty}">
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger remove btn-sm" data-id="${id}">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                `);
+
+                // Update in the array
+                product_list = product_list.map(item => {
+                    if (item.product_id === id) {
+                        return {
+                            ...item,
+                            qty: newQty,
+                            price: newPrice
+                        };
+                    }
+                    return item;
+                });
+
+           console.log(product_list);
+                $('#editProductModal').modal('hide');
+            });
+        $(document).ready(function() {
+            // Bind keydown event on all relevant inputs
+            $('#product_id, #qty, #price').on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    $('#addProduct').click();
+                }
+            });
         });
     </script>
 @endsection
