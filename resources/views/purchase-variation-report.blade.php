@@ -25,16 +25,18 @@
 
             </div>
             <div class="">
-
+                <button id="exportToExcel" data-name="purchase variation report"
+                    class="btn btn-success float-end   mx-2">Export
+                    to Excel</button>
                 <button type="button" onclick="printcontent()" class="btn btn-primary"><i class="fa fa-print"
                         aria-hidden="true"></i> Print</button>
             </div>
         </div>
-        <div class="card-body"  id="PrintOrder">
+        <div class="card-body" id="PrintOrder">
             <div class="page-title">
                 <h4>Purchase Variation</h4>
             </div>
-            <table class="table dataTable">
+            <table class="table dataTable" id="exportTable">
                 <thead>
                     <tr>
                         <th>S.No</th>

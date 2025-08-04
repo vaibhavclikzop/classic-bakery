@@ -25,6 +25,9 @@
 
             </div>
             <div>
+                 <button id="exportToExcel" data-name="purchase Register report"
+                    class="btn btn-success float-end   mx-2">Export
+                    to Excel</button>
 
                 <button type="button" onclick="printcontent()" class="btn btn-primary"><i class="fa fa-print"
                     aria-hidden="true"></i> Print</button>
@@ -34,7 +37,7 @@
             <div class="page-title">
                 <h4>Purchase Register</h4>
             </div>
-            <table class="table">
+            <table class="table" id="exportTable">
                 <thead>
                     <tr>
                         <th>S.No</th>

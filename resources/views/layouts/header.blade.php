@@ -37,7 +37,7 @@
 
      <script src="https://code.jquery.com/jquery-2.2.4.min.js"
          integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-         <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
  </head>
 
@@ -422,7 +422,7 @@
                                                  class="{{ Request::is('create-recipe') ? 'active' : '' }}">Create
                                                  Recipe</a>
                                          </li>
-                                           <li><a href="/recipe-list"
+                                         <li><a href="/recipe-list"
                                                  class="{{ Request::is('recipe-list') ? 'active' : '' }}">
                                                  Recipe List</a>
                                          </li>
@@ -440,7 +440,7 @@
                                      class="submenu {{ in_array(Request::path(), $purchaseRawRoutes) ? 'submenu-open' : '' }}">
                                      <a href="javascript:void(0);"
                                          class="{{ in_array(Request::path(), $purchaseRawRoutes) ? 'subdrop active' : '' }}">
-                                         <i data-feather="shopping-cart"></i><span>Purchase Raw Material</span><span
+                                         <i data-feather="shopping-cart"></i><span>Purchase Management</span><span
                                              class="menu-arrow"></span>
                                      </a>
                                      <ul
@@ -466,7 +466,7 @@
                                      </ul>
                                  </li>
 
-                                 <li
+                                 {{-- <li
                                      class="submenu {{ in_array(Request::path(), $purchaseFinishRoutes) ? 'submenu-open' : '' }}">
                                      <a href="javascript:void(0);"
                                          class="{{ in_array(Request::path(), $purchaseFinishRoutes) ? 'subdrop active' : '' }}">
@@ -494,7 +494,7 @@
                                                  class="{{ Request::is('purchase-order-finish-goods/complete') ? 'active' : '' }}">Full
                                                  Approved</a></li>
                                      </ul>
-                                 </li>
+                                 </li> --}}
 
                                  <li class="{{ Request::is('inward-report') ? 'active' : '' }}">
                                      <a href="/inward-report">
@@ -502,13 +502,13 @@
                                              Challans</span>
                                      </a>
                                  </li>
-
+                                 {{-- 
                                  <li class="{{ Request::is('inward-challan-finish-goods') ? 'active' : '' }}">
                                      <a href="/inward-challan-finish-goods">
                                          <i class="fa fa-download" aria-hidden="true"></i> &nbsp; &nbsp; <span>Inward
                                              Challans FG</span>
                                      </a>
-                                 </li>
+                                 </li> --}}
 
                                  <li class="{{ Request::is('purchase-return') ? 'active' : '' }}">
                                      <a href="/purchase-return">

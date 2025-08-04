@@ -124,7 +124,7 @@
                             <th>Cess </th>
                             <th>{{ $total_cess }}</th>
                         </tr>
-                          <tr>
+                        <tr>
                             <th colspan="5">
 
                             </th>
@@ -136,7 +136,8 @@
 
                             </th>
                             <th>Grand Total</th>
-                            <th>{{formatQtyPrice( $total_gst + $sub_total + $total_cess +$stock_inward_mst->delivery_charges)}}</th>
+                            <th>{{ formatQtyPrice($total_gst + $sub_total + $total_cess + $stock_inward_mst->delivery_charges) }}
+                            </th>
                         </tr>
 
                     </tfoot>

@@ -90,7 +90,9 @@
                             @endphp
                             <tr>
                                 <td>{{ $sno++ }}</td>
-                                <td>{{ $item->sub_category }}</td>
+                                <td>
+                                    {{ $item->type }} <br>
+                                    {{ $item->sub_category }}</td>
                                 <td>{{ $item->product_name }}</td>
                                 <td>{{ formatQtyPrice($item->qty) }}</td>
                                 <td>{{ formatQtyPrice($item->price) }}</td>

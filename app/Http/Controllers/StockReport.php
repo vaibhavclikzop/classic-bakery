@@ -85,14 +85,14 @@ class StockReport extends Controller
             ->join("po_mst as c", "a.po_id", "c.id")
 
             ->join("users as e", "a.user_id", "e.id");
-            if ($fromDt) {
-                $filter->whereDate("a.received_material_date",">=",$fromDt);
-            }
+        if ($fromDt) {
+            $filter->whereDate("a.received_material_date", ">=", $fromDt);
+        }
 
-              if ($toDt) {
-                $filter->whereDate("a.received_material_date","<=",$toDt);
-            }
-            $stock_inward_mst=$filter->orderBy("a.id","desc")->get();
+        if ($toDt) {
+            $filter->whereDate("a.received_material_date", "<=", $toDt);
+        }
+        $stock_inward_mst = $filter->orderBy("a.id", "desc")->get();
         return view("inward-report", compact("stock_inward_mst"));
     }
 
@@ -112,9 +112,26 @@ class StockReport extends Controller
         $stock_inward_det = DB::table("stock_inward_det as a")
             ->select("a.*", "b.name as product_name", "b.article_no")
             ->join("products as b", "a.product_id", "b.id")
-
+            ->where("a.type", "raw material")
             ->where("a.mst_id", $id)
             ->get();
+
+
+
+
+
+        $RM = DB::table("stock_inward_det as a")
+            ->selectRaw("a.*, b.name COLLATE utf8mb4_unicode_ci  as product_name, b.article_no, b.id as product_id")
+            ->join("products as b", "a.product_id", "b.id")
+            ->where("a.type", "raw material")
+            ->where("a.mst_id", $id);
+
+        $FG = DB::table("stock_inward_det as a")
+            ->selectRaw("a.*, b.name COLLATE utf8mb4_unicode_ci as product_name, b.article_no, b.id as product_id")
+            ->join("finish_products_mst as b", "a.product_id", "b.id")
+            ->where("a.type", "finished product")
+            ->where("a.mst_id", $id);
+        $stock_inward_det = $RM->union($FG)->get();
 
 
 

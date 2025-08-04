@@ -56,13 +56,23 @@
                         <table class="table">
                             <thead>
                                 <tr>
+
+                                    <th>
+                                        <label for="">Type</label> <br>
+                                        <select name="type" id="type" class="form-control">
+                                            <option value="">Select Type</option>
+                                            <option value="raw material">Raw Material</option>
+                                            <option value="finished product">Finish Product</option>
+                                        </select>
+                                    </th>
+
                                     <th colspan="4">
                                         <label for="">Products</label> <br>
                                         <select name="product_id" id="product_id" class="form-control">
                                             <option value="">Select Product</option>
                                         </select>
                                     </th>
-                                    <th>
+                                    <th colspan="2">
                                         <label for="">Qty</label>
                                         <input type="number" name="qty" id="qty" min="1" value="1"
                                             class="form-control" placeholder="Enter Qty">
@@ -81,6 +91,7 @@
                                 </tr>
                                 <tr>
                                     <th>S.No</th>
+                                    <th>Type</th>
                                     <th>Product Name</th>
                                     <th>Qty</th>
                                     <th>Price</th>
@@ -96,7 +107,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="6">Total </th>
+                                    <th colspan="7">Total </th>
                                     <th id="subtotal"></th>
                                     <th></th>
                                 </tr>
@@ -158,9 +169,20 @@
                 product_list = [];
                 $("#prodList").html("")
                 $("#product_id").html("")
+                $("#type").val("")
+            })
 
+            $("#type").on("change", function() {
+
+                var vendor_id = $("#vendor_id").val();
+                var type = $(this).val();
                 var city = $(this).find(":selected").data("city")
                 var company_city = "{{ $setting->city }}";
+
+                if (vendor_id == false) {
+                    toastr.error("Please select vendor");
+                    return;
+                }
 
                 if (city == false) {
 
@@ -182,7 +204,8 @@
                     url: "/GetVendorProducts",
                     type: "POST",
                     data: {
-                        id: $(this).val(),
+                        id: vendor_id,
+                        type: type,
                     },
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -252,10 +275,16 @@
                 var price = parseFloat($("#price").val())
                 var gst = $("#product_id").find(":selected").data("gst")
                 var cess = $("#product_id").find(":selected").data("cess")
+                var type = $("#type").val();
 
 
                 if (!product_id || isNaN(product_id)) {
                     toastr.error("Select a valid Product");
+                    return;
+                }
+
+                if (!type) {
+                    toastr.error("Select type");
                     return;
                 }
 
@@ -277,12 +306,13 @@
 
                 var html = `<tr class="product${product_id}">
                             <td>${sno++}</td>    
+                            <td>${type}</td>    
                             <td>${product_name}</td>    
                             <td>${qty}</td>    
                             <td>${price}</td>    
                             <td>${cess}</td>   
                             <td>${gst}</td>    
-                            <td>${ parseFloat( (price*qty)+price*qty/100*gst+(price*qty/100*cess)).toFixed(5)}</td>   
+                            <td>${ formatQtyPrice((price*qty)+price*qty/100*gst+(price*qty/100*cess))}</td>   
                             <td> 
 
                                 <button type="button"  class="btn btn-primary edit btn-sm"  data-id="${product_id}" data-price="${price}" data-qty="${qty}">
@@ -302,8 +332,10 @@
                     qty,
                     price,
                     gst,
-                    cess
+                    cess,
+                    type
                 });
+                console.log(product_list);
                 calculate_total(product_list);
                 $("#qty").val("")
                 $("#price").val("")
@@ -357,7 +389,7 @@
                     total += base_total + gst_amount + cess_amount;
                 });
 
-                $("#subtotal").text(parseFloat(total).toFixed(5));
+                $("#subtotal").text(formatQtyPrice(total));
 
 
             }
@@ -440,15 +472,15 @@
                 }
             });
         });
- 
-    $(document).ready(function () {
-        // Bind keydown event on all relevant inputs
-        $('#product_id, #qty, #price').on('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();  
-                $('#addProduct').click(); 
-            }
+
+        $(document).ready(function() {
+            // Bind keydown event on all relevant inputs
+            $('#product_id, #qty, #price').on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    $('#addProduct').click();
+                }
+            });
         });
-    });
-</script>
+    </script>
 @endsection

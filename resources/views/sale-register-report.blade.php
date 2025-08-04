@@ -106,6 +106,8 @@
                             sgst = 0,
                             igst = 0,
                             dc_total = 0;
+                        var total = 0;
+                        var grand_total = 0;
                         let sno = 1;
                         // Shop Header Row
                         html +=
@@ -125,23 +127,27 @@
                         <th style="border: solid 1px; padding:5px">CGST</th>
                         <th style="border: solid 1px; padding:5px">SGST</th>
                         <th style="border: solid 1px; padding:5px">IGST</th>
+                        <th style="border: solid 1px; padding:5px">Total</th>
                     
                     </tr>
                             `;
 
                         items.forEach((item, index) => {
+
                             const itemTax = parseFloat(item.igst) + parseFloat(item.cgst) +
                                 parseFloat(item.sgst) + parseFloat(item.cess_amt);
                             const dc = parseFloat(item.total_mrp);
 
                             subtotal += parseFloat(item.sub_total);
-                            tax += itemTax;
+                            tax += parseFloat(itemTax);
                             cess += parseFloat(item.cess_amt);
                             cgst += parseFloat(item.cgst);
                             sgst += parseFloat(item.sgst);
                             igst += parseFloat(item.igst);
                             dc_total += dc;
+                            total = parseFloat(item.sub_total) + parseFloat(itemTax);
 
+                            grand_total += total;
 
                             html += `<tr style="border: solid 1px; padding:5px">
                 <td style="border: solid 1px; padding:5px">${sno++}</td>
@@ -155,6 +161,7 @@
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.cgst)}</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.sgst)}</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.igst)}</td>
+                <td style="border: solid 1px; padding:5px">${parseFloat(total).toFixed(2)}</td>
              
             </tr>`;
                         });
@@ -169,6 +176,7 @@
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(cgst).toFixed(2))}</td>
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(sgst).toFixed(2))}</td>
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(igst).toFixed(2))}</td>
+            <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(grand_total).toFixed(2))}</td>
   
         </tr>`;
                     });

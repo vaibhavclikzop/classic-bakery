@@ -16,14 +16,27 @@ class InwardStock extends Controller
 
     public function GetVendorProducts(Request $request)
     {
-        $products = DB::table("products as a")
-            ->select("a.*")
-            ->join("vendor_product as b", "a.id", "b.product_id")
-            ->where("b.vendor_id", $request->id)
-            ->where("b.active", 1)
-            ->where("a.active", 1)
-            ->orderBy("a.name", "asc")
-            ->get();
+        $type = $request->type;
+        if ($type == "raw material") {
+            $products = DB::table("products as a")
+                ->select("a.*")
+                ->join("vendor_product as b", "a.id", "b.product_id")
+                ->where("b.vendor_id", $request->id)
+                ->where("b.active", 1)
+                ->where("a.active", 1)
+                ->orderBy("a.name", "asc")
+                ->get();
+        } else {
+            $products = DB::table("finish_products_mst as a")
+                ->select("a.*")
+                ->join("vendor_product_finish_goods as b", "a.id", "b.product_id")
+                ->where("b.vendor_id", $request->id)
+                ->where("a.active", 1)
+                ->orderBy("a.name", "asc")
+                ->get();
+        }
+
+
         return $products;
     }
 
@@ -92,7 +105,13 @@ class InwardStock extends Controller
 
 
             foreach ($prod_list as $key => $value) {
-                $products =   DB::table("products")->where("id", $value->product_id)->first();
+                if ($value->type == "raw material") {
+                    $products =   DB::table("products")->where("id", $value->product_id)->first();
+                } else {
+                    $products =   DB::table("finish_products_mst")->where("id", $value->product_id)->first();
+                }
+
+
                 DB::table('po_det')->insertGetId(array(
                     "mst_id" => $mst_id,
                     "product_id" => $value->product_id,
@@ -100,7 +119,8 @@ class InwardStock extends Controller
                     "price" => $value->price,
                     "gst" => $value->gst,
                     "gst_type" => $gst_type,
-                    "cess_tax" => $products->cess_tax
+                    "cess_tax" => $products->cess_tax,
+                    "type" => $value->type
 
                 ));
             }
@@ -156,19 +176,32 @@ class InwardStock extends Controller
             ->join("vendor as b", "a.vendor_id", "b.id")
 
             ->where("a.id", $id)->first();
-        $po_det = DB::table("po_det as a")
-            ->select("a.*", "b.name as product_name", "c.name as sub_category")
+
+
+
+
+        $poRM = DB::table("po_det as a")
+            ->selectRaw("a.*, b.name COLLATE utf8mb4_unicode_ci as product_name, c.name COLLATE utf8mb4_unicode_ci as sub_category")
             ->join("products as b", "a.product_id", "b.id")
             ->join("sub_category as c", "b.sub_category_id", "c.id")
-            ->where("mst_id", $po_mst->id)
-            ->get();
+            ->where("a.mst_id", $po_mst->id)
+            ->where("a.type", "raw material");
 
+        $poFG = DB::table("po_det as a")
+            ->selectRaw("a.*, b.name COLLATE utf8mb4_unicode_ci as product_name, c.name COLLATE utf8mb4_unicode_ci as sub_category")
+            ->join("finish_products_mst as b", "a.product_id", "b.id")
+            ->join("f_product_sub_category as c", "b.f_sub_category_id", "c.id")
+            ->where("a.mst_id", $po_mst->id)
+            ->where("a.type", "finished product");
+
+        $po_det = $poRM->union($poFG)->get();
 
         $products = DB::table("products as a")
             ->select("a.*")
             ->join("vendor_product as b", "a.id", "b.product_id")
             ->where("b.vendor_id", $po_mst->vendor_id)
             ->where("a.active", 1)->get();
+
 
         return view("purchase-order-view", compact("po_mst", "po_det", "products"));
     }
@@ -201,10 +234,18 @@ class InwardStock extends Controller
     public function GetPODet(Request $request)
     {
 
-        $po_det = DB::table("po_det as a")
-            ->select("a.*", "b.name as product_name", "b.article_no", "b.id as product_id")
+        $poRM = DB::table("po_det as a")
+            ->selectRaw("a.*, b.name COLLATE utf8mb4_unicode_ci  as product_name, b.article_no, b.id as product_id")
             ->join("products as b", "a.product_id", "b.id")
-            ->whereIn("mst_id", $request->id)->get();
+            ->where("a.type", "raw material")
+            ->whereIn("mst_id", $request->id);
+
+        $poFG = DB::table("po_det as a")
+            ->selectRaw("a.*, b.name COLLATE utf8mb4_unicode_ci as product_name, b.article_no, b.id as product_id")
+            ->join("finish_products_mst as b", "a.product_id", "b.id")
+            ->where("a.type", "finished product")
+            ->whereIn("mst_id", $request->id);
+        $po_det = $poRM->union($poFG)->get();
         return $po_det;
     }
 
@@ -277,26 +318,44 @@ class InwardStock extends Controller
                             "gst" => $value->gst,
                             "cess_tax" => $check_po_det->cess_tax,
                             "sno" => 0,
+                            "type" => $check_po_det->type,
                         ));
 
 
                         DB::table('po_det')->where("mst_id", $value->po_id)->where("product_id", $value->product_id)->increment("received_qty", $value->qty);
 
 
+                        if ($check_po_det->type == "raw material") {
+                            $current_stock = DB::table("current_stock")->where("product_id", $value->product_id)->first();
 
-                        $current_stock = DB::table("current_stock")->where("product_id", $value->product_id)->first();
+                            if ($current_stock) {
+                                DB::table('current_stock')->where("id", $current_stock->id)->update([
+                                    'stock' => DB::raw('stock + ' . $value->qty)
+                                ]);
+                            } else {
+                                DB::table('current_stock')->insertGetId(array(
 
-                        if ($current_stock) {
-                            DB::table('current_stock')->where("id", $current_stock->id)->update([
-                                'stock' => DB::raw('stock + ' . $value->qty)
-                            ]);
+                                    "product_id" => $value->product_id,
+                                    "stock" => $value->qty,
+                                ));
+                            }
                         } else {
-                            DB::table('current_stock')->insertGetId(array(
+                            $current_stock = DB::table("finish_product_stock")->where("product_id", $value->product_id)->first();
 
-                                "product_id" => $value->product_id,
-                                "stock" => $value->qty,
-                            ));
+                            if ($current_stock) {
+                                DB::table('finish_product_stock')->where("id", $current_stock->id)->update([
+                                    'stock' => DB::raw('stock + ' . $value->qty)
+                                ]);
+                            } else {
+                                DB::table('finish_product_stock')->insertGetId(array(
+
+                                    "product_id" => $value->product_id,
+                                    "stock" => $value->qty,
+                                ));
+                            }
                         }
+
+
 
                         $po_det = DB::table('po_det')->where("mst_id", $value->po_id)->where("product_id", $value->product_id)->first();
 

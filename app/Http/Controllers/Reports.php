@@ -215,7 +215,7 @@ class Reports extends Controller
         $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
         $toDt = $request->input("toDt") ?: Carbon::now()->toDateString();
         $page = $request->input("page", 1);
-        $limit = 100;
+        $limit = 1000;
         $offset = ($page - 1) * $limit;
 
         $sql = "
