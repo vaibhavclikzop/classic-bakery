@@ -286,7 +286,8 @@
                 const total = product_list.reduce((acc, item) => {
                     const base = item.qty * item.price;
                     const gstAmt = item.gst ? (base * item.gst / 100) : 0;
-                    return acc + base + gstAmt;
+                    const cessAmt = item.cess_tax ? (base * item.cess_tax / 100) : 0;
+                    return acc + base + gstAmt+cessAmt;
                 }, 0);
                 $("#subtotal").text(total.toFixed(2));
             }

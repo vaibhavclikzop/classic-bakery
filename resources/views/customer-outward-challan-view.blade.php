@@ -106,7 +106,8 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="6">Total</th>
+                            <th colspan="5"></th>
+                            <th >Total</th>
                             <th>{{$total}}</th>
                         </tr>
                     </tfoot>

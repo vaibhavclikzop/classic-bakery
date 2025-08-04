@@ -90,7 +90,7 @@
                     </div>
                     <div class="col-md-2 mt-3">
                         <label for="">Price</label>
-                        <input type="number" step="0.01" class="form-control" id="price" name="price">
+                        <input type="number" step="0.01" class="form-control" id="price" name="price" disabled>
 
                     </div>
                     <div class="col-md-2 mt-3">
@@ -158,7 +158,7 @@
                         <label for="edit_qty" class="form-label">Quantity</label>
                         <input type="number" min="1" class="form-control" id="edit_qty">
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 d-none">
                         <label for="edit_price" class="form-label">Price</label>
                         <input type="number" step="0.01" class="form-control" id="edit_price">
                     </div>
@@ -425,23 +425,23 @@
         });
 
 
-             $("#updateProduct").on("click", function() {
-                const id = parseInt($("#edit_product_id").val());
-                const newQty = parseFloat($("#edit_qty").val());
-                const newPrice = parseFloat($("#edit_price").val());
+        $("#updateProduct").on("click", function() {
+            const id = parseInt($("#edit_product_id").val());
+            const newQty = parseFloat($("#edit_qty").val());
+            const newPrice = parseFloat($("#edit_price").val());
 
-                if (!newQty || newQty <= 0 || !newPrice || newPrice <= 0) {
-                    toastr.error("Enter valid quantity and price");
-                    return;
-                }
+            if (!newQty || newQty <= 0 || !newPrice || newPrice <= 0) {
+                toastr.error("Enter valid quantity and price");
+                return;
+            }
 
-                // Update the row
-                let row = $(`.product${id}`);
-                const product_name = row.find("td").eq(1).text();
-        
-                // const total = (newPrice * newQty) + ((newPrice * newQty * parseFloat(gst)) / 100);
+            // Update the row
+            let row = $(`.product${id}`);
+            const product_name = row.find("td").eq(1).text();
 
-                row.html(`
+            // const total = (newPrice * newQty) + ((newPrice * newQty * parseFloat(gst)) / 100);
+
+            row.html(`
                     <td>${row.index() + 1}</td>
                     <td>${product_name}</td>
                     <td>${newQty}</td>
@@ -458,21 +458,21 @@
                     </td>
                 `);
 
-                // Update in the array
-                product_list = product_list.map(item => {
-                    if (item.product_id === id) {
-                        return {
-                            ...item,
-                            qty: newQty,
-                            price: newPrice
-                        };
-                    }
-                    return item;
-                });
-
-           console.log(product_list);
-                $('#editProductModal').modal('hide');
+            // Update in the array
+            product_list = product_list.map(item => {
+                if (item.product_id === id) {
+                    return {
+                        ...item,
+                        qty: newQty,
+                        price: newPrice
+                    };
+                }
+                return item;
             });
+
+            console.log(product_list);
+            $('#editProductModal').modal('hide');
+        });
         $(document).ready(function() {
             // Bind keydown event on all relevant inputs
             $('#product_id, #qty, #price').on('keydown', function(e) {

@@ -1280,6 +1280,7 @@ class Masters extends Controller
             'id' => 'required',
             'name' => 'required',
             'price' => 'required',
+            'hsn_code' => 'required|digits:4',
 
         ]);
 
@@ -1786,6 +1787,7 @@ class Masters extends Controller
 
             'name' => 'required',
             'category_id' => 'required',
+            'hsn_code' => 'required|digits:4',
 
         ]);
 
@@ -1836,6 +1838,7 @@ class Masters extends Controller
                     "price" => $request->price,
                     "min_stock" => $request->minimum_stock,
                     "uom" => $request->uom,
+                    "gst" => $request->gst,
 
 
                     "active" => $request->active,

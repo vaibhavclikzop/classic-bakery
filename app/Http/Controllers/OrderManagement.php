@@ -811,7 +811,7 @@ class OrderManagement extends Controller
             $order_det =  DB::table("order_det as a")
                 ->select("a.*", "b.department_id")
                 ->join("finish_products_mst as b", "a.product_id", "b.id")
-                ->where("b.f_category_id",1)
+                ->where("b.f_category_id", 1)
                 ->where("a.mst_id", $value)->get();
             foreach ($order_det as $k => $v) {
                 if ($v->qty - $v->booked_qty > 0) {
@@ -1300,26 +1300,29 @@ class OrderManagement extends Controller
             return redirect()->back()->with('error', $validator->errors()->first());
         }
 
-      
-        $company_settings =   DB::table("company_settings")->where("id", 1)->first();
-        $invoice = $company_settings->invoice_prefix . $company_settings->invoice_no;
+
+ 
         try {
 
             foreach ($request->outward_ids as $key => $value) {
 
- 
+
                 if ($request->updateType == "delivered") {
 
                     DB::table("outward_customer_order_mst")->where("id", $value)->update(array(
                         "status" => "delivered"
                     ));
                 } else if ($request->updateType == "invoice") {
+                    $company_settings =   DB::table("company_settings")->where("id", 1)->first();
+                    $invoice = $company_settings->invoice_prefix . $company_settings->invoice_no;
                     DB::table('outward_customer_order_mst')->where("id", $value)->update(array(
                         "invoice_no" => $invoice,
                         "is_invoice" => 1,
                     ));
                     DB::table("company_settings")->where("id", 1)->increment("invoice_no", 1);
                 } else {
+                    $company_settings =   DB::table("company_settings")->where("id", 1)->first();
+                    $invoice = $company_settings->invoice_prefix . $company_settings->invoice_no;
                     DB::table('outward_customer_order_mst')->where("id", $value)->update(array(
                         "invoice_no" => $invoice,
                         "is_invoice" => 1,

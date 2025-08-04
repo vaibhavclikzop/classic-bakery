@@ -37,6 +37,8 @@
 
      <script src="https://code.jquery.com/jquery-2.2.4.min.js"
          integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
  </head>
 
  <body>
@@ -550,7 +552,7 @@
                                          <li><a href="/create-order"
                                                  class="{{ Request::is('create-order') ? 'active' : '' }}">Create
                                                  Order</a></li>
-                                         <li><a href="/orders/pending"
+                                         <li><a href="/orders/pending?date={{ date('Y-m-d', strtotime('+1 day')) }}"
                                                  class="{{ Request::is('orders/pending') ? 'active' : '' }}">Created
                                                  Order</a></li>
                                          <li><a href="/orders/processing"

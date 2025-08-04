@@ -8,9 +8,10 @@
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
                 <h4>Order Summary </h4>
+
             </div>
             <div class="d-flex">
-
+                <button id="exportToExcel" data-name="order summary" class="btn btn-success float-end btn-sm">Export to Excel</button>
 
 
                 <form method="get" class="mx-4 d-flex">
@@ -82,7 +83,7 @@
                     @php
                         $sno = 1;
                     @endphp
-                    <table style="width: 100%">
+                    <table style="width: 100%" id="exportTable">
                         <thead>
                             <tr style="border: solid 1px; padding: 5px">
                                 <th style="border: solid 1px; padding: 5px">S.No</th>

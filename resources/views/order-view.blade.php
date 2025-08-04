@@ -46,9 +46,9 @@
                         <p>
                             {{ $order_mst->address }}<br>
                             @if ($order_mst && isset($order_mst->city))
-                            {{ $order_mst->city }}, {{ $order_mst->state }}, {{ $order_mst->pincode }}<br>
+                                {{ $order_mst->city }}, {{ $order_mst->state }}, {{ $order_mst->pincode }}<br>
                             @endif
-                         
+
                             {{ $order_mst->email }}<br>
                             {{ $order_mst->number }}<br>
                             {{ $order_mst->gst }}<br>
@@ -78,7 +78,13 @@
                         <th>Total</th>
                     </thead>
                     <tbody>
+                        @php
+                            $sub_total=0;
+                        @endphp
                         @foreach ($order_det as $item)
+                        @php
+                            $sub_total += $item->price * $item->qty;
+                        @endphp
                             <tr>
                                 <td>{{ $sno++ }}</td>
                                 <td>{{ $item->sub_category }}</td>
@@ -86,13 +92,20 @@
                                 <td>{{ formatQtyPrice($item->qty) }}</td>
                                 <td>{{ formatQtyPrice($item->booked_qty) }}</td>
                                 <td>{{ $item->qty - $item->booked_qty }}</td>
-                                <td>{{ formatQtyPrice($item->price )}}</td>
-                                         <td>{{ formatQtyPrice($item->price *$item->qty)}}</td>
+                                <td>{{ formatQtyPrice($item->price) }}</td>
+                                <td>{{ formatQtyPrice($item->price * $item->qty) }}</td>
                             </tr>
                         @endforeach
 
 
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="6"></th>
+                            <th >Sub Total</th>
+                            <th>{{$sub_total}}</th>
+                        </tr>
+                    </tfoot>
 
                 </table>
             </div>

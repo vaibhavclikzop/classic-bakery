@@ -73,7 +73,7 @@
                         @php
                             $total_gst = 0;
                             $sub_total = 0;
-                            $total_cess=0;
+                            $total_cess = 0;
                         @endphp
                         @foreach ($stock_inward_det as $item)
                             @php
@@ -85,7 +85,7 @@
                                 <td>{{ $sno++ }}</td>
 
                                 <td>{{ $item->product_name }}</td>
-                                <td>{{formatQtyPrice( $item->qty )}}</td>
+                                <td>{{ formatQtyPrice($item->qty) }}</td>
                                 <td>{{ formatQtyPrice($item->price) }}</td>
 
                                 <td>{{ formatQtyPrice($item->gst) }}</td>
@@ -93,7 +93,8 @@
 
 
 
-                                <td>{{ $item->price * $item->qty + (($item->price * $item->qty) / 100) * $item->gst +( (($item->price * $item->qty) / 100) * $item->cess_tax)}}</td>
+                                <td>{{ $item->price * $item->qty + (($item->price * $item->qty) / 100) * $item->gst + (($item->price * $item->qty) / 100) * $item->cess_tax }}
+                                </td>
 
 
 
@@ -116,19 +117,26 @@
                             <th>GST</th>
                             <th>{{ $total_gst }}</th>
                         </tr>
-                         <tr>
+                        <tr>
                             <th colspan="5">
 
                             </th>
                             <th>Cess </th>
                             <th>{{ $total_cess }}</th>
                         </tr>
+                          <tr>
+                            <th colspan="5">
+
+                            </th>
+                            <th>Delivery Charges </th>
+                            <th>{{ formatQtyPrice($stock_inward_mst->delivery_charges) }}</th>
+                        </tr>
                         <tr>
                             <th colspan="5">
 
                             </th>
                             <th>Grand Total</th>
-                            <th>{{ $total_gst + $sub_total + $total_cess}}</th>
+                            <th>{{formatQtyPrice( $total_gst + $sub_total + $total_cess +$stock_inward_mst->delivery_charges)}}</th>
                         </tr>
 
                     </tfoot>

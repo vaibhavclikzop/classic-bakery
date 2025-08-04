@@ -12,7 +12,8 @@
 
 
 
-
+                <button id="exportToExcel" data-name="order summary shop wise" class="btn btn-success float-end btn-sm">Export
+                    to Excel</button>
                 <button type="button" onclick="printcontent()" class="btn btn-primary mx-2"><i class="fa fa-print"
                         aria-hidden="true"></i> Print</button>
 
@@ -27,8 +28,9 @@
                         <div style="width: 100%">
                             <select name="type" id="type" class="form-control" required>
 
-                                <option value="outlet" {{request("type")=="outlet" ? "selected" : ""}}>Outlet</option>
-                                <option value="customer" {{request("type")=="customer" ? "selected" : ""}}>Customer</option>
+                                <option value="outlet" {{ request('type') == 'outlet' ? 'selected' : '' }}>Outlet</option>
+                                <option value="customer" {{ request('type') == 'customer' ? 'selected' : '' }}>Customer
+                                </option>
                             </select>
                         </div>
                         <div style="width: 100%">
@@ -109,11 +111,11 @@
                 </div>
 
                 <div class="">
-                    <table class="table">
+                    <table class="table" id="exportTable">
                         <thead>
                             <tr>
                                 <th>S.No</th>
-                                <th> Category</th>
+
                                 <th>Sub Category</th>
                                 <th>Product</th>
                                 <th>Order Qty</th>
@@ -127,10 +129,10 @@
                             @foreach ($work_order_det as $item)
                                 <tr>
                                     <td>{{ $sno++ }}</td>
-                                    <td>{{ $item->category }}</td>
+
                                     <td>{{ $item->sub_category }}</td>
                                     <td>{{ $item->product }}</td>
-                                    <td>{{ $item->qty }}</td>
+                                    <td>{{ formatQtyPrice($item->qty) }}</td>
                                     <td></td>
                                 </tr>
                             @endforeach
@@ -190,7 +192,8 @@
                         html += '<option value="">----Select Order----</option>';
                         result.forEach(element => {
 
-                            html += '<option value="' + element.id + '">('+element.order_type+') ' + element
+                            html += '<option value="' + element.id + '">(' + element
+                                .order_type + ') ' + element
                                 .order_id + ' </option>';
                         });
                         $("#order_id").html(html)

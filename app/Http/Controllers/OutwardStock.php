@@ -457,7 +457,7 @@ class OutwardStock extends Controller
         if ($toDt) {
             $customer->whereDate("a.invoice_date", "<=", $toDt);
         }
-        $customers = $customer->get();
+     
 
 
         $outlet = DB::table("outward_customer_order_mst as a")
@@ -475,9 +475,10 @@ class OutwardStock extends Controller
         if ($toDt) {
             $outlet->whereDate("a.invoice_date", "<=", $toDt);
         }
-        $outlets = $outlet->get();
+     
 
-        $data = $customers->union($outlets);
+   
+        $data = $customer->union($outlet)->get();
 
         return view("invoices", compact("data"));
     }

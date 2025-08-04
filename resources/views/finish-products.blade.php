@@ -223,7 +223,7 @@
                             <div class="col-md-3 mt-4 ">
                                 <label for="">HSN Code</label>
                                 <input type="" step="0.01" id="hsn_code" name="hsn_code"
-                                    class="form-control" placeholder="Enter HSN Code" required>
+                                    class="form-control" placeholder="Enter HSN Code" onkeydown="if(this.value.length==4) return false" required>
 
                             </div>
 
@@ -428,7 +428,7 @@
                             <div class="col-md-3 mt-4 ">
                                 <label for="">HSN Code</label>
                                 <input type="" step="0.01" id="uhsn_code" name="hsn_code"
-                                    class="form-control" placeholder="Enter HSN Code" required>
+                                    class="form-control" placeholder="Enter HSN Code"    required>
                             </div>
 
                             <div class="col-md-3 mt-4 ">

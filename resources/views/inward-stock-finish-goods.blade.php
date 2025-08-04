@@ -198,15 +198,15 @@
                                         <td>${sno++}</td>    
                                         <td>${element.product_name}</td>    
                                         <td>${element.article_no}</td>    
-                                        <td>${element.qty}</td>    
-                                        <td>${element.received_qty}</td>    
+                                        <td>${formatQtyPrice(element.qty)}</td>    
+                                        <td>${ formatQtyPrice(element.received_qty)}</td>    
                                         <td>
                                             <input type="number" step="" class="form-control qty"  data-product_id="${product_id}"  value="${r_qty}" data-received_qty="${element.received_qty}" data-actual_qty="${element.qty}">
                                             </td>    
                                        
-                                        <td><input type="number" step="0.01" class="form-control price"  data-id="${product_id}"   value="${element.price}"></td>    
+                                        <td><input type="number" step="0.01" class="form-control price" style="width:150px"  data-id="${product_id}"   value="${element.price}"></td>    
                      
-                                        <td>${r_qty*element.price}</td>   
+                                        <td>${ formatQtyPrice(r_qty*element.price)}</td>   
                                         
                                         <td><button class="btn btn-sm btn-danger remove" type="button" data-id="${product_id}" ><i class="fa fa-trash" aria-hidden="true"></i></button></td>    
                                         </tr>

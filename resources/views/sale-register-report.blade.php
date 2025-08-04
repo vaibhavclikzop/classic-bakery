@@ -27,8 +27,10 @@
 
             </div>
             <div>
-
-                <button type="button" onclick="printcontent()" class="btn btn-primary"><i class="fa fa-print"
+                <button id="exportToExcel" data-name="sale register report"
+                    class="btn btn-success float-end btn-sm mx-2">Export
+                    to Excel</button>
+                <button type="button" onclick="printcontent()" class="btn btn-primary btn-sm"><i class="fa fa-print"
                         aria-hidden="true"></i> Print</button>
 
             </div>
@@ -41,7 +43,7 @@
                 <thead>
 
                 </thead>
-                <tbody id="sales-data">
+                <tbody id="exportTable">
                     <!-- JavaScript will populate rows grouped by Shop here -->
                 </tbody>
 
@@ -123,7 +125,7 @@
                         <th style="border: solid 1px; padding:5px">CGST</th>
                         <th style="border: solid 1px; padding:5px">SGST</th>
                         <th style="border: solid 1px; padding:5px">IGST</th>
-                        <th style="border: solid 1px; padding:5px">TCS Amt.</th>
+                    
                     </tr>
                             `;
 
@@ -153,7 +155,7 @@
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.cgst)}</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.sgst)}</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.igst)}</td>
-                <td style="border: solid 1px; padding:5px">0.00</td>
+             
             </tr>`;
                         });
 
@@ -167,11 +169,11 @@
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(cgst).toFixed(2))}</td>
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(sgst).toFixed(2))}</td>
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(igst).toFixed(2))}</td>
-            <td style="border: solid 1px; padding:5px;">0.00</td>
+  
         </tr>`;
                     });
 
-                    $('#sales-data').append(html);
+                    $('#exportTable').append(html);
                     page++;
                 },
                 complete: function() {

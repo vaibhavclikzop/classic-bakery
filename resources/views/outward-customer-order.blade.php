@@ -440,7 +440,12 @@
 
         $("#UploadForm").on("submit", function() {
 
-            $('#prod_list').val(JSON.stringify(product_list));
+            if ($("#mode_of_transport").val()==false) {
+                    toastr.error("Please select mode of transport");
+                    return;
+            }
+
+            $('#prod_list').val(JSON.stringify(product_list));  
             $("#btnSubmit").attr("disabled", "disabled")
 
         });

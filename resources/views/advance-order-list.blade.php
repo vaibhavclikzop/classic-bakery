@@ -39,7 +39,7 @@
                                 <th><input type="checkbox" id="all_check"></th>
                                 <th>Outlet</th>
                                 <th>Order Date</th>
-                                <th>Delivery Date</th>
+                                <th>Delivery Date Time</th>
                                 <th>Order Type</th>
                                 <th>Created at</th>
                                 <th>Action</th>
@@ -56,7 +56,8 @@
                                     </td>
                                     <td>{{ $item->name }}</td>
                                     <td>{{ $item->order_date }}</td>
-                                    <td>{{ $item->delivery_date }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($item->delivery_date . ' ' . $item->delivery_time)->format('d-m-Y g:i A') }}
+</td>
                                     <td>{{ $item->type }}</td>
                                     <td>{{ $item->created_at }}</td>
                                     <td>

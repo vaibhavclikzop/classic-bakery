@@ -62,6 +62,7 @@
 
 
 
+
 <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
@@ -328,4 +329,14 @@
 
         document.body.innerHTML = originalContents;
     }
+
+    $('#exportToExcel').click(function() {
+        var name=$(this).data("name")
+   
+        var table = document.getElementById('exportTable');
+        var workbook = XLSX.utils.table_to_book(table, {
+            sheet: "Sheet1"
+        });
+        XLSX.writeFile(workbook, ''+name+'.xlsx');
+    });
 </script>
