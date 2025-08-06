@@ -135,6 +135,16 @@
         $(document).ready(function() {
             $("#customer_id").select2();
             $("#order_id").select2();
+
+             $(window).on("pageshow", function(event) {
+                if (event.originalEvent.persisted) {
+                    // Browser back button used
+                    $("#UploadForm")[0].reset();
+                    product_list = [];
+                    $("#prodList").html("");
+                    $("#prod_list").val("");
+                }
+            });
         })
 
         var customer_id = {{ request('customer_id') }}

@@ -45,9 +45,7 @@
                         <th>PE NO.</th>
                         <th>PE Date</th>
                         <th>Invoice Amount</th>
-                        <th>Extra</th>
-                        <th>Extra</th>
-                        <th>Extra</th>
+                      
                     
                     </tr>
                 </thead>
@@ -62,9 +60,7 @@
                             <td>{{$item->invoice_id}}</td>
                             <td>{{$item->received_material_date}}</td>
                             <td>{{$item->total_amount+$item->delivery_charges}}</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                           
                         </tr>
                     @endforeach
                 </tbody>
