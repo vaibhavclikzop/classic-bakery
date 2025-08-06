@@ -22,12 +22,14 @@
      <link rel="stylesheet" href="/css/animate.css">
 
      <!-- Select2 CSS -->
-     <link rel="stylesheet" href="/css/select2.min.css">
+     
+
+     {{-- <link rel="stylesheet" href="/css/select2.min.css"> --}}
 
      <!-- Fontawesome CSS -->
      <link rel="stylesheet" href="/css/fontawesome.min.css">
      <link rel="stylesheet" href="/css/all.min.css">
-
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
      <!-- Main CSS -->
      <link rel="stylesheet" href="/css/style.css">
      <link rel="stylesheet" href="/dataTables/datatables.min.css">

@@ -51,10 +51,10 @@
 <script src="/js/sweetalerts.min.js"></script>
 
 <!-- Custom JS -->
-<script src="/js/theme-script.js"></script>
+{{-- <script src="/js/theme-script.js"></script> --}}
 <script src="/js/script.js"></script>
 <script src="/js/custom.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 
 </body>
 
@@ -63,8 +63,7 @@
 
 
 
-<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 

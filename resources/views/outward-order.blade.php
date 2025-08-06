@@ -50,7 +50,7 @@
                                 <tr>
                                     <th colspan="4">
                                         <label for="">Products</label> <br>
-                                        <select name="product_id" id="product_id" class="form-control">
+                                        <select name="product_id" id="product_id" class="form-control ">
                                             <option value="">Select Product</option>
                                             @foreach ($products as $item)
                                                 <option value="{{ $item->id }}" data-stock="{{ $item->stock }}">
