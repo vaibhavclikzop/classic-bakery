@@ -378,7 +378,6 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
 
   Route::get('outward-customer-order-list', [OutwardStock::class, 'OutwardCustomerOrderList'])->name('outward-customer-order-list');
-  Route::get('outward-customer-order-list', [OutwardStock::class, 'OutwardCustomerOrderList'])->name('outward-customer-order-list');
 
   Route::get('customer-outward-challan-view/{id}', [OutwardStock::class, 'CustomerOutwardChallanView'])->name('customer-outward-challan-view');
 

@@ -74,7 +74,7 @@
                                 <tr>
                                     <th>
                                         <label for="">Category</label> <br>
-                                        <select name="category_id" id="category_id">
+                                        <select name="category_id" id="category_id" class="form-control">
                                             <option value="">Select</option>
                                             @foreach ($f_product_category as $item)
                                                 <option value="{{ $item->id }}">{{ $item->name }}</option>

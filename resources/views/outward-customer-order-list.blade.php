@@ -76,7 +76,7 @@
                 @csrf
                 <button class="btn btn-dark btn-sm" type="button" id="bulkUpdate">Bulk Update</button>
                 <input type="hidden" id="updateType" name="updateType">
-                <table class="table dataTable">
+                <table class="table dataTable"  id="myTable">
                     <thead>
                         <tr>
                             <th>S.No</th>
@@ -252,6 +252,7 @@
                 success: function(result) {
                     var html = "";
                     html += '<option value="">----Select----</option>';
+                    html += '<option value="">All</option>';
                     result.forEach(element => {
 
                         html += '<option value="' + element.id + '">' + element.name +

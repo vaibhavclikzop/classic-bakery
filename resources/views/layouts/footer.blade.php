@@ -32,7 +32,7 @@
     <img src="loader.gif">
 </div>
 
-<script src="/dataTables/datatables.min.js"></script>
+
 <!-- Feather Icon JS -->
 <script src="/js/feather.min.js"></script>
 
@@ -41,6 +41,7 @@
 
 <!-- Bootstrap Core JS -->
 <script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/dataTables/datatables.min.js"></script>
 
 <!-- Chart JS -->
 <script src="/js/apexcharts.min.js"></script>
