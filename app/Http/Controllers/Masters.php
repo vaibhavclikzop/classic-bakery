@@ -2108,17 +2108,7 @@ class Masters extends Controller
         return  redirect()->back()->with("success", "Save Successfully");
     }
 
-
-    public function PrintBarcode(Request $request, $id)
-    {
-
-
-        $data =  DB::table("finish_products_mst")->where("id", $id)->first();
-        if (!$data->manual_barcode) {
-            return redirect()->back()->with('error', "Barcode not found, Please enter barcode");
-        }
-        return view("print-barcode", compact("data"));
-    }
+   
 
     public function GetCustomerOutlet(Request $request)
     {

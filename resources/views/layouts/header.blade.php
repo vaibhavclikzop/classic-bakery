@@ -612,6 +612,8 @@
                                  <li class="{{ Request::is('sale-return') ? 'active' : '' }}"><a
                                          href="/sale-return"><i data-feather="user-plus"></i><span>Sale
                                              Return</span></a></li>
+                                <li class="{{ Request::is('barcode') ? 'active' : '' }}"><a
+                                         href="/barcode"><i class="fa fa-barcode fs-16 me-2"></i><span> Barcode</span></a></li>
                              </ul>
                          </li>
 
@@ -675,7 +677,7 @@
                                      class="submenu {{ collect($stockAuditRoutes)->contains(fn($route) => Request::is($route)) ? 'submenu-open' : '' }}">
                                      <a href="javascript:void(0);"
                                          class="{{ collect($stockAuditRoutes)->contains(fn($route) => Request::is($route)) ? 'subdrop active' : '' }}">
-                                         <i data-feather="layers"></i><span>Stock Audit</span><span
+                                         <i data-feather="sliders"></i><span>Stock Audit</span><span
                                              class="menu-arrow"></span>
                                      </a>
                                      <ul

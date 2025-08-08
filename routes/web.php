@@ -18,6 +18,7 @@ use App\Http\Controllers\Reports;
 use App\Http\Controllers\ResetSoftware;
 use App\Http\Controllers\SaleReturn;
 use App\Http\Controllers\StockReport;
+use App\Http\Controllers\Barcode;
 use Illuminate\Database\Console\Migrations\ResetCommand;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -186,7 +187,10 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   Route::get('order-type', [Masters::class, 'OrderType'])->name('order-type');
   Route::post('SaveOrderType', [Masters::class, 'SaveOrderType'])->name('SaveOrderType');
-  Route::get('print-barcode/{id}', [Masters::class, 'PrintBarcode'])->name('print-barcode');
+
+  Route::get('barcode', [Barcode::class, 'index'])->name('barcode');
+  Route::get('print-barcode/{id}', [Barcode::class, 'PrintBarcode'])->name('print-barcode');
+  
   Route::get('order-type', [Masters::class, 'OrderType'])->name('order-type');
   Route::post('UpdateVendorPrice', [Masters::class, 'UpdateVendorPrice'])->name('UpdateVendorPrice');
   Route::post('GetCustomerOutletList', [Masters::class, 'GetCustomerOutletList'])->name('GetCustomerOutletList');
@@ -470,3 +474,4 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('customer-wise-report', [Reports::class, 'CustomerWiseReport'])->name('customer-wise-report');
   Route::get('getSaleRegisterReportData', [Reports::class, 'getSaleRegisterReportData'])->name('getSaleRegisterReportData');
 });
+ 
