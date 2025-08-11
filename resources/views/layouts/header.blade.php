@@ -590,15 +590,22 @@
                                          <li><a href="/advance-order-list/pending"
                                                  class="{{ Request::is('advance-order-list/pending') ? 'active' : '' }}">Pending
                                                  Orders</a></li>
-                                         <li><a href="/advance-order-list/processing"
+                                         {{-- <li><a href="/advance-order-list/processing"
                                                  class="{{ Request::is('advance-order-list/processing') ? 'active' : '' }}">Processing
-                                                 Orders</a></li>
+                                                 Orders</a></li> --}}
                                          <li><a href="/advance-order-list/dispatch"
                                                  class="{{ Request::is('advance-order-list/dispatch') ? 'active' : '' }}">Dispatch
                                                  Orders</a></li>
+                                         
+                                          <li><a href="/advance-order-list/complete"
+                                                 class="{{ Request::is('advance-order-list/complete') ? 'active' : '' }}">Out For Delivery
+                                                </a></li>
                                          <li><a href="/advance-order-list/delivered"
                                                  class="{{ Request::is('advance-order-list/delivered') ? 'active' : '' }}">Delivered
                                                  Orders</a></li>
+                                        <li><a href="/advance-order-list/cancel"
+                                                 class="{{ Request::is('advance-order-list/cancel') ? 'active' : '' }}">Cancel
+                                                 Order</a></li>
                                      </ul>
                                  </li>
 

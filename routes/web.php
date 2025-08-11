@@ -71,6 +71,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('GetCategory', [Masters::class, 'GetCategory'])->name('GetCategory');
   Route::post('GetSubCategory', [Masters::class, 'GetSubCategory'])->name('GetSubCategory');
   Route::post('GetFinishSubCategory', [Masters::class, 'GetFinishSubCategory'])->name('GetFinishSubCategory');
+  Route::post('GetProductFinish', [Masters::class, 'GetProductFinish'])->name('GetProductFinish');
   Route::post('GetProducts', [Masters::class, 'GetProducts'])->name('GetProducts');
   Route::post('GetVendorProducts', [InwardStock::class, 'GetVendorProducts'])->name('GetVendorProducts');
   Route::post('GetTeamMember', [Masters::class, 'GetTeamMember'])->name('GetTeamMember');
@@ -456,6 +457,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('AllocateAdvanceItem', [AdvanceOrder::class, 'AllocateAdvanceItem'])->name('AllocateAdvanceItem');
   Route::post('UpdateAdvanceItem', [AdvanceOrder::class, 'UpdateAdvanceItem'])->name('UpdateAdvanceItem');
   Route::post('GetAdvProduct', [AdvanceOrder::class, 'GetAdvProduct'])->name('GetAdvProduct');
+  Route::post('Cancel_order', [AdvanceOrder::class, 'Cancel_Order'])->name('Cancel_order');
 
 
 

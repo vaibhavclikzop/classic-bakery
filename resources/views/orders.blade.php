@@ -323,6 +323,12 @@
     </form>
 
     <script>
+        window.addEventListener("pageshow", function (event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+            });
+
         $(".dispatch_div").hide()
         $(".delivered_div").hide()
         $(document).on("click", ".btnEdit", function() {

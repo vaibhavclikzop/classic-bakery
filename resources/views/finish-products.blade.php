@@ -34,6 +34,11 @@
             visibility: visible;
             opacity: 1;
         }
+        .text-truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 
 
@@ -120,10 +125,11 @@
                             <td>{{ $item->category_name }}</td>
                             <td>{{ $item->sub_category }}</td>
                             <td>
-                                <div class="tooltip-container">
-                                    {{ Str::words($item->name, 3, '...') }}
-                                    <div class="tooltip-text">{{ $item->name }}</div>
-                                </div>
+                                 <span class="d-block text-truncate" style="max-width:150px;"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-html="true"
+                                        title="<b>{{ $item->name }}</b>">
+                                        {{ $item->name }}
                             </td>
 
                             <td>{{ $item->price }}</td>

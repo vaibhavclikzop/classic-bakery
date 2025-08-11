@@ -19,7 +19,9 @@ class Barcode extends Controller
         $productNames = array();
 
        
-        $data =  DB::table("finish_products_mst")->select('name', 'id')->get();
+        $data =  DB::table("finish_products_mst")->get();
+        $f_product_category = DB::table("f_product_category")->get();
+
         if($delivery_date){
          if($from_order=='add'){
         $mst = DB::table("order_mst as a")
@@ -50,7 +52,7 @@ class Barcode extends Controller
               $productNames= $product->get(); 
             }
         }
-        return view("barcode", compact("data", "productNames"));
+        return view("barcode", compact("data", "productNames","f_product_category"));
     }
 
     public function PrintBarcode(Request $request, $id)

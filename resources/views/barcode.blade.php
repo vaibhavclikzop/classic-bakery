@@ -18,34 +18,46 @@
                         class="form-control">
                 </div>
 
-                <div class="col-sm-3 mb-3">
-                    <label class="form-label">Product Name<span class="text-danger ms-1">*</span></label>
-                    <select class="form-control" id="product_id" name="product_id">
-                        <option value="">Select Item</option>
-                        @foreach ($data as $item)
-                            <option value="{{ $item->id }}" data-product="{{ $item->name }}">
-                                {{ $item->name }}
-                            </option>
+                <div class="col-md-3">
+                    <label for="">Category</label>
+                    <select name="category_id" id="category_id" class="form-control" required>
+                        <option value="">--Select category--</option>
+                        @foreach ($f_product_category as $item)
+                            <option value="{{ $item->id }}">{{ $item->name }}</option>
                         @endforeach
                     </select>
+
                 </div>
-                <div class="col-auto ">
+                <div class="col-md-3">
+                    <label for="">Sub Category</label>
+                    <select id="sub_category_id" name="sub_category_id" class="form-control" required>
+                        <option value="">--Select Sub Category--</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="">Product Name</label>
+                    <select id="product_id" name="product_id" class="form-control" required>
+                        <option value="">--Select Products--</option>
+                    </select>
+                </div>
+
+                <div class="col-auto mb-4 ">
                     <div class="form-check fs-15 mt-2">
-                        <input class="form-check-input" type="checkbox" id="checkItem" name="from_order" value="add"
-                            >
+                        <input class="form-check-input" type="checkbox" id="checkItem" name="from_order" value="add">
                         <label class="form-check-label" for="checkItem">Load item from order</label>
                     </div>
                 </div>
-                <div class="col-auto">
+                <div class="col-auto mb-4">
                     <button type="button" class="btn btn-submit btn-primary me-2 mt-0"
                         onclick="document.getElementById('filter-form').submit();">
                         <span><i class="fas fa-eye me-1"></i></span>Load Items
                     </button>
                 </div>
             </form>
-
+          
             <div class="col-lg-12">
-
+               
                 <div class="table-responsive rounded border">
                     <table class="table">
                         <thead>
@@ -76,7 +88,8 @@
                                                 <span class="quantity-btn"><i data-feather="minus-circle"
                                                         class="feather-search"></i></span>
                                                 <input type="text" class="quntity-input"
-                                                    value="{{ number_format(optional($item)->qty ?? 0, 2) }}" name="qty">
+                                                    value="{{ number_format(optional($item)->qty ?? 0, 2) }}"
+                                                    name="qty">
                                                 <span class="quantity-btn">+<i data-feather="plus-circle"
                                                         class="plus-circle"></i></span>
                                             </div>
@@ -111,6 +124,62 @@
     <script>
         $(document).ready(function() {
             $("#product_id").select2();
+            $("#sub_category_id").select2();
+        });
+
+         $("#category_id").on("change", function() {
+            $.ajax({
+                url: "/GetFinishSubCategory",
+                type: "POST",
+                data: {
+                    id: $(this).val(),
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(result) {
+                    var html = "";
+                    html += '<option value="">----Select Sub Category----</option>';
+                    result.forEach(element => {
+
+                        html += '<option value="' + element.id + '">' + element.name +
+                            '</option>';
+                    });
+                    $("#sub_category_id").html(html)
+                },
+                error: function(result) {
+                    console.log(result);
+                }
+            });
+
+        });
+
+         $("#sub_category_id").on("change", function() {
+            $.ajax({
+                url: "/GetProductFinish",
+                type: "POST",
+                data: {
+                    id: $(this).val(),
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(result) {
+                    console.log(result);
+                    var html = "";
+                    html += '<option value="">----Select Products----</option>';
+                    result.forEach(element => {
+
+                        html += '<option value="' + element.id + '">' + element.name +
+                            '</option>';
+                    });
+                    $("#product_id").html(html)
+                },
+                error: function(result) {
+                    console.log(result);
+                }
+            });
+
         });
     </script>
 @endsection

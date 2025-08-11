@@ -63,9 +63,17 @@
                                     <td>
                                         <a class="btn btn-sm btn-primary" href="/advance-order-view/{{ $item->id }}">
                                             <i class="fa fa-eye" aria-hidden="true"></i> </a>
-                                        @if ($item->status != 'delivered')
+                                        
+                                        @if ($item->status != 'cancel'  )
+                                        @if ($item->status != 'delivered' )
                                             <button class="btn btn-dark btn-sm change_status" value="{{ $item->id }}"
                                                 data-status="{{ $item->status }}" type="button"><i class="fa fa-pencil"
+                                                    aria-hidden="true"></i></button>
+                                        @endif
+                                        @endif
+                                         @if ($item->status == 'pending')
+                                            <button class="btn btn-danger btn-sm cancel_status" value="{{ $item->id }}"
+                                                data-status="{{ $item->status }}" type="button"><i class="fa fa-xmark"
                                                     aria-hidden="true"></i></button>
                                         @endif
 
@@ -99,9 +107,10 @@
                         <input type="hidden" name="id" id="id">
                         <select name="status" id="status" class="form-control" required>
                             <option value="">Select</option>
-                            <option value="processing">Processing</option>
                             <option value="dispatch">Dispatch</option>
+                            <option value="complete">Out for Delivery</option>
                             <option value="delivered">Delivered</option>
+                            <option value="cancel">Cancel</option>
                         </select>
                     </div>
                     <div class="modal-footer">
@@ -114,6 +123,30 @@
             </div>
         </div>
 
+    </form>
+
+      <form action="{{ route('Cancel_order') }}" method="POST" class="needs-validation" novalidate>
+        @csrf
+        <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger">
+                        <h1 class="modal-title fs-5 text-white" id="exampleModalLabel">Cancel Order</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" id="deleteId" name="id">
+                        <h5>Are you sure you want to delete this order?</h5>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </form>
 
     <script>
@@ -130,6 +163,11 @@
             $("#id").val($(this).val())
             $("#status").val($(this).data("status"))
             $("#modalId").modal("show")
+        });
+
+        $(document).on("click", ".cancel_status", function() {
+            $("#deleteId").val($(this).val())
+            $("#cancelOrderModal").modal("show")
         });
     </script>
 @endsection

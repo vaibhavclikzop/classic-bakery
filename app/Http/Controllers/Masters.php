@@ -55,6 +55,11 @@ class Masters extends Controller
         return $products;
     }
 
+     public function GetProductFinish(Request $request)
+    {
+        return DB::table("finish_products_mst")->where("f_sub_category_id", $request->id)->get();
+    }
+
 
     public function GetUserDetails(Request $request)
     {

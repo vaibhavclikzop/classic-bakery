@@ -400,7 +400,7 @@ class AdvanceOrder extends Controller
                 $uploadedFilesString = implode(", ", $uploadedFiles);
             } else {
                 $uploadedFilesString = "";
-            }
+            } 
 
 
 
@@ -714,5 +714,38 @@ class AdvanceOrder extends Controller
         return DB::table("customer_type_adv_item as a")->select("b.id", "b.name", "a.margin")
             ->join("adv_order_item_mst as b", "a.adv_item_id", "b.id")
             ->where("a.customer_type_id", $customer_type_id->customer_type_id)->get();
+    }
+
+        public function Cancel_Order(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+
+            'id' => 'required',
+
+
+        ]);
+
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $count = 0;
+            foreach ($messages->all() as $error) {
+                if ($count == 0)
+                    return redirect()->back()->with('error', $error);
+
+                $count++;
+            }
+        }
+
+
+        try {
+            DB::table('adv_order_mst')->where("id", $request->id)->update(array(
+                "status" => "cancel",
+
+            ));
+        } catch (\Throwable $th) {
+            return  redirect()->back()->with("error", $th->getMessage());
+        }
+
+        return  redirect()->back()->with("success", "Save Successfully");
     }
 }
