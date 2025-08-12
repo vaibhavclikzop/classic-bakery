@@ -588,7 +588,7 @@
                                                  class="{{ Request::is('create-advance-order') ? 'active' : '' }}">Create
                                                  Order</a></li>
                                          <li><a href="/advance-order-list/pending"
-                                                 class="{{ Request::is('advance-order-list/pending') ? 'active' : '' }}">Pending
+                                                 class="{{ Request::is('advance-order-list/pending') ? 'active' : '' }}">Created
                                                  Orders</a></li>
                                          {{-- <li><a href="/advance-order-list/processing"
                                                  class="{{ Request::is('advance-order-list/processing') ? 'active' : '' }}">Processing
