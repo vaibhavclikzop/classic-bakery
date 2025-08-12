@@ -12,14 +12,14 @@
 
         <div class="barcode-content-list">
             <form class="row gx-3 gy-2 align-items-center mt-0" method="GET" action="{{ route('barcode') }}" id="filter-form">
-                <div class="col-sm-3 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label" for="">Delivery Date<span class="text-danger ms-1">*</span></label>
                     <input type="date" id="delivery_date" name="delivery_date" value="{{ request('delivery_date') }}"
                         class="form-control">
                 </div>
 
-                <div class="col-md-3">
-                    <label for="">Category</label>
+                <div class="col-md-3 mb-3">
+                    <label for="" class="form-label">Category</label>
                     <select name="category_id" id="category_id" class="form-control" required>
                         <option value="">--Select category--</option>
                         @foreach ($f_product_category as $item)
@@ -28,15 +28,15 @@
                     </select>
 
                 </div>
-                <div class="col-md-3">
-                    <label for="">Sub Category</label>
+                <div class="col-md-3 mb-3">
+                    <label for="" class="form-label">Sub Category</label>
                     <select id="sub_category_id" name="sub_category_id" class="form-control" required>
                         <option value="">--Select Sub Category--</option>
                     </select>
                 </div>
 
-                <div class="col-md-3">
-                    <label for="">Product Name</label>
+                <div class="col-md-3 mb-3">
+                    <label for="" class="form-label">Product Name</label>
                     <select id="product_id" name="product_id" class="form-control" required>
                         <option value="">--Select Products--</option>
                     </select>
