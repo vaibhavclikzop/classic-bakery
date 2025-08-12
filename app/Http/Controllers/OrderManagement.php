@@ -813,7 +813,9 @@ class OrderManagement extends Controller
                 ->join("finish_products_mst as b", "a.product_id", "b.id")
                 ->where("b.f_category_id", 1)
                 ->where("a.mst_id", $value)->get();
+
             foreach ($order_det as $k => $v) {
+
                 if ($v->qty - $v->booked_qty > 0) {
 
 
@@ -866,6 +868,8 @@ class OrderManagement extends Controller
                 "status" => "processing",
             ));
         }
+
+
         return  redirect()->back()->with("success", "Save successfully");
     }
 
@@ -1094,11 +1098,13 @@ class OrderManagement extends Controller
             }
         }
 
-        $order_mst_ids = DB::table("order_mst")
-            ->whereIn("id", $request->order_ids)
-            ->where("status", "processing")
+        $order_mst_ids = DB::table("order_mst as a")
+            ->join("work_order_det as b", "a.id", "b.order_id")
+            ->whereIn("a.id", $request->order_ids)
+            ->where("a.status", "processing")
+            ->distinct()
+            ->pluck('a.id');
 
-            ->pluck('id');
 
 
         $order_det = DB::table("order_det as a")
@@ -1142,9 +1148,8 @@ class OrderManagement extends Controller
                 }
             }
         }
-        $order_mst_ids = DB::table("order_mst")
-
-            ->whereIn("id", $order_mst_ids)->update(array(
+        DB::table("order_mst")
+            ->whereIn("id", $request->order_ids)->update(array(
                 "status" => "dispatch"
             ));
 
@@ -1301,7 +1306,7 @@ class OrderManagement extends Controller
         }
 
 
- 
+
         try {
 
             foreach ($request->outward_ids as $key => $value) {
