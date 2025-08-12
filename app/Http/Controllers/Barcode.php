@@ -63,4 +63,23 @@ class Barcode extends Controller
         // }
         return view("print-barcode", compact("data"));
     }
+
+    public function PrintallBarcode(Request $request)
+    {
+        
+        $products = $request->input('products', []);
+       
+        $data = collect($products)->map(function ($product) {
+        $mst = DB::table("finish_products_mst")
+                ->select('price','bar_code','name')
+                 ->where("id", $product['id'])
+                 ->first();
+
+        return array_merge((array) $mst, [
+                'qty'    => $product['qty'],
+                'expiry' => $product['expiry'],
+            ]);
+        });
+        return view("print-barcode-all", compact("data"));
+    }
 }

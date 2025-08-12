@@ -55,9 +55,26 @@
                     </button>
                 </div>
             </form>
-          
+            <div class="col-auto mb-4">
+                <form action="{{ route('printall-barcode') }}" method="POST" target="_blank" id="printAllForm">
+                    @csrf
+                    @foreach ($productNames as $index => $product)
+                        <input type="hidden" name="products[{{ $index + 1 }}][name]"
+                            value="{{ $product->product_name }}">
+                        <input type="hidden" name="products[{{ $index + 1 }}][id]" value="{{ $product->product_id }}">
+                        <input type="hidden" class="hidden-qty" name="products[{{ $index + 1 }}][qty]" value="">
+
+                        <input type="hidden" name="products[{{ $index + 1 }}][expiry]"
+                            value="{{ \Carbon\Carbon::parse(request('delivery_date'))->addDays($product->expiry)->format('Y-m-d') }}">
+                    @endforeach
+                    <button type="submit" class="btn btn-submit btn-primary me-2 mt-0">
+                        <span><i class="fas fa-eye me-1"></i></span>Print All
+                    </button>
+                </form>
+            </div>
+
             <div class="col-lg-12">
-               
+
                 <div class="table-responsive rounded border">
                     <table class="table">
                         <thead>
@@ -76,7 +93,7 @@
                             @endphp
                             @foreach ($productNames as $item)
                                 <form action="{{ route('print-barcode', ['id' => $item->product_id]) }}" method="GET"
-                                    target="_blank">
+                                    target="_blank" id="print-form">
                                     <tr>
                                         <td>{{ $sno++ }}</td>
                                         <td>{{ $item->product_name }}</td>
@@ -88,8 +105,9 @@
                                                 <span class="quantity-btn"><i data-feather="minus-circle"
                                                         class="feather-search"></i></span>
                                                 <input type="text" class="quntity-input"
+                                                    data-index="{{ $sno }}"
                                                     value="{{ number_format(optional($item)->qty ?? 0, 2) }}"
-                                                    name="qty">
+                                                    name="qty[]">
                                                 <span class="quantity-btn">+<i data-feather="plus-circle"
                                                         class="plus-circle"></i></span>
                                             </div>
@@ -127,7 +145,7 @@
             $("#sub_category_id").select2();
         });
 
-         $("#category_id").on("change", function() {
+        $("#category_id").on("change", function() {
             $.ajax({
                 url: "/GetFinishSubCategory",
                 type: "POST",
@@ -154,7 +172,7 @@
 
         });
 
-         $("#sub_category_id").on("change", function() {
+        $("#sub_category_id").on("change", function() {
             $.ajax({
                 url: "/GetProductFinish",
                 type: "POST",
@@ -179,6 +197,18 @@
                     console.log(result);
                 }
             });
+
+        });
+        document.getElementById('printAllForm').addEventListener('submit', function(e) {
+            const qtyInputs = document.querySelectorAll('.quntity-input');
+            const hiddenQtyInputs = document.querySelectorAll('.hidden-qty');
+
+            qtyInputs.forEach((input, idx) => {
+                if (hiddenQtyInputs[idx]) {
+                    hiddenQtyInputs[idx].value = input.value;
+                }
+            });
+
 
         });
     </script>

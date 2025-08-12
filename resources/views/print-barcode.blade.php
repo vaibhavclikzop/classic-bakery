@@ -19,7 +19,7 @@
 
 
             @php
-                $qty = request('qty', 1);
+                $qty = request('qty')[0] ?? 1
 
             @endphp
             @for ($i = $qty; $i >= 1; $i--)
