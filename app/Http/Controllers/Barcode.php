@@ -15,6 +15,8 @@ class Barcode extends Controller
         $delivery_date = request("delivery_date");
         $product_id = request("product_id");
         $from_order = request("from_order");
+        $sub_category_id = request("sub_category_id");
+        $category_id = request("category_id");
 
         $productNames = array();
 
@@ -38,9 +40,14 @@ class Barcode extends Controller
                 if ($product_id) {
                     $mst->where("b.product_id", "=", $product_id);
                 }
+                if ($sub_category_id) {
+                    $mst->where("c.f_category_id", "=", $category_id);
+                    $mst->where("c.f_sub_category_id", "=", $sub_category_id);
+                    
+                }
         
-         $productNames = $mst->groupBy("c.id", "c.name", "a.delivery_date",  "c.warranty_days")
-            ->get();
+                $productNames = $mst->groupBy("c.id", "c.name", "a.delivery_date",  "c.warranty_days","c.f_sub_category_id")
+                    ->get();
 
             }
             else{
@@ -48,6 +55,11 @@ class Barcode extends Controller
                'a.id as product_id', 'a.warranty_days as expiry');
                if ($product_id) {
                     $product->where("a.id", "=", $product_id);
+                }
+                if ($sub_category_id) {
+                    $product->where("a.f_category_id", "=", $category_id);
+                    $product->where("a.f_sub_category_id", "=", $sub_category_id);
+                    
                 }
               $productNames= $product->get(); 
             }

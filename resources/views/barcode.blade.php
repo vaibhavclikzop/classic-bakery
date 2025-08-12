@@ -23,7 +23,7 @@
                     <select name="category_id" id="category_id" class="form-control" required>
                         <option value="">--Select category--</option>
                         @foreach ($f_product_category as $item)
-                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                            <option value="{{ $item->id }}" {{ request('category_id') ==  $item->id  ? 'selected' : '' }}>{{ $item->name }}</option>
                         @endforeach
                     </select>
 
@@ -44,7 +44,8 @@
 
                 <div class="col-auto mb-4 ">
                     <div class="form-check fs-15 mt-2">
-                        <input class="form-check-input" type="checkbox" id="checkItem" name="from_order" value="add">
+                        <input class="form-check-input" type="checkbox" id="checkItem" name="from_order" value="add"
+                         {{ request('from_order') ==  'add'  ? 'checked' : '' }}>
                         <label class="form-check-label" for="checkItem">Load item from order</label>
                     </div>
                 </div>
@@ -106,7 +107,7 @@
                                                         class="feather-search"></i></span>
                                                 <input type="text" class="quntity-input"
                                                     data-index="{{ $sno }}"
-                                                    value="{{ number_format(optional($item)->qty ?? 0, 2) }}"
+                                                    value="{{ number_format(optional($item)->qty ?? 0, 0) }}"
                                                     name="qty[]">
                                                 <span class="quantity-btn">+<i data-feather="plus-circle"
                                                         class="plus-circle"></i></span>
@@ -145,6 +146,11 @@
             $("#sub_category_id").select2();
         });
 
+        let selectedCategory = "{{ request('category_id') }}";
+        let selectedSubcategory = "{{ request('sub_category_id') }}";
+        let selectedProduct = "{{ request('product_id') }}";
+
+
         $("#category_id").on("change", function() {
             $.ajax({
                 url: "/GetFinishSubCategory",
@@ -163,7 +169,10 @@
                         html += '<option value="' + element.id + '">' + element.name +
                             '</option>';
                     });
-                    $("#sub_category_id").html(html)
+                    $("#sub_category_id").html(html);
+                    if (selectedSubcategory) {
+                        $("#sub_category_id").val(selectedSubcategory).trigger("change");
+                    }
                 },
                 error: function(result) {
                     console.log(result);
@@ -191,7 +200,10 @@
                         html += '<option value="' + element.id + '">' + element.name +
                             '</option>';
                     });
-                    $("#product_id").html(html)
+                    $("#product_id").html(html);
+                    if (selectedProduct) {
+                        $("#product_id").val(selectedProduct);
+                    }
                 },
                 error: function(result) {
                     console.log(result);
@@ -199,6 +211,12 @@
             });
 
         });
+
+        if (selectedCategory) {
+                $("#category_id").val(selectedCategory).trigger("change");
+            }
+
+
         document.getElementById('printAllForm').addEventListener('submit', function(e) {
             const qtyInputs = document.querySelectorAll('.quntity-input');
             const hiddenQtyInputs = document.querySelectorAll('.hidden-qty');
