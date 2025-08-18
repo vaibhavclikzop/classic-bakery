@@ -526,8 +526,8 @@ class InwardStock extends Controller
             DB::table('po_mst')->where("id", $request->id)->update(array(
 
                 "status" => "generated",
-                "name" => $request->name,
-                "description" => $request->description,
+                // "name" => $request->name,
+                // "description" => $request->description,
             ));
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
@@ -785,7 +785,21 @@ class InwardStock extends Controller
 
 
         try {
-            DB::table('po_det')->insertGetId(array(
+         $exist = DB::table('po_det')
+            ->where('mst_id', $request->mst_id)
+            ->where('id', $request->pid)
+            ->first();
+
+        if ($exist) {
+            DB::table('po_det')
+                ->where('id', $request->pid)
+                ->update([
+                    'qty' => $request->qty,
+                    'price' => $request->price,
+                ]);
+           
+        } else {
+           DB::table('po_det')->insertGetId(array(
                 "mst_id" => $request->mst_id,
                 "product_id" => $request->product_id,
                 "qty" => $request->qty,
@@ -794,6 +808,8 @@ class InwardStock extends Controller
                 "gst_type" => $gst_type
 
             ));
+           
+        }
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }

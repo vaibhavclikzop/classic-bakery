@@ -44,7 +44,7 @@
 <script src="/dataTables/datatables.min.js"></script>
 
 <!-- Chart JS -->
-<script src="/js/apexcharts.min.js"></script>
+{{-- <script src="/js/apexcharts.min.js"></script> --}}
 <script src="/js/chart-data.js"></script>
 
 <!-- Sweetalert 2 -->

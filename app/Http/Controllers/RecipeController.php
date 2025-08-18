@@ -13,7 +13,8 @@ class RecipeController extends Controller
     public function createRecipe(Request $request)
     {
         $products =  products::with("unitType")->get();
-        return view("create-recipe", compact("products"));
+        $department = DB::table('department')->orderBy("name", "ASC")->get();
+        return view("create-recipe", compact("products","department"));
     }
 
     public function saveRecipe(Request $request)
@@ -29,7 +30,9 @@ class RecipeController extends Controller
             $wo_no = 'WO_' . date('dmyhis');
             $mst_id = DB::table("recipe_mst")->insertGetId(array(
                 "name" => $request->name,
+                "department_id" => $request->department_id,
                 "description" => $request->description,
+                "batch" => $request->batch,
                 "wo_no" => $wo_no,
                 "user_id" => $request->user->id,
             ));
@@ -55,14 +58,19 @@ class RecipeController extends Controller
 
     public function recipeList(Request $request)
     {
-        $data = DB::table('recipe_mst')->orderBy("id", "desc")->get();
+        $data = DB::table('recipe_mst as a')
+                     ->select("a.*","d.name as dname")
+                  ->Leftjoin('department as d',"a.department_id", "d.id")
+                  ->orderBy("a.id", "desc")->get();
         return view("recipe-list", compact("data"));
     }
 
     public function recipeView(Request $request, $id)
     {
         $data = DB::table("recipe_mst as a")
-            ->where("a.id", $id)->first();
+                ->select("a.*","d.name as dname")
+                  ->Leftjoin('department as d',"a.department_id", "d.id")
+                     ->where("a.id", $id)->first();
         $det =  DB::table("recipe_det as a")
             ->select("a.*", "b.name as product", "c.name as category")
             ->join("products as b", "a.product_id", "b.id")
@@ -76,7 +84,9 @@ class RecipeController extends Controller
         $qty = request("qty", 1);
 
         $data = DB::table("recipe_mst as a")
-            ->where("a.id", $id)->first();
+                ->select("a.*","d.name as dname")
+                  ->Leftjoin('department as d',"a.department_id", "d.id")
+                     ->where("a.id", $id)->first();
         $det =  DB::table("recipe_det as a")
             ->select("a.*", "b.name as product", "c.name as category")
             ->join("products as b", "a.product_id", "b.id")

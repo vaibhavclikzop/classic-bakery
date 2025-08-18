@@ -54,15 +54,19 @@
                 <table class="table">
                     <tr>
                         <th>Name</th>
+                        <th>Department</th>
                         <th>Description</th>
+                        <th>Batch</th>
                         <th>Per Unit</th>
 
                     </tr>
                     <tr>
 
                         <th>{{ $data->name }}</th>
+                        <th>{{ $data->dname }}</th>
                         <th>{{ $data->description }}</th>
-                        <th>1</th>
+                        <th>{{ $data->batch }}</th>
+                        <th>{{request('qty', 1)}}</th>
 
 
                     </tr>

@@ -61,10 +61,13 @@
                             <td>{{ $item->user_name }}</td>
                      
                             <td>{{ date("d-m-Y h:i A ", strtotime($item->created_at)) }}</td>
-                            <td>
+                            <td class="d-flex gap-1">
                                 @if ($status == 'pending')
-                                    <button class="btn btn-sm btn-info editStatus" type="button"
-                                        data-id="{{ $item->id }}">Generate PO</button>
+                                 <form method="POST" action="{{ route('SaveGeneratePO') }}" >
+                                    @csrf
+                                     <input type="hidden" name="id" id="id" value="{{$item->id}}">
+                                    <button class="btn btn-sm btn-info editStatus" type="submit" >Generate PO</button>
+                                 </form>
                                 @endif
                                 <a class="btn btn-primary btn-sm" href="/purchase-order-view/{{ $item->id }}"><i
                                         class="fa fa-eye" aria-hidden="true"></i></a>
@@ -119,11 +122,11 @@
     </form>
 
     <script>
-        $(document).ready(function() {
-            $(document).on("click", ".editStatus", function() {
-                $("#id").val($(this).data("id"))
-                $("#modalId").modal("show")
-            })
-        })
+        // $(document).ready(function() {
+        //     $(document).on("click", ".editStatus", function() {
+        //         $("#id").val($(this).data("id"))
+        //         $("#modalId").modal("show")
+        //     })
+        // })
     </script>
 @endsection

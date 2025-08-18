@@ -19,11 +19,17 @@
         </div>
         <div class="card-body" id="PrintOrder">
             <div class="text-center">
+                 @if($order_mst->status !='pending')
                 <img src="/logo/{{ $setting->img }}" width="180px">
+                 @else
+                  <h3> Order Challan</h3>  
+                @endif
             </div>
 
             <div style="display: flex; justify-content: space-between; border: solid 1px; padding: 8px;">
-                <div>
+               <div> 
+                @if($order_mst->status !='pending')
+                
                     <h3>{{ $setting->company_name }}</h3>
                     <p>{!! $setting->address !!}
                         <br>
@@ -36,9 +42,9 @@
                     </p>
 
 
-                </div>
-
-
+               
+                @endif
+             </div>
                 <div>
                     <div style="text-align: right;">
                         <h6>Order ID : {{ $order_mst->order_id }}</h6>
@@ -68,12 +74,16 @@
                 <table class="table">
                     <thead>
                         <th>S.No</th>
+                         @if($order_mst->status !='pending')
                         <th>Sub Category</th>
+                        @endif
                         <th>Product</th>
+                       
                         <th>Order Qty</th>
+                         @if($order_mst->status !='pending')
                         <th>Outward Qty</th>
                         <th>Pending Qty</th>
-
+                        @endif
                         <th>Price</th>
                         <th>Total</th>
                     </thead>
@@ -87,11 +97,15 @@
                         @endphp
                             <tr>
                                 <td>{{ $sno++ }}</td>
+                                 @if($order_mst->status !='pending')
                                 <td>{{ $item->sub_category }}</td>
+                                @endif
                                 <td>{{ $item->product }}</td>
                                 <td>{{ formatQtyPrice($item->qty) }}</td>
+                                 @if($order_mst->status !='pending')
                                 <td>{{ formatQtyPrice($item->booked_qty) }}</td>
                                 <td>{{ $item->qty - $item->booked_qty }}</td>
+                                @endif
                                 <td>{{ formatQtyPrice($item->price) }}</td>
                                 <td>{{ formatQtyPrice($item->price * $item->qty) }}</td>
                             </tr>
@@ -101,7 +115,15 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="6"></th>
+                             @php
+                             $colspan = '6';
+                             @endphp
+                             @if($order_mst->status =='pending')
+                             @php
+                              $colspan = '3';
+                              @endphp
+                             @endif
+                            <th colspan={{$colspan}}></th>
                             <th >Sub Total</th>
                             <th>{{$sub_total}}</th>
                         </tr>

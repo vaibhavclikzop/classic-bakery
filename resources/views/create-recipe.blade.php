@@ -31,11 +31,27 @@
 
                     </div>
                     <div class="col-md-3">
-                        <label for="">Description</label>
-                        <input type="text" name="description" id="description" class="form-control"
-                            placeholder="Enter  Description">
+                        <label for="">Department</label>
+                        <select name="department_id" id="department_id" class="form-control" required>
+                            <option value="">Select Department</option>
+                            @foreach ($department as $item)
+                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                            @endforeach
+                        </select>
 
                     </div>
+                    <div class="col-md-3">
+                        <label for="">Batch</label>
+                        <input type="text" name="batch" id="batch" class="form-control" placeholder="Enter Batch">
+
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="">Description</label>
+                        <textarea class="form-control" name="description" id="description" placeholder="Enter  Description"></textarea>
+
+                    </div>
+
 
                 </div>
                 <hr>

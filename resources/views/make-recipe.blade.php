@@ -63,15 +63,20 @@
                 <table class="table">
                     <tr>
                         <th>{{ __('messages.name') }}</th>
+                        <th>Department</th>
                         <th>{{ __('messages.description') }}</th>
+                         <th>Batch</th>
                         <th>{{ __('messages.per_unit') }}</th>
 
                     </tr>
+                   
                     <tr>
 
                         <th>{{ $data->name }}</th>
+                        <th>{{ $data->dname }}</th>
                         <th>{{ $data->description }}</th>
-                        <th> {{ request('qty', 1) }} </th>
+                        <th>{{ $data->batch }}</th>
+                        <th>{{request('qty', 1)}}</th>
 
 
                     </tr>

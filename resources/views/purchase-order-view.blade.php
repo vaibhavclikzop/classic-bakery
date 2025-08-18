@@ -84,9 +84,9 @@
                         @endphp
                         @foreach ($po_det as $item)
                             @php
-                                $total_gst += (($item->price * $item->qty) / 100) * $item->gst;
-                                $total_cess += (($item->price * $item->qty) / 100) * $item->cess_tax;
-                                $sub_total += $item->price * $item->qty;
+                                $total_gst += formatQtyPrice((($item->price * $item->qty) / 100) * $item->gst);
+                                $total_cess += formatQtyPrice((($item->price * $item->qty) / 100) * $item->cess_tax);
+                                $sub_total += formatQtyPrice($item->price * $item->qty);
                             @endphp
                             <tr>
                                 <td>{{ $sno++ }}</td>
@@ -109,10 +109,13 @@
                                 @endif
                                 <td>{{ formatQtyPrice($item->cess_tax) }}</td>
 
-                                <td>{{ $item->price * $item->qty + (($item->price * $item->qty) / 100) * $item->gst + (($item->price * $item->qty) / 100) * $item->cess_tax }}
+                                <td>{{ formatQtyPrice($item->price * $item->qty + (($item->price * $item->qty) / 100) * $item->gst + (($item->price * $item->qty) / 100) * $item->cess_tax) }}
                                 </td>
                                 @if (request('edit') == 1)
                                     <td>
+                                        <button class="btn btn-warning btn-info editStatus" type="button"
+                                        data-id="{{ $item->id }}" data-qty="{{$item->qty}}" data-price="{{$item->price}}" data-product="{{$item->product_id}}"><i
+                                                class="fa fa-pen" aria-hidden="true"></i></button>
                                         <button class="btn btn-danger delete" value="{{ $item->id }}" type="button"><i
                                                 class="fa fa-trash" aria-hidden="true"></i></button>
                                     </td>
@@ -129,28 +132,28 @@
 
                             </th>
                             <th>Subtotal</th>
-                            <th>{{ $sub_total }}</th>
+                            <th>{{ formatQtyPrice($sub_total) }}</th>
                         </tr>
                         <tr>
                             <th colspan="7">
 
                             </th>
                             <th>GST</th>
-                            <th>{{ $total_gst }}</th>
+                            <th>{{ formatQtyPrice($total_gst) }}</th>
                         </tr>
                         <tr>
                             <th colspan="7">
 
                             </th>
                             <th>Cess Tax</th>
-                            <th>{{ $total_cess }}</th>
+                            <th>{{ formatQtyPrice($total_cess) }}</th>
                         </tr>
                         <tr>
                             <th colspan="7">
 
                             </th>
                             <th>Grand Total</th>
-                            <th>{{ $total_gst + $sub_total + $total_cess }}</th>
+                            <th>{{ formatQtyPrice($total_gst + $sub_total + $total_cess) }}</th>
                         </tr>
 
                     </tfoot>
@@ -256,6 +259,48 @@
         </div>
     </form>
 
+      <form action="{{ route('AddPOProduct') }}" method="POST" class="needs-validation" novalidate>
+        @csrf
+       
+        <div class="modal fade" id="editModal">
+            <div class="modal-dialog" role="document">
+                 <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitleId">
+                            Edit Product
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="row">
+                            <input type="hidden" name="mst_id" value="{{ $po_mst->id }}">
+                            <input type="hidden" name="pid" id="pid" >
+                            <input type="hidden" name="product_id" id="prod_id" >
+                            <div class="col-md-6">
+                                <label for="">Qty</label>
+                                <input type="number" step="0.01" name="qty" id="eqty" class="form-control">
+
+                            </div>
+                            <div class="col-md-6">
+                                <label for="">Price</label>
+                                <input type="number" step="0.01" name="price" id="eprice" class="form-control">
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
     <script>
         $(document).ready(function() {
             $("#product_id").select2();
@@ -268,5 +313,14 @@
             $("#aid").val($(this).val())
             $("#addModal").modal("show");
         })
+
+         $(document).on("click", ".editStatus", function() {
+                $("#pid").val($(this).data("id"));
+                $("#eqty").val($(this).data("qty"));
+                $("#eprice").val($(this).data("price"));
+                $("#prod_id").val($(this).data("product"));
+                $("#editModal").modal("show")
+            })
     </script>
+
 @endsection
