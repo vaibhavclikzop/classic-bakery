@@ -880,6 +880,7 @@ class Masters extends Controller
             "pan_no" => $request->pan_no,
             "cin_no" => $request->cin_no,
             "city" => $request->city,
+            "order_pwd" => $request->order_pwd,
 
         ));
 

@@ -86,10 +86,10 @@
 
                             <th>Invoice Date </th>
                             <th>Delivery Date </th>
-                            <th>Transport </th>
+                            {{-- <th>Transport </th>
                             <th>Contact Person </th>
                             <th>Number </th>
-                            <th>Vehicle No </th>
+                            <th>Vehicle No </th> --}}
 
                             <th>User </th>
                             <th>Action </th>
@@ -107,10 +107,10 @@
                                 <td>{{ $item->customer }}</td>
                                 <td>{{ $item->invoice_date }}</td>
                                 <td>{{ $item->delivery_date }}</td>
-                                <td>{{ $item->transport }}</td>
+                                {{-- <td>{{ $item->transport }}</td>
                                 <td>{{ $item->contact_person }}</td>
                                 <td>{{ $item->number }}</td>
-                                <td>{{ $item->vehicle_no }}</td>
+                                <td>{{ $item->vehicle_no }}</td> --}}
 
                                 <td>{{ $item->user }}</td>
                                 <td>

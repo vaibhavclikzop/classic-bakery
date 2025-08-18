@@ -564,8 +564,7 @@
                                                  class="{{ Request::is('orders/dispatch') ? 'active' : '' }}">Dispatch
                                                  Order</a></li>
                                          <li><a href="{{ url('/outward-customer-order-list?status=dispatch') }}"
-                                                 class="{{ Request::is('outward-customer-order-list') && request('status') === 'dispatch' ? 'active' : '' }}">Out
-                                                 for Delivery</a></li>
+                                                 class="{{ Request::is('outward-customer-order-list') && request('status') === 'dispatch' ? 'active' : '' }}">Convert to Invoice</a></li>
                                          <li><a href="/orders/complete"
                                                  class="{{ Request::is('orders/complete') ? 'active' : '' }}">Delivered</a>
                                          </li>
@@ -598,7 +597,7 @@
                                                  Orders</a></li>
                                          
                                           <li><a href="/advance-order-list/complete"
-                                                 class="{{ Request::is('advance-order-list/complete') ? 'active' : '' }}">Out For Delivery
+                                                 class="{{ Request::is('advance-order-list/complete') ? 'active' : '' }}">Convert to invoice
                                                 </a></li>
                                          <li><a href="/advance-order-list/delivered"
                                                  class="{{ Request::is('advance-order-list/delivered') ? 'active' : '' }}">Delivered

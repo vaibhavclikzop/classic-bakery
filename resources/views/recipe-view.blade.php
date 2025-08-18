@@ -4,7 +4,13 @@
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
                 <h4> Recipe View </h4>
+                 <form action="">
+                    <div class="input-group has-validation">
 
+                        <input type="text" class="form-control" name="qty" value="{{ request('qty') ?? 1 }}" required>
+                        <button class="input-group-text btn btn-dark"> Generate </button>
+                    </div>
+                </form>
 
             </div>
             <div class="">
@@ -13,7 +19,7 @@
                         aria-hidden="true"></i> Print</button>
 
             </div>
-
+ 
         </div>
         <div class="card-body" id="PrintOrder">
             <div class="text-center">
@@ -87,19 +93,19 @@
                         @endphp
                         @foreach ($det as $item)
                             @php
-                                $total += $item->qty;
+                                $total += $item->qty * request('qty', 1);
                             @endphp
                             <tr>
                                 <td>{{ $sno++ }}</td>
                                 <td>{{ $item->category }}</td>
                                 <td>{{ $item->product }}</td>
-                                <td>{{ $item->qty }}</td>
+                                <td>{{ formatQtyPrice($item->qty *  request('qty', 1)) }}</td>
                                 <td>{{ $item->uom }}</td>
                             </tr>
                         @endforeach
                         <tr>
                             <th colspan="3">Total</th>
-                            <th colspan="2">{{ $total }}</th>
+                            <th colspan="2">{{ formatQtyPrice($total) }}</th>
                         </tr>
                     </tbody>
 

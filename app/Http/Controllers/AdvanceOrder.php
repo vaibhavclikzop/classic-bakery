@@ -718,11 +718,10 @@ class AdvanceOrder extends Controller
 
         public function Cancel_Order(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+       $validator = Validator::make($request->all(), [
 
             'id' => 'required',
-
-
+            'order_pwd' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -738,14 +737,20 @@ class AdvanceOrder extends Controller
 
 
         try {
-            DB::table('adv_order_mst')->where("id", $request->id)->update(array(
-                "status" => "cancel",
+            
+             $company_setting = DB::table("company_settings")->where("id",$request->user->id)->select('order_pwd')->first();
+              if ($request->order_pwd !== $company_setting->order_pwd) {
+                 return  redirect()->back()->with("error", 'Incorrect password.');
+                }
+           
+                DB::table('adv_order_mst')->where("id", $request->id)->update(array(
+                    "status" => "cancel",
 
-            ));
-        } catch (\Throwable $th) {
-            return  redirect()->back()->with("error", $th->getMessage());
-        }
+                ));
+                } catch (\Throwable $th) {
+                    return  redirect()->back()->with("error", $th->getMessage());
+                }
 
-        return  redirect()->back()->with("success", "Save Successfully");
-    }
+                return  redirect()->back()->with("success", "Cancel Successfully");
+            }
 }

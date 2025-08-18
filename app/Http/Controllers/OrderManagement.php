@@ -1235,7 +1235,8 @@ class OrderManagement extends Controller
         $validator = Validator::make($request->all(), [
 
             'id' => 'required',
-
+            'order_pwd' => 'required',
+ 
 
         ]);
 
@@ -1252,6 +1253,12 @@ class OrderManagement extends Controller
 
 
         try {
+            $company_setting = DB::table("company_settings")->where("id",$request->user->id)->select('order_pwd')->first();
+              if ($request->order_pwd !== $company_setting->order_pwd) {
+                 return  redirect()->back()->with("error", 'Incorrect password.');
+                }
+           
+               
             DB::table('order_mst')->where("id", $request->id)->update(array(
                 "status" => "cancel",
 

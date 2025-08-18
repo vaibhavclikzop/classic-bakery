@@ -69,7 +69,7 @@
                             value="{{ \Carbon\Carbon::parse(request('delivery_date'))->addDays($product->expiry)->format('Y-m-d') }}">
                     @endforeach
                     <button type="submit" class="btn btn-submit btn-primary me-2 mt-0">
-                        <span><i class="fas fa-eye me-1"></i></span>Print All
+                        <span><i class="fas fa-print me-1"></i></span>Print All
                     </button>
                 </form>
             </div>
@@ -138,7 +138,7 @@
 
 
         </div>
-    </div>
+    </div> 
 
     <script>
         $(document).ready(function() {
@@ -212,7 +212,7 @@
 
         });
 
-        if (selectedCategory) {
+            if (selectedCategory) {
                 $("#category_id").val(selectedCategory).trigger("change");
             }
 

@@ -108,13 +108,13 @@
                                 <td>{{ $sno++ }}</td>
                                 <td>{{ $item->category }}</td>
                                 <td>{{$item->product}}</td>
-                                <td>{{ $item->qty * request('qty', 1) }}</td>
+                                <td>{{ formatQtyPrice($item->qty * request('qty', 1)) }}</td>
                                 <td>{{ $item->uom }}</td>
                             </tr>
                         @endforeach
                         <tr>
                             <th colspan="3">Total</th>
-                            <th colspan="2">{{ $total }}</th>
+                            <th colspan="2">{{ formatQtyPrice($total) }}</th>
                         </tr>
                     </tbody>
 

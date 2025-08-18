@@ -87,7 +87,8 @@
                     <select name="city" id="city" class="form-control" required>
                         <option value="">Select</option>
                         @foreach ($city as $item)
-                            <option value="{{ $item->city }}" {{$settings->city==$item->city ? "selected" : ""}}> {{ $item->city }}</option>
+                            <option value="{{ $item->city }}" {{ $settings->city == $item->city ? 'selected' : '' }}>
+                                {{ $item->city }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -100,6 +101,15 @@
                 <div class="col-md-4 mt-2">
                     <label for="">Invoice No</label>
                     <input type="text" class="form-control" name="invoice_no" value="{{ $settings->invoice_no }}">
+
+                </div>
+                <div class="col-md-4 mt-2">
+                    <label for="">Order Pasword</label>
+                    <div class="pass-group">
+                        <input type="password" class="pass-input form-control" value="{{ $settings->order_pwd }}"
+                        name="order_pwd">
+                        <i class="fa toggle-password fa-eye "></i>
+                    </div>
 
                 </div>
 

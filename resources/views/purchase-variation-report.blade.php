@@ -57,8 +57,8 @@
                             <td>{{ $item->vendor }}</td>
                             <td>{{ $item->invoice_date }}</td>
                             <td>{{ $item->product }}</td>
-                            <td>{{ $item->price }}</td>
-                            <td>{{ $item->qty }}</td>
+                            <td>{{ formatQtyPrice($item->price) }}</td>
+                            <td>{{ formatQtyPrice($item->qty) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
