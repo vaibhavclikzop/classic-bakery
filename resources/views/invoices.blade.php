@@ -27,6 +27,19 @@
                             value="{{ request('toDt') ?? \Carbon\Carbon::now()->toDateString() }}">
 
                     </div>
+                     <div class="">
+                            <label for="">Customer Type</label>
+                            <select name="order_type" id="order_type"  onchange="this.form.submit()"
+                             class="form-control select2" required>
+                                <option value="">Select</option>
+                                <option value="customer" {{ request('order_type') == 'customer' ? 'selected' : '' }}>
+                                    Customer
+                                </option>
+                                <option value="outlet" {{ request('order_type') == 'outlet' ? 'selected' : '' }}>Outlet
+                                </option>
+                            </select>
+
+                        </div>
                 </form>
 
             </div>

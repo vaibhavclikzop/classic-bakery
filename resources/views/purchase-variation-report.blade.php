@@ -51,7 +51,7 @@
                     @php
                         $sno = 1;
                     @endphp
-                    @foreach ($data as $item)
+                    @foreach ($filter as $item)
                         <tr>
                             <td>{{ $sno++ }}</td>
                             <td>{{ $item->vendor }}</td>

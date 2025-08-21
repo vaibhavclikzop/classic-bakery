@@ -56,8 +56,10 @@
                         <th>Name</th>
                         <th>Department</th>
                         <th>Description</th>
-                        <th>Batch</th>
+                        <th>No. of Batches</th>
                         <th>Per Unit</th>
+                        <th>Total</th>
+
 
                     </tr>
                     <tr>
@@ -67,6 +69,7 @@
                         <th>{{ $data->description }}</th>
                         <th>{{ $data->batch }}</th>
                         <th>{{request('qty', 1)}}</th>
+                        <th>{{$data->batch * (float)request('qty', 1)}}</th>
 
 
                     </tr>
@@ -97,13 +100,13 @@
                         @endphp
                         @foreach ($det as $item)
                             @php
-                                $total += $item->qty * request('qty', 1);
+                                $total += $item->qty *  (float)request('qty', 1);
                             @endphp
                             <tr>
                                 <td>{{ $sno++ }}</td>
                                 <td>{{ $item->category }}</td>
                                 <td>{{ $item->product }}</td>
-                                <td>{{ formatQtyPrice($item->qty *  request('qty', 1)) }}</td>
+                                <td>{{ formatQtyPrice($item->qty *   (float)request('qty', 1)) }}</td>
                                 <td>{{ $item->uom }}</td>
                             </tr>
                         @endforeach

@@ -16,20 +16,39 @@ class Reports extends Controller
 
         $fromDt = request("fromDt");
         $toDt = request("toDt");
-        $filter =   DB::table("stock_inward_mst as a")
-            ->select("a.*", "c.name as vendor", "d.name as product", "b.price", "b.qty")
+        $search =   DB::table("stock_inward_mst as a")
+            ->select("a.*", "b.product_id as product_id","c.name as vendor", "d.name as product", "b.price", "b.qty")
             ->join("stock_inward_det as b", "a.id", "b.mst_id")
             ->join("vendor as c", "a.vendor_id", "c.id")
             ->join("products as d", "b.product_id", "d.id");
         if ($fromDt) {
-            $filter->whereDate("a.invoice_date", ">=", $fromDt);
+            $search->whereDate("a.invoice_date", ">=", $fromDt);
         }
 
         if ($toDt) {
-            $filter->whereDate("a.invoice_date", "<=", $toDt);
+            $search->whereDate("a.invoice_date", "<=", $toDt);
         }
-        $data = $filter->get();
-        return view("purchase-variation-report", compact("data"));
+
+        $grouped = $search->orderByDesc('a.invoice_date')->get()->groupBy('product_id');
+
+    // dd($grouped);
+       $filter = [];
+
+        foreach ($grouped as $productId => $entries) {
+            $entries = collect($entries)->filter(); // remove nulls
+            if ($entries->isEmpty()) continue;
+
+            $latest = $entries->last();
+             $prev   = $entries->count() > 1? $entries->slice($entries->count() - 2, 1)->first(): null;
+
+              if ($prev && $latest && $prev->price != $latest->price) {
+                    $filter[] = $prev;
+                }
+                 if (!empty($latest)) {
+                    $filter[] = $latest;
+                }
+        }
+        return view("purchase-variation-report", compact("filter"));
     }
 
     public function PurchaseRegisterReport(Request $request)

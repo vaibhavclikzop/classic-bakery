@@ -468,6 +468,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('recipe-list', [RecipeController::class, 'recipeList'])->name('recipe-list');
   Route::get('recipe-view/{id}', [RecipeController::class, 'recipeView'])->name('recipe-view');
   Route::get('make-recipe/{id}', [RecipeController::class, 'makeRecipe'])->name('make-recipe');
+  Route::post('delete-recipe', [RecipeController::class, 'receipeDelete'])->name('delete-recipe');
 
   //daily reports
   Route::get('purchase-variation-report', [Reports::class, 'PurchaseVariationReport'])->name('purchase-variation-report');

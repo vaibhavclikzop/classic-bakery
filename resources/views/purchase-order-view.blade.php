@@ -9,9 +9,9 @@
 
                 <button type="button" onclick="printcontent()" class="btn btn-primary"><i class="fa fa-print"
                         aria-hidden="true"></i> Print</button>
-                @if (request('edit') == 1)
-                    <a class="btn btn-dark" href="?edit=0"><i class="fa fa-eye" aria-hidden="true"></i></a>
-                @else
+              
+                    {{-- <a class="btn btn-dark" href="?edit=0"><i class="fa fa-eye" aria-hidden="true"></i></a> --}}
+                  @if (($po_mst->status=='pending' || $po_mst->status=='generated'))
                     <a class="btn btn-dark" href="?edit=1"><i class="fa fa-pencil" aria-hidden="true"></i></a>
                 @endif
 

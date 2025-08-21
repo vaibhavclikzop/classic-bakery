@@ -46,9 +46,12 @@
                             <td>{{ $item->batch }}</td>
                             
                             <td>
-                                <a href="/recipe-view/{{ $item->id }}" class="btn btn-primary btn-sm"> <i class="fa fa-eye"
-                                        aria-hidden="true"></i> </a>
+                                {{-- <a href="/recipe-view/{{ $item->id }}" class="btn btn-primary btn-sm"> <i class="fa fa-eye"
+                                        aria-hidden="true"></i> </a> --}}
                                         <a href="/make-recipe/{{$item->id}}" class="btn btn-dark btn-sm"> Make Recipe </a>
+                                
+                                 <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="deleteReceipe('{{ $item->id }}')"> <i class="fa fa-trash"
+                                        aria-hidden="true"></i> </a>        
                             </td>
                         </tr>
                     @endforeach
@@ -59,4 +62,47 @@
         </div>
 
     </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+         function deleteReceipe(id) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: `Are you sure you want to delete this?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Delete it!",
+            cancelButtonText: "No",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                fetch("{{ route('delete-recipe') }}", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(data);
+                         if (data.success) {
+                            Swal.fire("Updated!", data.message, "success")
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire("Error!", data.message, "error");
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        
+                    });
+            }
+        });
+    }
+    </script>
 @endsection

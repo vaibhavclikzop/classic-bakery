@@ -1,6 +1,5 @@
 @extends('layouts.main')
 @section('main-section')
-  
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
@@ -65,11 +64,12 @@
                         <th>{{ __('messages.name') }}</th>
                         <th>Department</th>
                         <th>{{ __('messages.description') }}</th>
-                         <th>Batch</th>
-                        <th>{{ __('messages.per_unit') }}</th>
+                        <th>No. of Batches</th>
+                        <th>Per Unit</th>
+                        <th>Total</th>
 
                     </tr>
-                   
+
                     <tr>
 
                         <th>{{ $data->name }}</th>
@@ -77,6 +77,7 @@
                         <th>{{ $data->description }}</th>
                         <th>{{ $data->batch }}</th>
                         <th>{{request('qty', 1)}}</th>
+                        <th>{{$data->batch * (float)request('qty', 1)}}</th>
 
 
                     </tr>
@@ -91,7 +92,6 @@
                 <table class="table">
                     <thead>
                         <th>S.No</th>
-
                         <th>Category</th>
                         <th>Product</th>
                         <th>Qty</th>
@@ -112,7 +112,7 @@
                             <tr>
                                 <td>{{ $sno++ }}</td>
                                 <td>{{ $item->category }}</td>
-                                <td>{{$item->product}}</td>
+                                <td>{{ $item->product }}</td>
                                 <td>{{ formatQtyPrice($item->qty * request('qty', 1)) }}</td>
                                 <td>{{ $item->uom }}</td>
                             </tr>

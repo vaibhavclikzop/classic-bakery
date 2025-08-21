@@ -94,4 +94,17 @@ class RecipeController extends Controller
             ->where("a.mst_id", $id)->get();
         return view("make-recipe", compact("data", "det"));
     }
+    public function receipeDelete(Request $request)
+    {
+            $id = $request->id;
+            DB::table('recipe_det')->where('mst_id', $id)->delete();
+            DB::table('recipe_mst')->where('id', $id)->delete();
+         
+            return response()->json([
+            'success' => true,
+            'message' => "Recipe deleted"
+        ]);
+
+       
+    }
 }
