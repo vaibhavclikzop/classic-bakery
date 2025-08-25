@@ -22,14 +22,14 @@
      <link rel="stylesheet" href="/css/animate.css">
 
      <!-- Select2 CSS -->
-     
+
 
      {{-- <link rel="stylesheet" href="/css/select2.min.css"> --}}
 
      <!-- Fontawesome CSS -->
      <link rel="stylesheet" href="/css/fontawesome.min.css">
      <link rel="stylesheet" href="/css/all.min.css">
-<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
      <!-- Main CSS -->
      <link rel="stylesheet" href="/css/style.css">
      <link rel="stylesheet" href="/dataTables/datatables.min.css">
@@ -110,6 +110,7 @@
              'sale-register-report',
              'category-subcategory-report',
              'customer-wise-report',
+             'tally-report',
          ];
          $stockAuditRoutes = [
              'audit-setting',
@@ -564,7 +565,8 @@
                                                  class="{{ Request::is('orders/dispatch') ? 'active' : '' }}">Dispatch
                                                  Order</a></li>
                                          <li><a href="{{ url('/outward-customer-order-list?status=dispatch') }}"
-                                                 class="{{ Request::is('outward-customer-order-list') && request('status') === 'dispatch' ? 'active' : '' }}">Convert to Invoice</a></li>
+                                                 class="{{ Request::is('outward-customer-order-list') && request('status') === 'dispatch' ? 'active' : '' }}">Convert
+                                                 to Invoice</a></li>
                                          <li><a href="/orders/complete"
                                                  class="{{ Request::is('orders/complete') ? 'active' : '' }}">Delivered</a>
                                          </li>
@@ -595,14 +597,15 @@
                                          <li><a href="/advance-order-list/dispatch"
                                                  class="{{ Request::is('advance-order-list/dispatch') ? 'active' : '' }}">Dispatch
                                                  Orders</a></li>
-                                         
-                                          <li><a href="/advance-order-list/complete"
-                                                 class="{{ Request::is('advance-order-list/complete') ? 'active' : '' }}">Convert to invoice
-                                                </a></li>
+
+                                         <li><a href="/advance-order-list/complete"
+                                                 class="{{ Request::is('advance-order-list/complete') ? 'active' : '' }}">Convert
+                                                 to invoice
+                                             </a></li>
                                          <li><a href="/advance-order-list/delivered"
                                                  class="{{ Request::is('advance-order-list/delivered') ? 'active' : '' }}">Delivered
                                                  Orders</a></li>
-                                        <li><a href="/advance-order-list/cancel"
+                                         <li><a href="/advance-order-list/cancel"
                                                  class="{{ Request::is('advance-order-list/cancel') ? 'active' : '' }}">Cancel
                                                  Order</a></li>
                                      </ul>
@@ -618,8 +621,8 @@
                                  <li class="{{ Request::is('sale-return') ? 'active' : '' }}"><a
                                          href="/sale-return"><i data-feather="user-plus"></i><span>Sale
                                              Return</span></a></li>
-                                <li class="{{ Request::is('barcode') ? 'active' : '' }}"><a
-                                         href="/barcode"><i class="fa fa-barcode fs-16 me-2"></i><span> Barcode</span></a></li>
+                                 <li class="{{ Request::is('barcode') ? 'active' : '' }}"><a href="/barcode"><i
+                                             class="fa fa-barcode fs-16 me-2"></i><span> Barcode</span></a></li>
                              </ul>
                          </li>
 
@@ -676,6 +679,10 @@
                                          <li><a href="/customer-wise-report"
                                                  class="{{ Request::is('customer-wise-report') ? 'active' : '' }}">Customer
                                                  Wise Report</a></li>
+
+                                         <li><a href="/tally-report"
+                                                 class="{{ Request::is('tally-report') ? 'active' : '' }}">Tally
+                                                 Report</a></li>
                                      </ul>
                                  </li>
 

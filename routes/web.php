@@ -19,6 +19,7 @@ use App\Http\Controllers\ResetSoftware;
 use App\Http\Controllers\SaleReturn;
 use App\Http\Controllers\StockReport;
 use App\Http\Controllers\Barcode;
+use App\Http\Controllers\TallyController;
 use Illuminate\Database\Console\Migrations\ResetCommand;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -477,5 +478,9 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('category-subcategory-report', [Reports::class, 'CategorySubCategoryReport'])->name('category-subcategory-report');
   Route::get('customer-wise-report', [Reports::class, 'CustomerWiseReport'])->name('customer-wise-report');
   Route::get('getSaleRegisterReportData', [Reports::class, 'getSaleRegisterReportData'])->name('getSaleRegisterReportData');
+
+  //tally report
+    Route::get('tally-report', [TallyController::class, 'tallyReport'])->name('tally-report');
+
 });
  
