@@ -13,43 +13,70 @@ class Reports extends Controller
 {
     public function PurchaseVariationReport(Request $request)
     {
+        $fromDt = $request->input("fromDt");
+        $toDt   = $request->input("toDt");
 
-        $fromDt = request("fromDt");
-        $toDt = request("toDt");
-        $search =   DB::table("stock_inward_mst as a")
-            ->select("a.*", "b.product_id as product_id","c.name as vendor", "d.name as product", "b.price", "b.qty")
+        if (!$fromDt && !$toDt) {
+            $from = Carbon::now()->startOfMonth();
+            $to   = Carbon::now()->endOfMonth();
+        } else {
+            $from = $fromDt ? Carbon::parse($fromDt)->startOfDay() : null;
+            $to   = $toDt   ? Carbon::parse($toDt)->endOfDay() : null;
+        }
+
+        $query = DB::table("stock_inward_mst as a")
+            ->select(
+                "a.id as mst_id",
+                "a.invoice_date",
+                "b.product_id",
+                "c.id as vendor_id",
+                "c.name as vendor",
+                "d.name as product",
+                "b.price",
+                "b.qty"
+            )
             ->join("stock_inward_det as b", "a.id", "b.mst_id")
             ->join("vendor as c", "a.vendor_id", "c.id")
             ->join("products as d", "b.product_id", "d.id");
-        if ($fromDt) {
-            $search->whereDate("a.invoice_date", ">=", $fromDt);
+
+        if ($from && $to) {
+            $query->whereBetween("a.invoice_date", [$from, $to]);
+        } elseif ($from) {
+            $query->where("a.invoice_date", ">=", $from);
+        } elseif ($to) {
+            $query->where("a.invoice_date", "<=", $to);
         }
 
-        if ($toDt) {
-            $search->whereDate("a.invoice_date", "<=", $toDt);
-        }
+        $grouped = $query
+            ->orderBy("a.invoice_date", "asc")
+            ->orderBy("a.id", "asc")
+            ->get()
+            ->groupBy(fn($row) => $row->product_id . '-' . $row->vendor_id);
 
-        $grouped = $search->orderByDesc('a.invoice_date')->get()->groupBy('product_id');
+        $filter = [];
 
-    // dd($grouped);
-       $filter = [];
+        foreach ($grouped as $entries) {
+            $entries = collect($entries)->values();
 
-        foreach ($grouped as $productId => $entries) {
-            $entries = collect($entries)->filter(); // remove nulls
-            if ($entries->isEmpty()) continue;
+            for ($i = 1; $i < $entries->count(); $i++) {
+                $prev   = $entries[$i - 1];
+                $latest = $entries[$i];
 
-            $latest = $entries->last();
-             $prev   = $entries->count() > 1? $entries->slice($entries->count() - 2, 1)->first(): null;
+                if (intval($prev->price) !== intval($latest->price)) {
 
-              if ($prev && $latest && $prev->price != $latest->price) {
                     $filter[] = $prev;
-                }
-                 if (!empty($latest)) {
                     $filter[] = $latest;
                 }
+            }
         }
+
+        $filter = collect($filter)->unique(function ($item) {
+            return $item->product_id . '-' . $item->vendor_id . '-' . $item->invoice_date . '-' . $item->price;
+        })->values();
+
         return view("purchase-variation-report", compact("filter"));
     }
+
 
     public function PurchaseRegisterReport(Request $request)
     {
@@ -111,119 +138,6 @@ class Reports extends Controller
 
     public function SaleRegisterReport(Request $request)
     {
-        //         $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
-        //         $toDt = $request->input("toDt") ?: Carbon::now()->toDateString();
-
-        //         $unionSql = "
-        //              SELECT
-        //         a.invoice_no,
-        //         a.id,
-        //         a.invoice_date,
-        //         e.name AS name,
-        //         'Regular Order' AS order_type,
-        //         SUM(b.qty * c.price) AS sub_total,
-        //         SUM(b.qty * c.mrp) AS total_mrp,
-        //         SUM(c.cess_amt) AS cess_amt,
-        //         ROUND(SUM(IF(c.gst_type = 'Outer GST', b.qty * c.price * c.gst / 100, 0)), 2) AS igst,
-        //         ROUND(SUM(IF(c.gst_type = 'Inner GST', b.qty * c.price * c.gst / 200, 0)), 2) AS cgst,
-        //         ROUND(SUM(IF(c.gst_type = 'Inner GST', b.qty * c.price * c.gst / 200, 0)), 2) AS sgst
-        //     FROM outward_customer_order_mst a
-        //     JOIN outward_customer_order_det b ON a.id = b.mst_id
-        //     JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
-        //     JOIN order_mst d ON a.order_id = d.id
-        //     JOIN customers e ON d.customer_id = e.id
-        //     WHERE d.order_type = 'customer'
-        //       AND a.invoice_date BETWEEN ? AND ?
-        //     GROUP BY a.invoice_no, a.invoice_date, a.id, e.name
-
-        //     UNION ALL
-
-        //     SELECT
-        //         a.invoice_no,
-        //         a.id,
-        //         a.invoice_date,
-        //         e.outlet_name AS name,
-        //         'Regular Order' AS order_type,
-        //         SUM(b.qty * c.price) AS sub_total,
-        //         SUM(b.qty * c.mrp) AS total_mrp,
-        //         SUM(c.cess_amt) AS cess_amt,
-        //         ROUND(SUM(IF(c.gst_type = 'Outer GST', b.qty * c.price * c.gst / 100, 0)), 2) AS igst,
-        //         ROUND(SUM(IF(c.gst_type = 'Inner GST', b.qty * c.price * c.gst / 200, 0)), 2) AS cgst,
-        //         ROUND(SUM(IF(c.gst_type = 'Inner GST', b.qty * c.price * c.gst / 200, 0)), 2) AS sgst
-        //     FROM outward_customer_order_mst a
-        //     JOIN outward_customer_order_det b ON a.id = b.mst_id
-        //     JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
-        //     JOIN order_mst d ON a.order_id = d.id
-        //     JOIN outlet e ON d.customer_id = e.id
-        //     WHERE d.order_type = 'outlet'
-        //       AND a.invoice_date BETWEEN ? AND ?
-        //     GROUP BY a.invoice_no, a.invoice_date, a.id, e.outlet_name
-
-        //     UNION ALL
-
-        //     SELECT
-        //         a.id AS invoice_no,
-        //         a.id,
-        //         a.order_date AS invoice_date,
-        //         c.name,
-        //         'Advance Order' AS order_type,
-        //         SUM(b.total_price) AS sub_total,
-        //         SUM(b.mrp) AS total_mrp,
-        //         0 AS cess_amt,
-        //         0 AS igst,
-        //         0 AS cgst,
-        //         0 AS sgst
-        //     FROM adv_order_mst a
-        //     JOIN adv_order_det b ON a.id = b.mst_id
-        //     JOIN customers c ON a.outlet_id = c.id
-        //     WHERE a.customer_type = 'customer'
-        //       AND a.order_date BETWEEN ? AND ?
-        //     GROUP BY a.order_date, a.id, c.name
-
-        //     UNION ALL
-
-        //     SELECT
-        //         a.id AS invoice_no,
-        //         a.id,
-        //         a.order_date AS invoice_date,
-        //         c.outlet_name AS name,
-        //         'Advance Order' AS order_type,
-        //         SUM(b.total_price) AS sub_total,
-        //         SUM(b.mrp) AS total_mrp,
-        //         0 AS cess_amt,
-        //         0 AS igst,
-        //         0 AS cgst,
-        //         0 AS sgst
-        //     FROM adv_order_mst a
-        //     JOIN adv_order_det b ON a.id = b.mst_id
-        //     JOIN outlet c ON a.outlet_id = c.id
-        //     WHERE a.customer_type = 'outlet'
-        //       AND a.order_date BETWEEN ? AND ?
-        //     GROUP BY a.order_date, a.id, c.outlet_name
-        // ";
-
-        //         $params = [$fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt];
-
-        //         // Wrap it as a subquery
-        //         $subQuery = DB::table(DB::raw("({$unionSql}) as sales_data"))
-        //             ->select('*');
-
-        //         // Paginate the data
-        //         $page = request()->get('page', 1);
-        //         $perPage = 50;
-        //         $total = DB::select("SELECT COUNT(*) as total FROM ({$unionSql}) as count_table", $params)[0]->total;
-        //         $data = DB::select($unionSql . " LIMIT ? OFFSET ?", array_merge($params, [$perPage, ($page - 1) * $perPage]));
-
-        //         $mst = new LengthAwarePaginator(
-        //             collect($data),
-        //             $total,
-        //             $perPage,
-        //             $page,
-        //             ['path' => request()->url(), 'query' => request()->query()]
-        //         );
-
-
-        // die;
         return view("sale-register-report");
     }
 

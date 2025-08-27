@@ -218,7 +218,6 @@ class OutwardStock extends Controller
             $customer =    DB::table("outlet")->select("outlet_name as name", "id")->get();
         }
 
-
         $f_product_category =    DB::table("f_product_category")->get();
         $mode_of_transport =    DB::table("mode_of_transport")->get();
         return view("outward-customer-order", compact("customer", "mode_of_transport", "f_product_category"));

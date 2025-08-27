@@ -40,11 +40,14 @@
                     @php
                         $sno=1;
                     @endphp
+                   
                     @foreach ($current_stock as $item)
+                     <tr>
                         <td>{{$sno++}}</td>
                         <td>{{$item->product}}</td>
                         <td>{{$item->stock}}</td>
                         <td>{{$item->updated_at}}</td>
+                     </tr>
                     @endforeach
 
 

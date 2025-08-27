@@ -12,7 +12,8 @@ class PurchaseReturn extends Controller
 {
     public function PurchaseReturnList(Request $request)
     {
-        $vendor = DB::table("vendor as a")->select("a.*", "b.name as company")->join("company as b", "a.company_id", "b.id")->get();
+     $vendors = DB::table("vendor as a")
+              ->get();
 
      $data=   DB::table("purchase_return_mst as a")
      ->select("a.*","b.name as vendor","c.name as company","d.name as user","e.invoice_no")
@@ -21,7 +22,7 @@ class PurchaseReturn extends Controller
      ->join("users as d","a.user_id","d.id")
      ->join("stock_inward_mst as e","a.inward_id","e.id")
      ->get();
-        return view("purchase-return", compact("vendor","data"));
+        return view("purchase-return", compact("vendors","data"));
     }
 
     public function GetInwardChallan(Request $request)

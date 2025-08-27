@@ -297,9 +297,6 @@ class Masters extends Controller
 
     public function SaveVendor(Request $request)
     {
-
-
-
         $validator = Validator::make($request->all(), [
             'company_name' => 'required',
             'number' => 'required',
@@ -331,6 +328,7 @@ class Masters extends Controller
                     "city" => $request->city,
                     "pincode" => $request->pincode,
                     "active" => $request->active,
+                    // "company_id"=>
                 ));
             } else {
                 DB::table('vendor')->where("id", $request->id)->update(array(

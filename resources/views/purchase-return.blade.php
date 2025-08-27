@@ -3,6 +3,11 @@
     @push('title')
         <title>Purchase Return</title>
     @endpush
+    <style>
+        .select2-container--open {
+    z-index: 9999!important; 
+}
+    </style>
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
@@ -77,17 +82,17 @@
 
                         <div class="col-md-4">
                             <label for="">Select Vendor</label>
-                            <select name="vendor_id" id="vendor_id" class="form-control">
-                                <option value="">Select Vendor</option>
-                                @foreach ($vendor as $item)
-                                    <option value="{{ $item->id }}">{{ $item->company }} / {{ $item->name }}
+                            <select name="vendor_id" id="vendor_id" class="form-control ">
+                               
+                                @foreach ($vendors as $item)
+                                    <option value="{{ $item->id }}">{{ $item->name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label for="">Select Invoice</label>
-                            <select name="inward_id" id="inward_id" class="form-control">
+                            <select name="inward_id" id="inward_id" class="form-control ">
                                 <option value="">Select Invoice</option>
                             </select>
                         </div>
@@ -159,6 +164,14 @@
             $("#modal_name").text("Add Purchase Return");
             $("#id").val("");
             $("#exampleModal").modal("show");
+             $("#inward_id").select2({
+        dropdownParent: $("#exampleModal")
+    });
+    $("#vendor_id").select2({
+        dropdownParent: $("#exampleModal"),
+        placeholder: "Select Vendor",
+       
+    });
         });
 
         $("#vendor_id").on("change", function() {
@@ -304,5 +317,6 @@
             $('#frmMain').submit()
 
         })
+       
     </script>
 @endsection
