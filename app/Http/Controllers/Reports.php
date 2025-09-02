@@ -80,8 +80,8 @@ class Reports extends Controller
 
     public function PurchaseRegisterReport(Request $request)
     {
-        $fromDt = request("fromDt");
-        $toDt = request("toDt");
+        $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
+        $toDt = $request->input("toDt") ?: Carbon::now()->toDateString();
 
         $filterRawMaterial = DB::table("stock_inward_mst as a")
             ->select(

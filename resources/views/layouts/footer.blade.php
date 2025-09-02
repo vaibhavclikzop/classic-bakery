@@ -335,7 +335,7 @@
    
         var table = document.getElementById('exportTable');
         var workbook = XLSX.utils.table_to_book(table, {
-            sheet: "Sheet1"
+            sheet: "Report"
         });
         XLSX.writeFile(workbook, ''+name+'.xlsx');
     });

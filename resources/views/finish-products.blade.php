@@ -428,7 +428,7 @@
                             <div class="col-md-3 mt-4 ">
                                 <label for="">Article No</label>
                                 <input id="uarticle_no" name="article_no" class="form-control"
-                                    placeholder="Enter Article No" type="number">
+                                    placeholder="Enter Article No" type="">
 
                             </div>
                             <div class="col-md-3 mt-4 ">
@@ -765,7 +765,7 @@
             var name = $(this).data("name")
             var price = $(this).data("price")
             $("#uid").val(id)
-
+            
             $("#uname").val(name)
             $("#uprice").val(price)
             $("#ugst").val($(this).data("gst"))

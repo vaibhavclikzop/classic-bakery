@@ -11,7 +11,7 @@ class TallyController extends Controller
     public function tallyReport(Request $request)
     {
 
-        $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
+        $fromDt = $request->input("fromDt") ?: Carbon::now()->toDateString();
         $toDt = $request->input("toDt") ?: Carbon::now()->toDateString();
         $page = $request->input("page", 1);
         $limit = 1000;

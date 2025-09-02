@@ -32,7 +32,7 @@
                     <div>
                         <label for="">From</label>
                         <input type="date" name="fromDt" class="form-control" onchange="this.form.submit()"
-                            value="{{ request('fromDt') ?? \Carbon\Carbon::now()->startOfMonth()->toDateString() }}">
+                            value="{{ request('fromDt') ?? \Carbon\Carbon::now()->toDateString() }}">
 
                     </div>
 
@@ -46,7 +46,7 @@
 
             </div>
             <div>
-                <button id="exportToExcel" data-name="TallyExport Report {{Request("fromDt")}} {{Request("toDt")}}"
+                <button id="exportToExcel" data-name="TallyExport Report{{ Request('fromDt') }}{{ Request('toDt') }}"
                     class="btn btn-success float-end btn-sm mx-2">Export
                     to Excel</button>
                 <button type="button" onclick="printcontent()" class="btn btn-primary btn-sm"><i class="fa fa-print"
@@ -58,6 +58,49 @@
 
             <table id="exportTable">
                 <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th colspan="4" style="text-align: center">Export To Excel</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th colspan="4" style="text-align: center">Classic Bakery</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th colspan="4" style="text-align: center">
+                            {{ request('fromDt') ?? \Carbon\Carbon::now()->startOfMonth()->toDateString() }}
+                        </th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
                     <tr>
                         <th>Invoice Type</th>
                         <th>Date</th>
@@ -79,7 +122,7 @@
                     @foreach ($data as $row)
                         {{-- Main invoice row --}}
                         <tr>
-                            <td>{{ $row->invoice_type }}</td>
+                            <td style="text-transform: capitalize">{{ $row->invoice_type }}</td>
                             <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
                             <td></td>
                             <td></td>
@@ -88,10 +131,11 @@
                             <td>Sundry Debtors</td>
                             <td></td>
                             <td></td>
-                            <td>-</td> 
+                            <td>-</td>
                             <td>CHANDIGARH</td>
-                            <td>{{ number_format($row->sub_total+$row->igst+$row->cess_amt, 2) }}</td>
-                            <td>{{ number_format($row->sub_total+$row->igst+$row->cess_amt, 2) }}</td>
+                            <td>{{ number_format($row->sub_total + $row->igst + $row->cess_amt, 2) }}</td>
+                          <td>{{ round(($row->sub_total ?? 0) + ($row->igst ?? 0) + ($row->cess_amt ?? 0)) }}</td>
+
                             <td></td>
                         </tr>
 
@@ -102,68 +146,68 @@
                             <td></td>
                             <td></td>
                             <td>{{ $row->id }}</td>
-                            <td>{{$row->order_type}}</td>
+                            <td>{{ $row->order_type }}</td>
                             <td>Sales Accounts</td>
                             <td>-</td>
-                            <td>{{$row->gst}}</td>
+                            <td>{{ $row->gst }}</td>
                             <td></td>
                             <td></td>
-                            <td>{{ number_format($row->sub_total, 2) }}</td>
+                            <td>-{{ number_format($row->sub_total, 2) }}</td>
                             <td></td>
                             <td></td>
                         </tr>
 
                         {{-- GST Breakdown --}}
-                      
-                            <tr>
-                                <td>{{ $row->invoice_type }}</td>
-                                <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                                <td></td>
-                                <td></td>
-                                <td>{{ $row->id }}</td>
-                                <td>OUTPUT CGST {{ $row->cgst > 0 ? '9%' : '' }}</td>
-                                <td>Duties & Taxes</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>{{ number_format(-1 * $row->cgst, 2) }}</td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>{{ $row->invoice_type }}</td>
-                                <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                                <td></td>
-                                <td></td>
-                                <td>{{ $row->id }}</td>
-                                <td>OUTPUT SGST {{ $row->sgst > 0 ? '9%' : '' }}</td>
-                                <td>Duties & Taxes</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>{{ number_format(-1 * $row->sgst, 2) }}</td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                                <tr>
-                                <td>{{ $row->invoice_type }}</td>
-                                <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                                <td></td>
-                                <td></td>
-                                <td>{{ $row->id }}</td>
-                                <td>OUTPUT IGST {{ $row->igst > 0 ? $row->gst.'%' : '' }}</td>
-                                <td>Duties & Taxes</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>{{ number_format($row->igst, 2) }}</td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                 
+
+                        <tr>
+                            <td>{{ $row->invoice_type }}</td>
+                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
+                            <td></td>
+                            <td></td>
+                            <td>{{ $row->id }}</td>
+                            <td>OUTPUT CGST {{ $row->cgst > 0 ? '9%' : '' }}</td>
+                            <td>Duties & Taxes</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>{{ number_format(-1 * $row->cgst, 2) }}</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $row->invoice_type }}</td>
+                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
+                            <td></td>
+                            <td></td>
+                            <td>{{ $row->id }}</td>
+                            <td>OUTPUT SGST {{ $row->sgst > 0 ? '9%' : '' }}</td>
+                            <td>Duties & Taxes</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>{{ number_format(-1 * $row->sgst, 2) }}</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $row->invoice_type }}</td>
+                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
+                            <td></td>
+                            <td></td>
+                            <td>{{ $row->id }}</td>
+                            <td>OUTPUT IGST {{ $row->igst > 0 ? $row->gst . '%' : '' }}</td>
+                            <td>Duties & Taxes</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>{{ number_format($row->igst, 2) }}</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+
 
                         {{-- CESS --}}
                         <tr>

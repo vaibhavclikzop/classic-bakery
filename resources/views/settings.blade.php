@@ -104,7 +104,7 @@
 
                 </div>
                 <div class="col-md-4 mt-2">
-                    <label for="">Order Pasword</label>
+                    <label for="">Order Password</label>
                     <div class="pass-group">
                         <input type="password" class="pass-input form-control" value="{{ $settings->order_pwd }}"
                         name="order_pwd">

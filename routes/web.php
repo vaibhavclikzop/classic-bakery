@@ -193,7 +193,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('barcode', [Barcode::class, 'index'])->name('barcode');
   Route::get('print-barcode/{id}', [Barcode::class, 'PrintBarcode'])->name('print-barcode');
   Route::post('printall-barcode', [Barcode::class, 'PrintallBarcode'])->name('printall-barcode');
-  
+
   Route::get('order-type', [Masters::class, 'OrderType'])->name('order-type');
   Route::post('UpdateVendorPrice', [Masters::class, 'UpdateVendorPrice'])->name('UpdateVendorPrice');
   Route::post('GetCustomerOutletList', [Masters::class, 'GetCustomerOutletList'])->name('GetCustomerOutletList');
@@ -480,7 +480,5 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('getSaleRegisterReportData', [Reports::class, 'getSaleRegisterReportData'])->name('getSaleRegisterReportData');
 
   //tally report
-    Route::get('tally-report', [TallyController::class, 'tallyReport'])->name('tally-report');
-
+  Route::get('tally-report', [TallyController::class, 'tallyReport'])->name('tally-report');
 });
- 

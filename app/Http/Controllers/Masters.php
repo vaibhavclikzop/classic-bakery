@@ -1284,7 +1284,7 @@ class Masters extends Controller
             'id' => 'required',
             'name' => 'required',
             'price' => 'required',
-            'hsn_code' => 'required|digits:4',
+            'hsn_code' => 'required|min:4',
 
         ]);
 
@@ -1330,6 +1330,16 @@ class Masters extends Controller
                 "warranty_days" => $request->warranty_days
 
             ));
+
+
+
+           DB::table("customer_type_product")
+    ->where("finish_product_id", $request->id)
+    ->update([
+        "price"      => $request->price,
+        "sale_price" => DB::raw("{$request->price} - ({$request->price}/100 * margin)")
+    ]);
+
         } catch (Exception $e) {
 
             return redirect()->back()->with('error', $e->getMessage());

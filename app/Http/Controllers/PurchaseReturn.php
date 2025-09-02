@@ -18,7 +18,7 @@ class PurchaseReturn extends Controller
      $data=   DB::table("purchase_return_mst as a")
      ->select("a.*","b.name as vendor","c.name as company","d.name as user","e.invoice_no")
      ->join("vendor as b","a.vendor_id","b.id")
-     ->join("company as c","b.company_id","c.id")
+     ->leftJoin("company as c","b.company_id","c.id")
      ->join("users as d","a.user_id","d.id")
      ->join("stock_inward_mst as e","a.inward_id","e.id")
      ->get();
@@ -101,7 +101,7 @@ class PurchaseReturn extends Controller
         $po_mst=   DB::table("purchase_return_mst as a")
         ->select("a.*","b.name as vendor","c.name as company","d.name as user","e.invoice_no","b.address","b.state","b.city","b.pincode","b.number","b.email","b.gst")
         ->join("vendor as b","a.vendor_id","b.id")
-        ->join("company as c","b.company_id","c.id")
+        ->leftJoin("company as c","b.company_id","c.id")
         ->join("users as d","a.user_id","d.id")
         ->join("stock_inward_mst as e","a.inward_id","e.id")
         ->where("a.id",$id)

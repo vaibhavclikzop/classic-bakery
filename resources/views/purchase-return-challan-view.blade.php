@@ -41,8 +41,8 @@
                             {{ $po_mst->number }} <br>
                             {{ $po_mst->email }} <br>
                             {{ $po_mst->gst }} <br>
-                        
-                        
+
+
                             {{ $po_mst->return_date }} <br>
 
                         </p>
@@ -59,31 +59,30 @@
                 <table class="table">
                     <thead>
                         <th>S.No</th>
-                 
+
                         <th>Product</th>
                         <th>Qty</th>
-                        
+
                     </thead>
                     <tbody>
                         @php
-                            $total_gst=0;
-                            $sub_total=0;
+                            $total_gst = 0;
+                            $sub_total = 0;
                         @endphp
                         @foreach ($po_det as $item)
-                        
                             <tr>
                                 <td>{{ $sno++ }}</td>
-                       
+
                                 <td>{{ $item->product }}</td>
                                 <td>{{ $item->qty }}</td>
-                                
-                   
+
+
 
                             </tr>
                         @endforeach
-                            
+
                     </tbody>
-                   
+
 
                 </table>
             </div>

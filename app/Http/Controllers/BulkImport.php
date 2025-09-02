@@ -100,6 +100,13 @@ class BulkImport extends Controller
                     }
 
 
+                    $gst = DB::table("gst")->where("gst", $record[10])->first();
+                    if (!$gst) {
+                        DB::table('gst')->insertGetId(array(
+                            "gst" => $record[10],
+                        ));
+                    }
+
 
                     $products = DB::table("products")->where("article_no", $record[4])->first();
                     if ($products) {
@@ -113,16 +120,16 @@ class BulkImport extends Controller
                             "brand_id" => $brand_id,
                             "category_id" => $category_id,
                             "sub_category_id" => $sub_category_id,
-
-
                             "name" => $record[3],
                             "article_no" => $record[4],
                             "price" => $record[5],
                             "min_stock" => $record[6],
                             "uom" => $unit_type_id,
-
                             "active" => 1,
                             "bar_code" => $barcode,
+                            "hsn_code" => $record[8],
+                            "warranty_days" => $record[9],
+                            "gst" => $record[10],
 
                         ));
                         $success++;
@@ -142,7 +149,7 @@ class BulkImport extends Controller
 
 
 
-    
+
 
 
 
@@ -241,6 +248,9 @@ class BulkImport extends Controller
 
                             "active" => 1,
                             "bar_code" => $barcode,
+                            "hsn_code" => $record[7],
+                            "gst" => $record[8],
+                            "warranty_days" => $record[9],
 
                         ));
                         $success++;
