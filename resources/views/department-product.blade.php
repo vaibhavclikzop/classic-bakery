@@ -17,7 +17,7 @@
 
 
                 <button type="button" class="btn btn-danger" id="unAllocate">UnAllocate</button>
-                <button type="button" class="btn btn-dark" id="AddProduct">Add Product</button>
+                <button type="button" class="btn btn-dark" id="AddProduct">Sub Category</button>
 
             </div>
         </div>

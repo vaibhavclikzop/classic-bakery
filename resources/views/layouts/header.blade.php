@@ -338,8 +338,8 @@
                                              <li><a href="/advance-order-shape"
                                                      class="{{ Request::is('advance-order-shape') ? 'active' : '' }}">Shape</a>
                                              </li>
-                                             <li><a href="/advance-order-food-type"
-                                                     class="{{ Request::is('advance-order-food-type') ? 'active' : '' }}">Food
+                                             <li class="d-none"><a href="/advance-order-food-type"
+                                                     class="{{ Request::is('advance-order-food-type') ? '' : '' }}">Food
                                                      Type</a></li>
                                              <li><a href="/advance-order-weight"
                                                      class="{{ Request::is('advance-order-weight') ? 'active' : '' }}">Weight</a>
@@ -476,10 +476,10 @@
                                              <li><a href="/inward-stock"
                                                      class="{{ Request::is('inward-stock') ? 'active' : '' }}">Inward
                                                      Stock</a></li>
-                                             <li><a href="/purchase-order/partial"
+                                             <li class="d-none"><a href="/purchase-order/partial"
                                                      class="{{ Request::is('purchase-order/partial') ? 'active' : '' }}">Partial
                                                      Approved</a></li>
-                                             <li><a href="/purchase-order/complete"
+                                             <li class="d-none"><a href="/purchase-order/complete"
                                                      class="{{ Request::is('purchase-order/complete') ? 'active' : '' }}">Full
                                                      Approved</a></li>
                                          </ul>

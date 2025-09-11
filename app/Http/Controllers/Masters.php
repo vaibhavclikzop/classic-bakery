@@ -926,6 +926,8 @@ class Masters extends Controller
     public function FinishProduct(Request $request)
     {
 
+        $f_category_id = request("f_category_id");
+        $f_sub_category_id = request("f_sub_category_id");
         $search = $request->input('search');
         $perPage = $request->input('perPage', 10);
         $product = DB::table("finish_products_mst as a")
@@ -953,10 +955,14 @@ class Masters extends Controller
         $products->appends(['search' => $search, 'perPage' => $perPage]);
 
         $f_product_category = DB::table("f_product_category")->get();
+        $sub_category = collect();
+         if ($f_category_id) {
+            $sub_category = DB::table("f_product_sub_category")->where("f_category_id", $f_category_id)->get();
+        }
         $unit_type = DB::table("unit_type")->get();
         $gst = DB::table("gst")->get();
         $brand = DB::table("brand")->get();
-        return view("finish-products", compact('products', "f_product_category", "unit_type", "gst", "brand"));
+        return view("finish-products", compact('products', "f_product_category", "unit_type", "gst", "brand","sub_category"));
     }
 
 

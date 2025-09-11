@@ -95,6 +95,11 @@
                             </tbody>
                             <tfoot>
                                 <tr>
+                                    <th colspan="9" >Delivery Charges </th>
+                                    <th id="dcharges"></th>
+                                    <th></th>
+                                </tr>
+                                <tr>
                                     <th colspan="9">Total </th>
                                     <th id="subtotal"></th>
                                     <th></th>
@@ -355,6 +360,7 @@
                 let delivery_charges = parseFloat($("#delivery_charges").val());
                 console.log(total+delivery_charges);
 
+                $("#dcharges").text(parseFloat(delivery_charges).toFixed(2));
                 $("#subtotal").text(parseFloat(total + delivery_charges).toFixed(2));
 
 

@@ -422,13 +422,16 @@
 
                 // Update the row
                 let row = $(`.product${id}`);
-                const product_name = row.find("td").eq(1).text();
-                const gst = row.find("td").eq(5).text();
-                const cess = row.find("td").eq(4).text();
+                console.log(row);
+                const type = row.find("td").eq(1).text();
+                const product_name = row.find("td").eq(2).text();
+                const gst = row.find("td").eq(6).text();
+                const cess = row.find("td").eq(5).text();
                 const total = (newPrice * newQty) + ((newPrice * newQty * parseFloat(gst)) / 100);
 
                 row.html(`
                     <td>${row.index() + 1}</td>
+                     <td>${type}</td>    
                     <td>${product_name}</td>
                     <td>${newQty}</td>
                     <td>${newPrice}</td>

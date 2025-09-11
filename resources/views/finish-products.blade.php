@@ -48,6 +48,32 @@
                 <h4>Finish Product</h4>
             </div>
             <div class="">
+                   <form action="" method="GET" class="d-flex">
+                    <div>
+                        <label for="">Category</label>
+                        <select name="f_category_id" id="" class="form-control" onchange="this.form.submit()">
+                            <option value="">Select</option>
+                            @foreach ($f_product_category as $item)
+                                <option value="{{ $item->id }}"
+                                    {{ $item->id == request('f_category_id') ? 'Selected' : '' }}>{{ $item->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mx-3">
+                        <label for="">Sub Category</label>
+                        <select name="f_sub_category_id" id="" class="form-control" onchange="this.form.submit()">
+                            <option value="">Select</option>
+                            @foreach ($sub_category as $item)
+                                <option value="{{ $item->id }}"
+                                    {{ $item->id == request('f_sub_category_id') ? 'Selected' : '' }}>{{ $item->name }}
+                                </option>
+                            @endforeach
+
+                        </select>
+                    </div>
+                 </form>
+            </div>
+            <div class="">
                 <button type="button" class="btn btn-dark float-end mx-2" data-bs-toggle="modal"
                     data-bs-target="#importModal"><i class="fa fa-download"></i> Import Products</button>
 
@@ -93,13 +119,11 @@
                 <thead>
                     <tr>
                         <th>S.no</th>
-                        <th> Image</th>
                         <th> Category</th>
                         <th> Sub Category</th>
                         <th> Name</th>
                         <th> Price</th>
                         <th> GST</th>
-                        <th> Cess Tax</th>
                         <th> Article No</th>
                         <th> HSN Code</th>
                         <th> Bar Code</th>
@@ -120,8 +144,6 @@
                     @foreach ($products as $item)
                         <tr>
                             <td>{{ $sno++ }}</td>
-                            <td><a href="/product images/{{ $item->image }}" target="_blank"> <img
-                                        src="/product images/{{ $item->image }}" width="45px"> </a></td>
                             <td>{{ $item->category_name }}</td>
                             <td>{{ $item->sub_category }}</td>
                             <td>
@@ -134,7 +156,6 @@
 
                             <td>{{ $item->price }}</td>
                             <td>{{ $item->gst }}</td>
-                            <td>{{ $item->cess_tax }}</td>
                             <td>{{ $item->article_no }}</td>
                             <td>{{ $item->hsn_code }}</td>
                             <td>{{ $item->manual_barcode }}</td>

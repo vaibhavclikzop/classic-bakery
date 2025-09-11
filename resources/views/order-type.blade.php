@@ -11,7 +11,7 @@
             <div class="">
 
 
-                <button type="button" class="btn btn-primary add"><i class="fa fa-plus"></i> Add Order Type</button>
+                <button type="button" class="btn btn-primary add"><i class="fa fa-plus"></i> Add Order Type Name</button>
 
             </div>
         </div>
@@ -89,13 +89,13 @@
                         </div>
 
 
-                        <div class="col-md-12">
-                            <label for="">Order Type</label>
+                        <div class="col-md-12 mt-3">
+                            <label for="">Order Type Name</label>
                             <input type="text" name="name" id="name" class="form-control" required>
 
                         </div>
                         <div class="col-md-12 mt-3">
-                            <label for="">Default Days</label>
+                            <label for="">Default Delivery Days</label>
                             <input type="number" name="days" id="days" class="form-control" required>
 
                         </div>

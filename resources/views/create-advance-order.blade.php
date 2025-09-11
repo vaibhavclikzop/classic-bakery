@@ -186,7 +186,7 @@
                                     <th>Item </th>
                                     <th>Flavour</th>
                                     <th>Shape</th>
-                                    <th>Food Type</th>
+                                    {{-- <th>Food Type</th> --}}
                                     <th>Name</th>
                                     <th>Message</th>
                                     <th>Description</th>
@@ -350,7 +350,7 @@
                             <td>${product_name}</td>    
                             <td>${flavour_name}</td>    
                             <td>${shape}</td>    
-                            <td>${food_type}</td>    
+                            <td class="d-none">${food_type}</td>    
                             <td>${name}</td>    
                             <td>${message}</td>    
                             <td>${description}</td>    

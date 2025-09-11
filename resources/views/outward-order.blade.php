@@ -29,7 +29,7 @@
 
                     <div class="col-md-3 mt-3">
                         <label for="">Issue Date</label>
-                        <input type="date" id="invoice_date" name="invoice_date" class="form-control" required>
+                        <input type="date" id="invoice_date" name="invoice_date" class="form-control" value="{{ date('Y-m-d') }}" required>
 
 
                     </div>
