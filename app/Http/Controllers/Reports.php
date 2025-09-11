@@ -126,7 +126,6 @@ class Reports extends Controller
             $filterFinishGoods->whereDate("a.received_material_date", "<=", $toDt);
         }
 
-        // Group by invoice only — not by product lines
         $finishGoods = $filterFinishGoods->groupBy("a.id", "a.received_material_date", "c.name", "a.delivery_charges")->get();
         $data = $rawMaterial->merge($finishGoods);
         $data = $data->sortBy('received_material_date')->values();

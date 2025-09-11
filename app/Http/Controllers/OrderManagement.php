@@ -560,8 +560,7 @@ class OrderManagement extends Controller
             ->join("users as c", "a.user_id", "c.id")
             ->join("order_type as d", "a.order_type_id", "d.id")
             ->where("a.status", $status)
-            ->where("order_type", "customer")
-            ->whereIn("a.user_id", $request->userIds);
+            ->where("order_type", "customer");
 
         $order->whereDate("a.delivery_date", $date);
         $order->where("d.type", $type);
@@ -575,8 +574,7 @@ class OrderManagement extends Controller
             ->join("users as c", "a.user_id", "c.id")
             ->join("order_type as d", "a.order_type_id", "d.id")
             ->where("a.status", $status)
-            ->where("order_type", "outlet")
-            ->whereIn("a.user_id", $request->userIds);
+            ->where("order_type", "outlet");
 
         $outlet->whereDate("a.delivery_date", $date);
         $outlet->where("d.type", $type);
@@ -776,7 +774,7 @@ class OrderManagement extends Controller
 
             ->where("a.status", "pending")
             ->whereDate("a.delivery_date", $date)
-            ->whereIn("a.user_id", $request->userIds)
+   
             ->orderBy("id", "desc")
             ->get();
 

@@ -180,6 +180,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
 
   Route::post('AllocateDepartmentProduct', [Masters::class, 'AllocateDepartmentProduct'])->name('AllocateDepartmentProduct');
+  Route::post('UnAllocateDepartmentProduct', [Masters::class, 'UnAllocateDepartmentProduct'])->name('UnAllocateDepartmentProduct');
 
 
   Route::get('mode-of-transport', [Masters::class, 'ModeOfTransport'])->name('mode-of-transport');

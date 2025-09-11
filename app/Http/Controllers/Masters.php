@@ -55,7 +55,7 @@ class Masters extends Controller
         return $products;
     }
 
-     public function GetProductFinish(Request $request)
+    public function GetProductFinish(Request $request)
     {
         return DB::table("finish_products_mst")->where("f_sub_category_id", $request->id)->get();
     }
@@ -1333,13 +1333,12 @@ class Masters extends Controller
 
 
 
-           DB::table("customer_type_product")
-    ->where("finish_product_id", $request->id)
-    ->update([
-        "price"      => $request->price,
-        "sale_price" => DB::raw("{$request->price} - ({$request->price}/100 * margin)")
-    ]);
-
+            DB::table("customer_type_product")
+                ->where("finish_product_id", $request->id)
+                ->update([
+                    "price"      => $request->price,
+                    "sale_price" => DB::raw("{$request->price} - ({$request->price}/100 * margin)")
+                ]);
         } catch (Exception $e) {
 
             return redirect()->back()->with('error', $e->getMessage());
@@ -1968,7 +1967,13 @@ class Masters extends Controller
             ->distinct("a.f_sub_category_id")
             ->where("a.department_id", 0)->get();
 
-        return view("department-product", compact("department", "category", "department_product"));
+        $allocateCategory = DB::table("finish_products_mst as a")
+            ->select("a.f_sub_category_id as id", "b.name")
+            ->join("f_product_sub_category as b", "a.f_sub_category_id", "b.id")
+            ->distinct("a.f_sub_category_id")
+            ->where("a.department_id", $id)->get();
+
+        return view("department-product", compact("department", "category", "department_product","allocateCategory"));
     }
 
     public function AllocateDepartmentProduct(Request $request)
@@ -1996,6 +2001,35 @@ class Masters extends Controller
 
             DB::table('finish_products_mst')->where("f_sub_category_id", $value)->update(array(
                 "department_id" => $request->department_id,
+            ));
+        }
+        return  redirect()->back()->with("success", "Save Successfully");
+    }
+
+
+    public function UnAllocateDepartmentProduct(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+
+            'product_id' => 'required',
+
+        ]);
+
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $count = 0;
+            foreach ($messages->all() as $error) {
+                if ($count == 0)
+                    return redirect()->back()->with('error', $error);
+
+                $count++;
+            }
+        }
+
+        foreach ($request->product_id as $key => $value) {
+            DB::table('finish_products_mst')->where("f_sub_category_id", $value)->update(array(
+                "department_id" => 0,
             ));
         }
         return  redirect()->back()->with("success", "Save Successfully");
@@ -2122,7 +2156,7 @@ class Masters extends Controller
         return  redirect()->back()->with("success", "Save Successfully");
     }
 
-   
+
 
     public function GetCustomerOutlet(Request $request)
     {

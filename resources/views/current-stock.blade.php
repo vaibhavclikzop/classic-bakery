@@ -93,7 +93,7 @@
                         <input type="hidden" id="id" name="id">
                         <input type="hidden" id="product_id" name="product_id">
                         <label>Qty</label>
-                        <input type="number" class="form-control" name="qty" required>
+                        <input type="number" step="0.01" class="form-control" name="qty" required>
 
                     </div>
                     <div class="modal-footer">

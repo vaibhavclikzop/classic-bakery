@@ -71,7 +71,7 @@
                     <div class="modal-body">
                         <input type="hidden" id="id" name="id">
                         <label>Qty</label>
-                        <input type="number" class="form-control" name="qty" required>
+                        <input type="number" step="0.01" class="form-control" name="qty" required>
 
                     </div>
                     <div class="modal-footer">

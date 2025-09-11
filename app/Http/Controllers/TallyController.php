@@ -118,9 +118,65 @@ class TallyController extends Controller
 
         $data = DB::select($sql . " ORDER BY invoice_date", array_merge($params));
 
+
+        //             [invoice_no] => 
+        //             [id] => 1
+        //             [invoice_date] => 2025-09-02
+        //             [name] => La Pizza Minia
+        //             [order_type] => Regular Order
+        //             [invoice_type] => sales
+        //             [gst] => 0.00
+        //             [sub_total] => 94.0000000000
+        //             [total_mrp] => 150.0000000000
+        //             [cess_amt] => 0.00000
+        //             [igst] => 0.00
+        //             [cgst] => 0.00
+        //             [sgst] => 0.00
+
+        $filterRawMaterial = DB::table("stock_inward_mst as a")
+            ->select(
+                DB::raw("a.id as invoice_no"),
+                DB::raw("a.id as id"),
+                DB::raw("a.received_material_date as invoice_date"),
+                DB::raw("c.name as name"),
+                DB::raw("'Regular Order' as order_type"),
+                DB::raw("'purchase' as invoice_type"),
+
+
+                DB::raw("SUM(b.qty * b.price) as sub_total"),
+                 DB::raw("b.gst as gst"), 
+
+ 
+                DB::raw("SUM((b.qty * b.price * b.cess_tax) / 100) as cess_amt"),
+                DB::raw("SUM((b.qty * b.price * b.gst) / 100) as igst"),
+                DB::raw("0 as cgst"),
+                DB::raw("0 as sgst"),
+
+
+                DB::raw("SUM((b.qty * b.price) + ((b.qty * b.price * b.gst)/100) + ((b.qty * b.price * b.cess_tax)/100)) as total_amount"),
+
+                "a.delivery_charges"
+            )
+            ->join("stock_inward_det as b", "a.id", "=", "b.mst_id")
+            ->join("vendor as c", "a.vendor_id", "=", "c.id");
+
+        if ($fromDt) {
+            $filterRawMaterial->whereDate("a.received_material_date", ">=", $fromDt);
+        }
+
+        if ($toDt) {
+            $filterRawMaterial->whereDate("a.received_material_date", "<=", $toDt);
+        }
+
+        $rawMaterial = $filterRawMaterial
+            ->groupBy("a.id", "a.received_material_date", "c.name", "a.delivery_charges","b.gst")
+            ->get();
+
+
         // echo "<pre>";
-        // print_r($data);
+        // print_r($rawMaterial);
         // die;
+        $data = array_merge($data, $rawMaterial->toArray());
         return view("tally-report", compact("data"));
     }
 }
