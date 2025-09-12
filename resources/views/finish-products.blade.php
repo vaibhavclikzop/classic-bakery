@@ -34,6 +34,7 @@
             visibility: visible;
             opacity: 1;
         }
+
         .text-truncate {
             white-space: nowrap;
             overflow: hidden;
@@ -48,30 +49,7 @@
                 <h4>Finish Product</h4>
             </div>
             <div class="">
-                   <form action="" method="GET" class="d-flex">
-                    <div>
-                        <label for="">Category</label>
-                        <select name="f_category_id" id="" class="form-control" onchange="this.form.submit()">
-                            <option value="">Select</option>
-                            @foreach ($f_product_category as $item)
-                                <option value="{{ $item->id }}"
-                                    {{ $item->id == request('f_category_id') ? 'Selected' : '' }}>{{ $item->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mx-3">
-                        <label for="">Sub Category</label>
-                        <select name="f_sub_category_id" id="" class="form-control" onchange="this.form.submit()">
-                            <option value="">Select</option>
-                            @foreach ($sub_category as $item)
-                                <option value="{{ $item->id }}"
-                                    {{ $item->id == request('f_sub_category_id') ? 'Selected' : '' }}>{{ $item->name }}
-                                </option>
-                            @endforeach
 
-                        </select>
-                    </div>
-                 </form>
             </div>
             <div class="">
                 <button type="button" class="btn btn-dark float-end mx-2" data-bs-toggle="modal"
@@ -94,8 +72,10 @@
 
 
             <form action="{{ url('finish-products') }}" method="GET" class="mb-3">
-                <div class="d-flex justify-content-between">
-                    <div>
+                <div class="row g-3 align-items-end">
+                  
+                    <div class="col-md-2">
+                        <label for="perPage" class="form-label">Per Page</label>
                         <select name="perPage" id="perPage" class="form-select" onchange="this.form.submit()">
                             <option value="10" {{ request('perPage') == 10 ? 'selected' : '' }}>10</option>
                             <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
@@ -104,12 +84,47 @@
                             <option value="0" {{ request('perPage') == '0' ? 'selected' : '' }}>All</option>
                         </select>
                     </div>
-                    <div class="d-flex">
-                        <input type="text" name="search" class="form-control" placeholder="Search by name"
-                            value="{{ request('search') }}">
-                        <button class="btn btn-primary" type="submit">Search</button>
+
+                  
+                    <div class="col-md-3">
+                        <label for="f_category_id" class="form-label">Category</label>
+                        <select name="f_category_id" id="f_category_id" class="form-select" onchange="this.form.submit()">
+                            <option value="">Select</option>
+                            @foreach ($f_product_category as $item)
+                                <option value="{{ $item->id }}"
+                                    {{ $item->id == request('f_category_id') ? 'selected' : '' }}>
+                                    {{ $item->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                  
+                    <div class="col-md-3">
+                        <label for="f_sub_category_id" class="form-label">Sub Category</label>
+                        <select name="f_sub_category_id" id="f_sub_category_id" class="form-select"
+                            onchange="this.form.submit()">
+                            <option value="">Select</option>
+                            @foreach ($sub_category as $item)
+                                <option value="{{ $item->id }}"
+                                    {{ $item->id == request('f_sub_category_id') ? 'selected' : '' }}>
+                                    {{ $item->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Search</label>
+                        <div class="input-group">
+                            <input type="text" name="search" id="search" class="form-control"
+                                placeholder="Search by name" value="{{ request('search') }}">
+                            <button class="btn btn-primary" type="submit">Search</button>
+                        </div>
                     </div>
                 </div>
+
             </form>
 
 
@@ -147,11 +162,9 @@
                             <td>{{ $item->category_name }}</td>
                             <td>{{ $item->sub_category }}</td>
                             <td>
-                                 <span class="d-block text-truncate" style="max-width:150px;"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-html="true"
-                                        title="<b>{{ $item->name }}</b>">
-                                        {{ $item->name }}
+                                <span class="d-block text-truncate" style="max-width:150px;" data-bs-toggle="tooltip"
+                                    data-bs-html="true" title="<b>{{ $item->name }}</b>">
+                                    {{ $item->name }}
                             </td>
 
                             <td>{{ $item->price }}</td>
@@ -250,7 +263,8 @@
                             <div class="col-md-3 mt-4 ">
                                 <label for="">HSN Code</label>
                                 <input type="" step="0.01" id="hsn_code" name="hsn_code"
-                                    class="form-control" placeholder="Enter HSN Code" onkeydown="if(this.value.length==4) return false" required>
+                                    class="form-control" placeholder="Enter HSN Code"
+                                    onkeydown="if(this.value.length==4) return false" required>
 
                             </div>
 
@@ -455,7 +469,7 @@
                             <div class="col-md-3 mt-4 ">
                                 <label for="">HSN Code</label>
                                 <input type="" step="0.01" id="uhsn_code" name="hsn_code"
-                                    class="form-control" placeholder="Enter HSN Code"    required>
+                                    class="form-control" placeholder="Enter HSN Code" required>
                             </div>
 
                             <div class="col-md-3 mt-4 ">
@@ -786,7 +800,7 @@
             var name = $(this).data("name")
             var price = $(this).data("price")
             $("#uid").val(id)
-            
+
             $("#uname").val(name)
             $("#uprice").val(price)
             $("#ugst").val($(this).data("gst"))

@@ -52,7 +52,9 @@
                 <div style="border: solid 1px">
                     <div>
                         <div class="text-center">
+                            @if($setting->img)
                             <img src="/logo/{{ $setting->img }}" width="180px">
+                            @endif
                         </div>
                     </div>
 

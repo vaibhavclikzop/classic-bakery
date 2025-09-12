@@ -33,23 +33,59 @@
 
 
             <form action="{{ url('products') }}" method="GET" class="mb-3">
-                <div class="d-flex justify-content-between">
-                    <div>
+                <div class="row g-3 align-items-end">
+                    {{-- Per Page --}}
+                    <div class="col-md-2">
+                        <label for="perPage" class="form-label">Per Page</label>
                         <select name="perPage" id="perPage" class="form-select" onchange="this.form.submit()">
                             <option value="10" {{ request('perPage') == 10 ? 'selected' : '' }}>10</option>
                             <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
                             <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
                             <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
-                            <option value="500" {{ request('perPage') == 500 ? 'selected' : '' }}>500</option>
                             <option value="0" {{ request('perPage') == '0' ? 'selected' : '' }}>All</option>
                         </select>
                     </div>
-                    <div class="d-flex">
-                        <input type="text" name="search" class="form-control" placeholder="Search by name"
-                            value="{{ request('search') }}">
-                        <button class="btn btn-primary" type="submit">Search</button>
+
+                    {{-- Category --}}
+                    <div class="col-md-3">
+                        <label for="category_id" class="form-label">Category</label>
+                        <select name="category_id" id="category_id" class="form-select" onchange="this.form.submit()">
+                            <option value="">Select</option>
+                            @foreach ($product_category as $item)
+                                <option value="{{ $item->id }}"
+                                    {{ $item->id == request('category_id') ? 'selected' : '' }}>
+                                    {{ $item->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Sub Category --}}
+                    <div class="col-md-3">
+                        <label for="sub_category_id" class="form-label">Sub Category</label>
+                        <select name="sub_category_id" id="sub_category_id" class="form-select"
+                            onchange="this.form.submit()">
+                            <option value="">Select</option>
+                            @foreach ($sub_category as $item)
+                                <option value="{{ $item->id }}"
+                                    {{ $item->id == request('sub_category_id') ? 'selected' : '' }}>
+                                    {{ $item->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Search --}}
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Search</label>
+                        <div class="input-group">
+                            <input type="text" name="search" id="search" class="form-control"
+                                placeholder="Search by name" value="{{ request('search') }}">
+                            <button class="btn btn-primary" type="submit">Search</button>
+                        </div>
                     </div>
                 </div>
+
             </form>
 
 
@@ -60,9 +96,9 @@
                 <thead>
                     <tr>
                         <th>S.no</th>
-                        <th> Image</th>
 
-                        <th> Brand</th>
+
+                        {{-- <th> Brand</th> --}}
                         <th> Category</th>
                         <th> Sub category</th>
 
@@ -98,11 +134,9 @@
                         <tr>
                             <td>{{ $sno++ }}</td>
 
-                            <td> <a href="/product images/{{ $item->image }}" target="_blank"> <img
-                                        src="/product images/{{ $item->image }}" width="45px" alt="no image upload">
-                                </a></td>
 
-                            <td>{{ $item->brand_name }}</td>
+
+                            {{-- <td>{{ $item->brand_name }}</td> --}}
                             <td>{{ $item->category_name }}</td>
                             <td>{{ $item->sub_category }}</td>
 
@@ -202,7 +236,7 @@
                                 required>
 
                         </div>
- 
+
 
                         <div class="col-md-4  mt-4 ">
                             <label for="">GST</label>
@@ -431,8 +465,8 @@
             }
         });
 
-        $("#btnSyncHindi").on("click",function(){
-            
+        $("#btnSyncHindi").on("click", function() {
+
         })
     </script>
 @endsection

@@ -207,7 +207,8 @@ return [
     | the aliases are "lazy" loaded so they don't hinder performance.
     |
     */
-
+     'timezone' => 'Asia/Kolkata',
+     
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
     ])->toArray(),

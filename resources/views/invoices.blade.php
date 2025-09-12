@@ -3,6 +3,14 @@
     @push('title')
         <title>Invoices</title>
     @endpush
+    <style>
+        .wrap-text {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word;
+            white-space: normal !important;
+            max-width: 200px;
+        }
+    </style>
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
@@ -59,9 +67,6 @@
                         <th>Invoice Date </th>
                         <th>Transport </th>
                         <th>Contact Person </th>
-                        <th>Number </th>
-                        <th>Vehicle No </th>
-
                         <th>User </th>
                         <th>Action </th>
                     </tr>
@@ -75,14 +80,18 @@
                             <td>{{ $sno++ }}</td>
 
 
-                            <td>{{ $item->customer }}</td>
+                            <td class="wrap-text" style="width:25%">{{ $item->customer }}</td>
                             <td>{{ $item->invoice_no }}</td>
                             <td>{{ $item->invoice_date }}</td>
-                            <td>{{ $item->transport }}</td>
-                            <td>{{ $item->contact_person }}</td>
-                            <td>{{ $item->number }}</td>
-                            <td>{{ $item->vehicle_no }}</td>
-
+                            <td>
+                                <p class="mb-1">{{ $item->transport }}</p>
+                                <p class="mb-1">Vehicle : {{ $item->vehicle_no }}</p>
+                            </td>
+                            <td>
+                                <p class="mb-1">Name : {{  $item->contact_person  }}</p>
+                                <p class="mb-1">Contact : {{ $item->number }}</p>
+                            </td>
+                           
                             <td>{{ $item->user }}</td>
                             <td>
 

@@ -612,6 +612,8 @@ class Masters extends Controller
     public function Product(Request $request)
     {
 
+        $category_id = $request->input("category_id");
+        $sub_category_id = $request->input("sub_category_id");
         $search = $request->input('search');
         $perPage = $request->input('perPage', 10);
 
@@ -620,27 +622,43 @@ class Masters extends Controller
             ->join("category as b", "a.category_id", "b.id")
             ->join("brand as c", "a.brand_id", "c.id")
             ->join("sub_category as d", "a.sub_category_id", "d.id")
+            ->leftJoin("unit_type as ut", "ut.id", "a.uom");
 
-            ->leftJoin("unit_type as ut", "ut.id", "a.uom")
-            ->where('a.name', 'like', '%' . $search . '%')
-            ->orWhere('c.name', 'like', '%' . $search . '%')
-            ->orWhere('a.article_no', 'like', '%' . $search . '%')
-            ->orWhere('b.name', 'like', '%' . $search . '%');
+        if ($category_id) {
+            $product->where("a.category_id", "=", $category_id);
+        }
+        if ($sub_category_id) {
+            $product->where("a.sub_category_id", "=", $sub_category_id);
+        }
+
+        if (!empty($search)) {
+            $product->where(function ($q) use ($search) {
+                $q->where('a.name', 'like', "%{$search}%")
+                    ->orWhere('a.article_no', 'like', "%{$search}%")
+                    ->orWhere('c.name', 'like', "%{$search}%")
+                    ->orWhere('b.name', 'like', "%{$search}%");
+            });
+        }
         if ($perPage > 0) {
             $products = $product->paginate($perPage);
         } else {
             $perPage = PHP_INT_MAX;
-
             $products = $product->paginate($perPage);
         }
 
 
-
+         $products->appends(['search' => $search, 'perPage' => $perPage]);
         $brand = DB::table("brand")->get();
         $unit_type = DB::table("unit_type")->get();
         $gst = DB::table("gst")->get();
-        $products->appends(['search' => $search, 'perPage' => $perPage]);
-        return view("products", compact('products', "brand", "unit_type", "gst"));
+        $product_category = DB::table("category")->get();
+       
+        $sub_category = collect();
+         if ($category_id) {
+            $sub_category = DB::table("sub_category")->where("category_id", $category_id)->get();
+        }
+       
+        return view("products", compact('products', "brand", "unit_type", "gst","product_category","sub_category"));
     }
 
     public function SaveProduct(Request $request)
@@ -926,27 +944,42 @@ class Masters extends Controller
     public function FinishProduct(Request $request)
     {
 
-        $f_category_id = request("f_category_id");
-        $f_sub_category_id = request("f_sub_category_id");
+        $f_category_id = $request->input("f_category_id");
+        $f_sub_category_id = $request->input("f_sub_category_id");
         $search = $request->input('search');
         $perPage = $request->input('perPage', 10);
-        $product = DB::table("finish_products_mst as a")
-            ->select("a.*", "b.name as category_name", "ut.name as unit_type", "c.name as sub_category")
-            ->join("f_product_category as b", "a.f_category_id", "b.id")
 
+        $product = DB::table("finish_products_mst as a")
+            ->select(
+                "a.*",
+                "b.name as category_name",
+                "ut.name as unit_type",
+                "c.name as sub_category"
+            )
+            ->join("f_product_category as b", "a.f_category_id", "b.id")
             ->join("f_product_sub_category as c", "a.f_sub_category_id", "c.id")
 
-            ->leftJoin("unit_type as ut", "ut.id", "a.uom")
-            ->where('a.name', 'like', '%' . $search . '%')
+            ->leftJoin("unit_type as ut", "ut.id", "a.uom");
+        if ($f_category_id) {
+            $product->where("a.f_category_id", "=", $f_category_id);
+        }
+        if ($f_sub_category_id) {
+            $product->where("a.f_sub_category_id", "=", $f_sub_category_id);
+        }
 
-            ->orWhere('a.article_no', 'like', '%' . $search . '%')
-            ->orWhere('b.name', 'like', '%' . $search . '%');
+        if (!empty($search)) {
+            $product->where(function ($q) use ($search) {
+                $q->where('a.name', 'like', "%{$search}%")
+                    ->orWhere('a.article_no', 'like', "%{$search}%")
+                    ->orWhere('b.name', 'like', "%{$search}%");
+            });
+        }
+
 
         if ($perPage > 0) {
             $products = $product->paginate($perPage);
         } else {
             $perPage = PHP_INT_MAX;
-
             $products = $product->paginate($perPage);
         }
 
@@ -954,18 +987,18 @@ class Masters extends Controller
 
         $products->appends(['search' => $search, 'perPage' => $perPage]);
 
+
         $f_product_category = DB::table("f_product_category")->get();
+
         $sub_category = collect();
-         if ($f_category_id) {
+        if ($f_category_id) {
             $sub_category = DB::table("f_product_sub_category")->where("f_category_id", $f_category_id)->get();
         }
         $unit_type = DB::table("unit_type")->get();
         $gst = DB::table("gst")->get();
         $brand = DB::table("brand")->get();
-        return view("finish-products", compact('products', "f_product_category", "unit_type", "gst", "brand","sub_category"));
+        return view("finish-products", compact('products', "f_product_category", "unit_type", "gst", "brand", "sub_category"));
     }
-
-
 
 
     public function RawMaterialProduct(Request $request, $id)
@@ -1979,7 +2012,7 @@ class Masters extends Controller
             ->distinct("a.f_sub_category_id")
             ->where("a.department_id", $id)->get();
 
-        return view("department-product", compact("department", "category", "department_product","allocateCategory"));
+        return view("department-product", compact("department", "category", "department_product", "allocateCategory"));
     }
 
     public function AllocateDepartmentProduct(Request $request)
