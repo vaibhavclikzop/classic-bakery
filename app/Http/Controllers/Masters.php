@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Milon\Barcode\DNS1D;
 use Milon\Barcode\DNS2D;
+use Carbon\Carbon;
 
 use Illuminate\Support\Str;
 
@@ -2255,4 +2256,102 @@ class Masters extends Controller
             'data' => null,
         ], 200);
     }
+
+    public function Outlet_customer(Request $request)
+    {
+        $outlet =  DB::table("outlet_customers")->get();
+        $customer_type =  DB::table("customer_type")->get();
+        return view("outlet_customer", compact("outlet", "customer_type"));
+    }
+
+     public function SaveOutletCustomer(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+
+            'number' => 'required',
+            'name' => 'required',
+
+        ]);
+
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $count = 0;
+            foreach ($messages->all() as $error) {
+                if ($count == 0)
+                    return redirect()->back()->with('error', $error);
+
+                $count++;
+            }
+        }
+        $customer_id = 0;
+        try {
+            if (!empty($request->id)) {
+                DB::table('outlet_customers')->where("id", $request->id)->update(array(
+                    "name" => $request->name,
+                    "number" => $request->number,
+                    "email" => $request->email,
+                    "address" => $request->address,
+                    "state" => $request->state,
+                    "city" => $request->city,
+                    "pincode" => $request->pincode,
+                ));
+                $customer_id = $request->id;
+            }
+
+        } catch (Exception $e) {
+
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
+        return  redirect()->back()->with("success", "Save Successfully");
+    }
+
+         public function kot(Request $request)
+    {
+        $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
+        $toDt = $request->input("toDt") ?: Carbon::now()->toDateString();
+        
+        $status = request("status", "dispatch");
+       
+         $outlet = DB::table("outlet_customer_order_mst as a")
+         ->select("a.*", "b.name as outlet_name")
+          ->join("outlet_users as b", "a.outlet_id", "=", "b.id")
+         ->where("invoice_type", "draft")
+        ->orderBy("id", "desc");
+
+        if ($fromDt) {
+            $outlet->whereDate("a.order_date", ">=", $fromDt);
+        }
+        if ($toDt) {
+            $outlet->whereDate("a.order_date", "<=", $toDt);
+        }
+         $data = $outlet->get();
+       
+        $customers = DB::table("customers")->get();
+        return view("kot", compact("data"));
+    }
+
+    public function deletekot(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'id' => 'required',
+                'order_pwd' => 'required|string',
+            ]);
+
+           $company_setting = DB::table("company_settings")->where("id",$request->user->id)->select('order_pwd')->first();
+              if ($request->order_pwd !== $company_setting->order_pwd) {
+                 return  redirect()->back()->with("error", 'Incorrect password.');
+                }
+
+           
+            DB::table('outlet_customer_order_mst')->where("id", $validated['id'])->delete();
+           } catch (\Throwable $th) {
+            return  redirect()->back()->with("error", $th->getMessage());
+        }
+
+        return  redirect()->back()->with("success", "Deleted Successfully");
+    }
+
 }

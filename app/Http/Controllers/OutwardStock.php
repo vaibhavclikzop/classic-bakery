@@ -587,4 +587,7 @@ class OutwardStock extends Controller
             ->first();
         return view("invoice-view", compact("order_mst", "order_det", "nextProduct", "previousProduct"));
     }
+
+   
+
 }

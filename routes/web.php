@@ -295,6 +295,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   Route::post('GetWordOrder', [OrderManagement::class, 'GetWordOrder'])->name('GetWordOrder');
 
+
   Route::post('convertInvoiceDelivered', [OrderManagement::class, 'convertInvoiceDelivered'])->name('convertInvoiceDelivered');
   //bulk import routes 
   Route::post('ImportProducts', [BulkImport::class, 'ImportProducts'])->name('ImportProducts');
@@ -393,6 +394,9 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   Route::get('invoices', [OutwardStock::class, 'Invoices'])->name('invoices');
   Route::get('invoice-view/{id}', [OutwardStock::class, 'InvoiceView'])->name('invoice-view');
+
+   Route::get('kot', [Masters::class, 'Kot'])->name('kot');
+  Route::post('delete_kot', [Masters::class, 'deletekot'])->name('delete_kot');
   //purchase return
 
   Route::get('purchase-return', [PurchaseReturn::class, 'PurchaseReturnList'])->name('purchase-return');
@@ -482,4 +486,6 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   //tally report
   Route::get('tally-report', [TallyController::class, 'tallyReport'])->name('tally-report');
+  Route::get('outlet_customer', [Masters::class, 'outlet_customer'])->name('outlet_customer');
+  Route::post('SaveOutletCustomer', [Masters::class, 'SaveOutletCustomer'])->name('SaveOutletCustomer');
 });

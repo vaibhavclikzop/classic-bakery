@@ -357,6 +357,11 @@
                                                  Vendor
                                              </span></a>
                                      </li>
+                                      <li class="{{ Request::is('outlet_list') ? 'active' : '' }}"><a href="/outlet_customer">
+                                             <i class="fa fa-users" aria-hidden="true"></i> &nbsp; &nbsp; <span>
+                                                 Outlet Customer
+                                             </span></a>
+                                     </li>
                                  @endif
                                  @if ($rolePermissions->where('permission_id', 7)->where('view', 1)->isNotEmpty())
                                      <li class="submenu">
@@ -645,6 +650,8 @@
                                  @if ($rolePermissions->where('permission_id', 18)->where('view', 1)->isNotEmpty())
                                      <li class="{{ Request::is('invoices') ? 'active' : '' }}"><a href="/invoices"><i
                                                  data-feather="user-plus"></i><span>Invoices</span></a></li>
+                                     <li class="{{ Request::is('kot') ? 'active' : '' }}"><a href="/kot"><i
+                                                 data-feather="user-plus"></i><span>KOT</span></a></li>
                                  @endif
                                  @if ($rolePermissions->where('permission_id', 19)->where('view', 1)->isNotEmpty())
                                      <li class="{{ Request::is('sale-return') ? 'active' : '' }}"><a
