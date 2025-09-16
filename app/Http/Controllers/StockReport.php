@@ -381,13 +381,19 @@ class StockReport extends Controller
                 $count++;
             }
         }
-
-
         try {
             $id = 0;
+            $total_stock = 0;
             if ($request->id) {
-                DB::table('current_stock')->where("id", $request->id)->increment("stock", $request->qty);
-                $id = $request->id;
+                 $id = $request->id;
+                $stock = DB::table('current_stock')->where('id', $request->id)->first();
+
+                if(!$stock || $stock->stock + $request->qty < 0){
+                    return response()->json(['error' => 'Stock cannot be negative'], 400);
+                }
+                DB::table('current_stock')->where("id", $request->id)->increment("stock", $request->qty);               
+                $total_stock = DB::table('current_stock')->where('id', $request->id)->value('stock');
+
             } else {
                 $mst_id = DB::table('current_stock')->insertGetId(array(
                     "product_id" => $request->product_id,
@@ -395,7 +401,6 @@ class StockReport extends Controller
                 ));
                 $id = $mst_id;
             }
-
 
 
             DB::table('stock_adjustment')->insertGetId(array(
@@ -408,7 +413,7 @@ class StockReport extends Controller
             return redirect()->back()->with('error', $th->getMessage());
         }
 
-        return redirect()->back()->with("success", "Save successfully");
+        return response()->json(['total_stock' => $total_stock]);
     }
 
     public function GetStockAdjustmentHistory(Request $request)
@@ -454,8 +459,13 @@ class StockReport extends Controller
 
 
         try {
+                $stock = DB::table('finish_product_stock')->where('id', $request->id)->first();
 
+                if(!$stock || $stock->stock + $request->qty < 0){
+                    return response()->json(['error' => 'Stock cannot be negative'], 400);
+                }
             DB::table('finish_product_stock')->where("id", $request->id)->increment("stock", $request->qty);
+                $total_stock = DB::table('finish_product_stock')->where('id', $request->id)->value('stock');
 
             DB::table('fp_stock_adjustment')->insertGetId(array(
 
@@ -467,7 +477,7 @@ class StockReport extends Controller
             return redirect()->back()->with('error', $th->getMessage());
         }
 
-        return redirect()->back()->with("success", "Save successfully");
+        return response()->json(['total_stock' => $total_stock]);
     }
 
 
