@@ -40,6 +40,12 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+        .wrap-text{
+        word-wrap: break-word!important; 
+        overflow-wrap: break-word; 
+        white-space: normal!important; 
+        max-width: 200px;
+        } 
     </style>
 
 
@@ -135,10 +141,8 @@
                     <tr>
                         <th>S.no</th>
                         <th> Category</th>
-                        <th> Sub Category</th>
                         <th> Name</th>
                         <th> Price</th>
-                        <th> GST</th>
                         <th> Article No</th>
                         <th> HSN Code</th>
                         <th> Bar Code</th>
@@ -159,16 +163,16 @@
                     @foreach ($products as $item)
                         <tr>
                             <td>{{ $sno++ }}</td>
-                            <td>{{ $item->category_name }}</td>
-                            <td>{{ $item->sub_category }}</td>
                             <td>
-                                <span class="d-block text-truncate" style="max-width:150px;" data-bs-toggle="tooltip"
-                                    data-bs-html="true" title="<b>{{ $item->name }}</b>">
-                                    {{ $item->name }}
+                                <p class="mb-1">Category : {{ $item->category_name }}</p>
+                                <p class="mb-1">Subcategory :{{ $item->sub_category }}</p>
+                            </td>
+                            <td class="mb-1 wrap-text" style="width: 25%!important">{{ $item->name }}
                             </td>
 
-                            <td>{{ $item->price }}</td>
-                            <td>{{ $item->gst }}</td>
+                            <td>
+                            <p class="mb-0">Price : {{ $item->price }}</p>
+                            <p class="mb-0">GST : {{ $item->gst }}</p></td>
                             <td>{{ $item->article_no }}</td>
                             <td>{{ $item->hsn_code }}</td>
                             <td>{{ $item->manual_barcode }}</td>
