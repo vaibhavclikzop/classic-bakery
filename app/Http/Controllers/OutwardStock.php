@@ -76,6 +76,8 @@ class OutwardStock extends Controller
 
             $order_mst =  DB::table("order_mst")->where("id", $request->order_id)->first();
 
+
+
             $mst_id = DB::table('outward_mst')->insertGetId(array(
 
                 "department_id" => $request->department_id,
@@ -258,6 +260,16 @@ class OutwardStock extends Controller
         }
 
         try {
+
+            $inv_no =   DB::table("outward_customer_order_mst")->whereDate("created_at", now())->count();
+            if (!$inv_no) {
+                $inv_no = 1;
+            } else {
+                $inv_no++;
+            }
+            $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
+            $order_no = $invoice_prefix->order_prefix . date('d-m-y') . "-" . $inv_no;
+
             $mst_id = DB::table('outward_customer_order_mst')->insertGetId(array(
 
                 "order_id" => $request->order_id,
@@ -265,7 +277,8 @@ class OutwardStock extends Controller
 
                 "description" => $request->description,
                 "user_id" => $request->user->id,
-                "mode_of_transport" => $request->mode_of_transport
+                "mode_of_transport" => $request->mode_of_transport,
+                "order_no" => $order_no
 
             ));
             foreach ($prod_list as $k => $v) {
@@ -587,7 +600,4 @@ class OutwardStock extends Controller
             ->first();
         return view("invoice-view", compact("order_mst", "order_det", "nextProduct", "previousProduct"));
     }
-
-   
-
 }

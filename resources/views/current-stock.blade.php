@@ -25,52 +25,59 @@
             @php
                 $sno = 1;
             @endphp
-            <table class="table" id="dataTable">
-                <thead>
-                    <tr>
-                        <th>S.No</th>
-                        <th>Product Name</th>
-                        <th>Article No</th>
-                        <th>Stock</th>
-                        <th>Add Qty</th>
-                        <th>Created at</th>
-                        <th>Update at</th>
-                        @if ($user_type == 'admin')
-                            <th>Action</th>
-                        @endif
-
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($current_stock as $item)
+            <form action="{{ route('updateStock') }}" method="POST" >
+                @csrf
+                <table class="table" id="dataTable">
+                    <thead>
                         <tr>
-                            <td>{{ $sno++ }}</td>
-                            <td>{{ $item->product }}</td>
-                            <td>{{ $item->article_no }}</td>
-                            <td class="total_stock">{{ $item->stock }}</td>
-                            <td style="width:10%">
-                                <input type="number" class="add_qty form-control" min="0" steps="0.00"
-                                      data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}">
-                            </td>
+                            <th>S.No</th>
+                            <th>Product Name</th>
+                            <th>Article No</th>
+                            <th>Stock</th>
+                            <th>Add Qty</th>
 
-                            <td>{{ $item->created_at }}</td>
-                            <td>{{ $item->updated_at }}</td>
+                            <th>Update at</th>
                             @if ($user_type == 'admin')
-                                <td>
-                                    <button class="updateStockBtn btn btn-primary  btn-sm"
-                                        data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}">Update</button>
-                                    <button class="btn btn-secondary btn-sm view" type="button"
-                                        value="{{ $item->id }}"><i class="fa fa-history"
-                                            aria-hidden="true"></i></button>
-                                </td>
+                                <th>Action</th>
                             @endif
 
                         </tr>
-                    @endforeach
+                    </thead>
+                    <tbody>
+                        @foreach ($current_stock as $item)
+                            <tr>
+                                <td>{{ $sno++ }}</td>
+                                <td>{{ $item->product }}</td>
+                                <td>{{ $item->article_no }}</td>
+                                <td class="total_stock">{{ formatQtyPrice($item->stock) }}</td>
+                                <td style="width:10%">
+                                    <input type="number" class="add_qty form-control" min="0" steps="0.00"
+                                        data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}"  name="updateStock[{{ $item->id ?? 'new' }}][{{$item->id ?? $item->product_id}}]">
+                                </td>
 
-                </tbody>
 
-            </table>
+                                <td>{{ $item->updated_at }}</td>
+                                @if ($user_type == 'admin')
+                                    <td>
+                                        <button class="updateStockBtn btn btn-primary  btn-sm"
+                                            data-product-id="{{ $item->product_id }}"
+                                            data-id="{{ $item->id }}" type="button">Update</button>
+                                        <button class="btn btn-secondary btn-sm view" type="button"
+                                            value="{{ $item->id }}"><i class="fa fa-history"
+                                                aria-hidden="true"></i></button>
+                                    </td>
+                                @endif
+
+                            </tr>
+                        @endforeach
+
+                    </tbody>
+
+                </table>
+                <div class="mt-3 text-center">
+                    <button class="btn btn-primary " type="submit">Update Stock</button>
+                </div>
+            </form>
         </div>
         <div class="card-footer">
             <div>
@@ -199,40 +206,41 @@
 
         });
 
-        $(document).ready(function() {
-            $('.updateStockBtn').click(function() {
-                let productId = $(this).data('product-id');
-                let id = $(this).data('id');
-                let input =  $('.add_qty[data-id="'+id+'"]');
-                let addQty = input.val();
 
-                if (addQty === '') {
-                    alert('Please enter a valid quantity');
-                    return;
-                }
+        $(document).on("click", ".updateStockBtn", function() {
+            let productId = $(this).data('product-id');
+            let id = $(this).data('id');
+            let input = $('.add_qty[data-id="' + id + '"]');
+            let addQty = input.val();
 
-                $.ajax({
-                    url: '{{ route('SaveStock') }}',
-                    method: 'POST',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        product_id: productId,
-                        id:id,
-                        qty: addQty
-                    },
-                    success: function(response) {
-                        input.closest('tr').find('.total_stock').text(response.total_stock);
-                        input.val('');
-                        toastr.success('Stock Updated');
-                    },
-                    error: function(xhr) {
-                         if(res && res.error){
-                            toastr.error(res.error); 
-                        } else {
-                            toastr.error('Something went wrong');
-                        }input.val('');
+            if (!addQty || isNaN(addQty) || parseFloat(addQty) <= 0) {
+                alert('Please enter a valid quantity');
+                return;
+            }
+
+            $.ajax({
+                url: '{{ route('SaveStock') }}',
+                method: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    product_id: productId,
+                    id: id,
+                    qty: addQty
+                },
+                success: function(response) {
+                    input.closest('tr').find('.total_stock').text(response.total_stock);
+                    input.val('');
+                    toastr.success('Stock Updated');
+                },
+                error: function(xhr) {
+                    let res = xhr.responseJSON;
+                    if (res && res.error) {
+                        toastr.error(res.error);
+                    } else {
+                        toastr.error('Something went wrong');
                     }
-                });
+                    input.val('');
+                }
             });
         });
     </script>

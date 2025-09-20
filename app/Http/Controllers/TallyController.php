@@ -20,7 +20,7 @@ class TallyController extends Controller
         $sql = "
              SELECT
         a.invoice_no,
-        a.id,
+        a.order_no as id,
         a.invoice_date,
         e.name AS name,
         'Regular Order' AS order_type,
@@ -39,13 +39,13 @@ class TallyController extends Controller
     JOIN customers e ON d.customer_id = e.id
     WHERE d.order_type = 'customer'
       AND a.invoice_date BETWEEN ? AND ?
-    GROUP BY a.invoice_no, a.invoice_date, a.id, e.name,c.gst
+    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name,c.gst
 
     UNION ALL
 
     SELECT
         a.invoice_no,
-        a.id,
+        a.order_no as id,
         a.invoice_date,
         e.outlet_name AS name,
         'Regular Order' AS order_type,
@@ -64,7 +64,7 @@ class TallyController extends Controller
     JOIN outlet e ON d.customer_id = e.id
     WHERE d.order_type = 'outlet'
       AND a.invoice_date BETWEEN ? AND ?
-    GROUP BY a.invoice_no, a.invoice_date, a.id, e.outlet_name,c.gst
+    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.outlet_name,c.gst
 
     UNION ALL
 
@@ -135,8 +135,8 @@ class TallyController extends Controller
 
         $filterRawMaterial = DB::table("stock_inward_mst as a")
             ->select(
-                DB::raw("a.id as invoice_no"),
-                DB::raw("a.id as id"),
+                DB::raw("a.invoice_id as invoice_no"),
+                DB::raw("a.invoice_id as id"),
                 DB::raw("a.received_material_date as invoice_date"),
                 DB::raw("c.name as name"),
                 DB::raw("'Regular Order' as order_type"),
@@ -144,9 +144,9 @@ class TallyController extends Controller
 
 
                 DB::raw("SUM(b.qty * b.price) as sub_total"),
-                 DB::raw("b.gst as gst"), 
+                DB::raw("b.gst as gst"),
 
- 
+
                 DB::raw("SUM((b.qty * b.price * b.cess_tax) / 100) as cess_amt"),
                 DB::raw("SUM((b.qty * b.price * b.gst) / 100) as igst"),
                 DB::raw("0 as cgst"),
@@ -169,7 +169,7 @@ class TallyController extends Controller
         }
 
         $rawMaterial = $filterRawMaterial
-            ->groupBy("a.id", "a.received_material_date", "c.name", "a.delivery_charges","b.gst")
+            ->groupBy("a.invoice_id", "a.received_material_date", "c.name", "a.delivery_charges", "b.gst")
             ->get();
 
 

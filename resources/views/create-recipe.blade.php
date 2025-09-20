@@ -42,7 +42,7 @@
                     </div>
                     <div class="col-md-3">
                         <label for="">Batch</label>
-                        <input type="text" name="batch" id="batch" class="form-control" placeholder="Enter Batch">
+                        <input type="number" name="batch" id="batch" class="form-control" placeholder="Enter Batch">
 
                     </div>
 

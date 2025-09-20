@@ -389,7 +389,7 @@
                     total += base_total + gst_amount + cess_amount;
                 });
 
-                $("#subtotal").text(formatQtyPrice(total));
+                $("#subtotal").text(total.toFixed(2));
 
 
             }

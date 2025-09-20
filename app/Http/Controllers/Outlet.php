@@ -33,7 +33,7 @@ class Outlet extends Controller
 
         try {
             if (empty($request->id)) {
-              $outlet_id=  DB::table('outlet')->insertGetId(array(
+                $outlet_id =  DB::table('outlet')->insertGetId(array(
 
                     "outlet_name" => $request->outlet_name,
                     "contact_person" => $request->contact_person,
@@ -43,21 +43,21 @@ class Outlet extends Controller
                     "city" => $request->city,
                     "customer_type_id" => $request->customer_type_id,
                     "nickname" => $request->nickname,
-                  
+
 
 
                 ));
 
                 DB::table('company_settings')->insertGetId(array(
-                    
-                 
+
+
                     "outlet_id" => $outlet_id,
-        
+
                 ));
                 DB::table('outlet_users')->insertGetId(array(
-                    
+
                     "name" => $request->contact_person,
-                
+
                     "number" => $request->number,
                     "address" => $request->address,
                     "state" => $request->state,
@@ -67,8 +67,30 @@ class Outlet extends Controller
                     "password" => $request->password,
                     "parent_id" => 0,
                     "outlet_id" => $outlet_id,
-        
                 ));
+
+
+
+                $expense_category_mst =   DB::table("expense_category_mst")->get();
+                foreach ($expense_category_mst as $key => $value) {
+                    $category_id =    DB::table("expense_category")->insertGetId(array(
+                        "exp_cat_mst_id" => $value->id,
+                        "name" => $value->name,
+                        "active" => 1,
+                        "outlet_id" => $outlet_id,
+                    ));
+
+                    $expense_sub_category_mst =  DB::table("expense_sub_category_mst")->where("category_id", $value->id)->get();
+
+                    foreach ($expense_sub_category_mst as $k => $v) {
+                        DB::table("expense_subcategory")->insert(array(
+                            "category_id" => $category_id,
+                            "name" => $value->name,
+                            "active" => 1,
+                            "outlet_id" => $outlet_id,
+                        ));
+                    }
+                }
             } else {
                 DB::table('outlet')->where("id", $request->id)->update(array(
                     "outlet_name" => $request->outlet_name,
@@ -79,7 +101,7 @@ class Outlet extends Controller
                     "city" => $request->city,
                     "customer_type_id" => $request->customer_type_id,
                     "nickname" => $request->nickname,
-                    
+
                 ));
             }
         } catch (Exception $e) {
@@ -89,12 +111,14 @@ class Outlet extends Controller
 
         return  redirect()->back()->with("success", "Save Successfully");
     }
-    public function OutletRole(){
-       $data= DB::table("outlet_role")->get();
-       return view("outlet-role",compact("data"));
+    public function OutletRole()
+    {
+        $data = DB::table("outlet_role")->get();
+        return view("outlet-role", compact("data"));
     }
 
-    public function SaveOutletRole(Request $request){
+    public function SaveOutletRole(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
@@ -128,7 +152,8 @@ class Outlet extends Controller
         return  redirect()->back()->with("success", "Save Successfully");
     }
 
-    public function OutletUserPermission(Request $request,$id){
+    public function OutletUserPermission(Request $request, $id)
+    {
 
         $role = DB::table("role")->where("id", $id)->first();
 
@@ -154,7 +179,8 @@ class Outlet extends Controller
         return view("outlet-user-permission", compact("role", "permission_mst", "role_permission", "id"));
     }
 
-    public function SaveOutletUserPermission(Request $request){
+    public function SaveOutletUserPermission(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'outlet_role_id' => 'required',
@@ -201,7 +227,8 @@ class Outlet extends Controller
     }
 
 
-    public function RemoveOutletPermission(Request $request){
+    public function RemoveOutletPermission(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'id' => 'required',
 

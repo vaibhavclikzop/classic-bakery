@@ -42,7 +42,7 @@
 
                             {{ $stock_inward_mst->received_material_date }}<br>
                             {{ $stock_inward_mst->invoice_date }}<br>
-                            PO Inward No : {{ $stock_inward_mst->id }}<br>
+                            PO Inward No : {{ $stock_inward_mst->invoice_id }}<br>
 
 
                         </p>

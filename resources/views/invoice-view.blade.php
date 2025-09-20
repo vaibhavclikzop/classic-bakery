@@ -52,8 +52,8 @@
                 <div style="border: solid 1px">
                     <div>
                         <div class="text-center">
-                            @if($setting->img)
-                            <img src="/logo/{{ $setting->img }}" width="180px">
+                            @if ($setting->img)
+                                <img src="/logo/{{ $setting->img }}" width="180px">
                             @endif
                         </div>
                     </div>
@@ -88,7 +88,7 @@
                     CIN No : {{ $setting->cin_no }}
                 </div>
                 <div style="padding: 5px; border:solid 1px;width: 50%">
-                    Invoice No : {{ $order_mst->id }} <br>
+                    Invoice No : {{ $order_mst->order_no }} <br>
                     Invoice Date : {{ $order_mst->invoice_date }} <br>
                     Email : {{ $setting->email }} <br>
                     Contact No : {{ $setting->number }}
@@ -161,7 +161,11 @@
                             $igst_amt = 0;
                             $cgst_amt = 0;
                             $sgst_amt = 0;
-                            $total_mrp=0;
+                            $total_mrp = 0;
+                            $rate = 0;
+                            $taxable = 0;
+                            $gst = 0;
+                            $cess = 0;
                         @endphp
 
                         @foreach ($order_det as $item)
@@ -173,17 +177,21 @@
                                     $cgst_amt += ((($item->price * $item->qty) / 100) * $item->gst) / 2;
                                     $sgst_amt += ((($item->price * $item->qty) / 100) * $item->gst) / 2;
                                 }
+                                $rate = formatQtyPrice($item->price);
+                                $taxable = formatQtyPrice(
+                                    ($item->price * $item->qty) / (1 + $item->gst / 100) -
+                                        (($item->price * $item->qty) / 100) * $item->cess_amt,
+                                );
+                                $gst = formatQtyPrice(($item->price*$item->qty)- ($item->price * $item->qty) / (1 + $item->gst / 100));
+                                $cess = formatQtyPrice((($item->price * $item->qty) / 100) * $item->cess_amt);
 
-                                $total =
-                                    $item->price * $item->qty +
-                                    (($item->price * $item->qty) / 100) * $item->gst +
-                                    (($item->price * $item->qty) / 100) * $item->cess_amt;
+                                $total = $taxable + $gst + $cess;
                                 $qty += $item->qty;
-                                $total_taxable += $item->price * $item->qty;
+                                $total_taxable += $taxable;
                                 $total_gst += (($item->price * $item->qty) / 100) * $item->gst;
                                 $total_cess += (($item->price * $item->qty) / 100) * $item->cess_amt;
                                 $gross_total += $total;
-                                $total_mrp += $item->mrp *$item->qty;
+                                $total_mrp += $item->mrp * $item->qty;
                             @endphp
                             <tr>
                                 <td style="border:  solid 1px; padding:2px">{{ $sno++ }}</td>
@@ -194,15 +202,20 @@
                                 <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->mrp) }}</td>
 
                                 <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->qty) }}</td>
-                                <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->price) }}</td>
-                                <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->price * $item->qty) }}</td>
+                                <td style="border:  solid 1px; padding:2px">{{ $rate }}</td>
+                                <td style="border:  solid 1px; padding:2px">
+                                    {{ $taxable }}
+                                </td>
                                 <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->gst) }} </td>
                                 <td style="border:  solid 1px; padding:2px">
-                                    {{ formatQtyPrice((($item->price * $item->qty) / 100) * $item->gst) }} </td>
+                                    {{ $gst }}
+                                </td>
                                 <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->cess_amt) }} </td>
                                 <td style="border:  solid 1px; padding:2px">
-                                    {{ formatQtyPrice((($item->price * $item->qty) / 100) * $item->cess_amt) }} </td>
-                                <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($total) }}</td>
+                                    {{ $cess }}
+                                </td>
+                                <td style="border:  solid 1px; padding:2px">
+                                    {{ formatQtyPrice($gst + $taxable + $cess) }}</td>
 
                             </tr>
                         @endforeach
@@ -270,7 +283,7 @@
                             <th style="border:  solid 1px; padding:2px">Add SGST</th>
                             <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($sgst_amt) }}</th>
                         </tr>
-                        <tr> 
+                        <tr>
                             <th style="border:  solid 1px; padding:2px">Add IGST</th>
                             <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($igst_amt) }}</th>
                         </tr>
@@ -298,11 +311,12 @@
                 </div>
             </div>
             <div style="display: flex; justify-content: space-between;  ">
-                <div >
+                <div>
                     <h5>GST Summary</h5>
                 </div>
-                <div >
-                    <h5>MRP Total :  {{formatQtyPrice($total_mrp)}},  Dealer Margin :  {{formatQtyPrice($total_mrp-$gross_total) }}</h5>
+                <div>
+                    <h5>MRP Total : {{ formatQtyPrice($total_mrp) }}, Dealer Margin :
+                        {{ formatQtyPrice($total_mrp - $gross_total) }}</h5>
                 </div>
             </div>
         </div>

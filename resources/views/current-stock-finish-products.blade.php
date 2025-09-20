@@ -18,40 +18,50 @@
             @php
                 $sno = 1;
             @endphp
-            <table class="table dataTable">
-                <thead>
-                    <tr>
-                        <th>S.No</th>
-                        <th>Product Name</th>
-                        <th>Stock</th>
-                        <th>Add Qty</th>
-                        <th>Update at</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($current_stock as $item)
+            <form action="{{ route('updateFGStock') }}" method="POST">
+                @csrf
+                <table class="table dataTable">
+                    <thead>
                         <tr>
-                            <td>{{ $sno++ }}</td>
-                            <td>{{ $item->product }}</td>
-                            <td class="total_stock">{{ $item->stock }}</td>
-                            <td style="width:10%">
-                                <input type="number" class="add_qty form-control" min="0" steps="0.00"
-                                      data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}">
-                            </td>
-                            <td>{{ $item->updated_at }}</td>
-                            <td>
-                               <button class="updateStockBtn btn btn-primary  btn-sm"
-                                        data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}">Update</button>
-                                <button class="btn btn-secondary btn-sm view" type="button" value="{{ $item->id }}"><i
-                                        class="fa fa-history" aria-hidden="true"></i></button>
-                            </td>
+                            <th>S.No</th>
+                            <th>Product Name</th>
+                            <th>Stock</th>
+                            <th>Add Qty</th>
+                            <th>Update at</th>
+                            <th>Action</th>
                         </tr>
-                    @endforeach
+                    </thead>
+                    <tbody>
+                        @foreach ($current_stock as $item)
+                            <tr>
+                                <td>{{ $sno++ }}</td>
+                                <td>{{ $item->product }}</td>
+                                <td class="total_stock">{{ formatQtyPrice($item->stock) }}</td>
+                                <td style="width:10%">
+                                    <input type="number" class="add_qty form-control" min="0" steps="0.00"
+                                        data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}"
+                                        name="updateStock[{{ $item->id ?? 'new' }}][{{ $item->id ?? $item->product_id }}]">
+                                </td>
+                                <td>{{ $item->updated_at }}</td>
+                                <td>
+                                    <button class="updateStockBtn btn btn-primary  btn-sm"
+                                        data-product-id="{{ $item->product_id }}"
+                                        data-id="{{ $item->id }}" type="button">Update</button>
+                                    <button class="btn btn-secondary btn-sm view" type="button"
+                                        value="{{ $item->id }}"><i class="fa fa-history"
+                                            aria-hidden="true"></i></button>
+                                </td>
+                            </tr>
+                        @endforeach
 
-                </tbody>
+                    </tbody>
+                    
 
-            </table>
+                </table>
+                  <div class="mt-3 text-center">
+                    <button class="btn btn-primary " type="submit">Update Stock</button>
+                </div>
+            </form>
         </div>
 
     </div>
@@ -171,11 +181,11 @@
 
 
         });
-         $(document).ready(function() {
-            $('.updateStockBtn').click(function() {
+        $(document).ready(function() {
+            $(document).on('click', ".updateStockBtn", function() {
                 let productId = $(this).data('product-id');
                 let id = $(this).data('id');
-                let input =  $('.add_qty[data-id="'+id+'"]');
+                let input = $('.add_qty[data-id="' + id + '"]');
                 let addQty = input.val();
 
                 if (addQty === '') {
@@ -189,22 +199,23 @@
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
                         product_id: productId,
-                        id:id,
+                        id: id,
                         qty: addQty
                     },
                     success: function(response) {
                         input.closest('tr').find('.total_stock').text(response.total_stock);
                         input.val('');
-                       toastr.success('Stock Updated ');
+                        toastr.success('Stock Updated ');
                     },
                     error: function(xhr) {
-                         let res = xhr.responseJSON;
-                        if(res && res.error){
-                            toastr.error(res.error); 
+                        let res = xhr.responseJSON;
+                        if (res && res.error) {
+                            toastr.error(res.error);
                         } else {
                             toastr.error('Something went wrong');
-                        }input.val('');
-                        
+                        }
+                        input.val('');
+
                     }
                 });
             });

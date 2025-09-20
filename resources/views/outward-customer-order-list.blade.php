@@ -81,6 +81,7 @@
                         <tr>
                             <th>S.No</th>
                             <th><input type="checkbox" id="allChecks"></th>
+                            <th>Invoice ID </th>
                             <th>Customer </th>
 
 
@@ -104,6 +105,7 @@
                                 <td>{{ $sno++ }}</td>
 
                                 <td><input type="checkbox" name="outward_ids[]" value="{{$item->id}}" class="allChecks"></td>
+                                <td>{{ $item->order_no }}</td>
                                 <td>{{ $item->customer }}</td>
                                 <td>{{ $item->invoice_date }}</td>
                                 <td>{{ $item->delivery_date }}</td>

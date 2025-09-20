@@ -58,8 +58,8 @@
                     </div>
                     <div class="col-md-3 mt-3">
                         <label>Delivery Charges</label>
-                        <input type="number" step="0.01" name="delivery_charges" id="delivery_charges" class="form-control"
-                            placeholder="Enter Delivery Charges." value="0" required>
+                        <input type="number" step="0.01" name="delivery_charges" id="delivery_charges"
+                            class="form-control" placeholder="Enter Delivery Charges." value="0" min="0" required>
 
                     </div>
                     <div class="col-md-6 mt-3">
@@ -95,7 +95,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="9" >Delivery Charges </th>
+                                    <th colspan="9">Delivery Charges </th>
                                     <th id="dcharges"></th>
                                     <th></th>
                                 </tr>
@@ -207,10 +207,10 @@
                             var po_id = element.mst_id;
                             var cess_tax = element.cess_tax;
 
-                      
 
 
-                                html += `
+
+                            html += `
                                         <tr class="product${product_id}">
                                         <td>${sno++}</td>    
                                         <td>${element.product_name}</td>    
@@ -234,16 +234,16 @@
 
 
 
-                                product_list.push({
-                                    product_id,
-                                    qty,
-                                    price,
-                                    gst,
-                                    po_id,
-                                    cess_tax
-                                });
+                            product_list.push({
+                                product_id,
+                                qty,
+                                price,
+                                gst,
+                                po_id,
+                                cess_tax
+                            });
 
-                  
+
 
                         });
 
@@ -358,7 +358,7 @@
                     total += base_total;
                 });
                 let delivery_charges = parseFloat($("#delivery_charges").val());
-                console.log(total+delivery_charges);
+                console.log(total + delivery_charges);
 
                 $("#dcharges").text(parseFloat(delivery_charges).toFixed(2));
                 $("#subtotal").text(parseFloat(total + delivery_charges).toFixed(2));
@@ -366,6 +366,12 @@
 
             }
             $("#delivery_charges").on("keyup", function() {
+                if ($(this).val() < 0) {
+                    toastr.error("Please enter valid delivery charges");
+                    $(this).val(0)
+                    return;
+                }
+
                 calculate_total(product_list)
             })
 

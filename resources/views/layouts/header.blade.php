@@ -128,6 +128,11 @@
              'advance-order-list/dispatch',
              'advance-order-list/delivered',
          ];
+            $posOrder = [
+             'pos-order',
+             'kot',
+           
+         ];
          $recipeRoute = ['create-recipe', 'recipe-list'];
      @endphp
      <div id="global-loader">
@@ -357,7 +362,8 @@
                                                  Vendor
                                              </span></a>
                                      </li>
-                                      <li class="{{ Request::is('outlet_list') ? 'active' : '' }}"><a href="/outlet_customer">
+                                     <li class="{{ Request::is('outlet_list') ? 'active' : '' }}"><a
+                                             href="/outlet_customer">
                                              <i class="fa fa-users" aria-hidden="true"></i> &nbsp; &nbsp; <span>
                                                  Outlet Customer
                                              </span></a>
@@ -642,17 +648,40 @@
                                      </li>
                                  @endif
 
+
+                                       @if ($rolePermissions->where('permission_id', 27)->where('view', 1)->isNotEmpty())
+                                     <li
+                                         class="submenu {{ collect($posOrder)->contains(fn($route) => Request::is($route)) ? 'submenu-open' : '' }}">
+                                         <a href="javascript:void(0);"
+                                             class="{{ collect($posOrder)->contains(fn($route) => Request::is($route)) ? 'subdrop active' : '' }}">
+                                             <i data-feather="layers"></i><span>POS Order</span><span
+                                                 class="menu-arrow"></span>
+                                         </a>
+                                         <ul
+                                             style="{{ collect($posOrder)->contains(fn($route) => Request::is($route)) ? 'display: block;' : '' }}">
+                                             <li><a href="/pos-order"
+                                                     class="{{ Request::is('pos-order') ? 'active' : '' }}">Order
+                                                     </a></li>
+                                             <li><a href="/kot"
+                                                     class="{{ Request::is('kot') ? 'active' : '' }}">KOT</a></li>
+                                             
+ 
+
+                                            
+                                         </ul>
+                                     </li>
+                                 @endif
+
                                  @if ($rolePermissions->where('permission_id', 17)->where('view', 1)->isNotEmpty())
                                      <li class="{{ Request::is('inward-finish-goods') ? 'active' : '' }}"><a
                                              href="/inward-finish-goods"><i data-feather="download"></i><span>Inward
                                                  Finish Goods</span></a></li>
                                  @endif
-                                 @if ($rolePermissions->where('permission_id', 18)->where('view', 1)->isNotEmpty())
-                                     <li class="{{ Request::is('invoices') ? 'active' : '' }}"><a href="/invoices"><i
-                                                 data-feather="user-plus"></i><span>Invoices</span></a></li>
-                                     <li class="{{ Request::is('kot') ? 'active' : '' }}"><a href="/kot"><i
-                                                 data-feather="user-plus"></i><span>KOT</span></a></li>
+                                   @if ($rolePermissions->where('permission_id', 19)->where('view', 1)->isNotEmpty())
+                                     <li class="{{ Request::is('invoices') ? 'active' : '' }}"><a
+                                             href="/invoices"><i data-feather="user-plus"></i><span>Invoices</span></a></li>
                                  @endif
+                                 
                                  @if ($rolePermissions->where('permission_id', 19)->where('view', 1)->isNotEmpty())
                                      <li class="{{ Request::is('sale-return') ? 'active' : '' }}"><a
                                              href="/sale-return"><i data-feather="user-plus"></i><span>Sale
@@ -774,6 +803,21 @@
                                          <ul>
                                              <li><a href="/attendance-report">Attendance Report</a></li>
                                              <li><a href="/attendance-report-monthly">Attendance Monthly</a></li>
+
+
+
+                                         </ul>
+                                     </li>
+                                 @endif
+                                 @if ($rolePermissions->where('permission_id', 26)->where('view', 1)->isNotEmpty())
+                                     <li class="submenu">
+                                         <a href="javascript:void(0);">
+                                             <i data-feather="layers"></i><span>Expense Management </span><span
+                                                 class="menu-arrow"></span>
+                                         </a>
+                                         <ul>
+                                             <li><a href="/expense-category">Category</a></li>
+                                             <li><a href="/expense-sub-category">Sub Category</a></li>
 
 
 

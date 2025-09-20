@@ -19,6 +19,8 @@ use App\Http\Controllers\ResetSoftware;
 use App\Http\Controllers\SaleReturn;
 use App\Http\Controllers\StockReport;
 use App\Http\Controllers\Barcode;
+use App\Http\Controllers\expenseManagement;
+use App\Http\Controllers\posOrderController;
 use App\Http\Controllers\TallyController;
 use Illuminate\Database\Console\Migrations\ResetCommand;
 use Illuminate\Support\Facades\Artisan;
@@ -322,6 +324,8 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('SaveAudit', [StockReport::class, 'SaveAudit'])->name('SaveAudit');
 
   Route::post('SaveStock', [StockReport::class, 'SaveStock'])->name('SaveStock');
+  Route::post('updateStock', [StockReport::class, 'updateStock'])->name('updateStock');
+  Route::post('updateFGStock', [StockReport::class, 'updateFGStock'])->name('updateFGStock');
   Route::post('SaveFPStock', [StockReport::class, 'SaveFPStock'])->name('SaveFPStock');
   Route::post('GetStockAdjustmentHistory', [StockReport::class, 'GetStockAdjustmentHistory'])->name('GetStockAdjustmentHistory');
   Route::post('GetFPStockAdjustmentHistory', [StockReport::class, 'GetFPStockAdjustmentHistory'])->name('GetFPStockAdjustmentHistory');
@@ -395,7 +399,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('invoices', [OutwardStock::class, 'Invoices'])->name('invoices');
   Route::get('invoice-view/{id}', [OutwardStock::class, 'InvoiceView'])->name('invoice-view');
 
-   Route::get('kot', [Masters::class, 'Kot'])->name('kot');
+  Route::get('kot', [Masters::class, 'Kot'])->name('kot');
   Route::post('delete_kot', [Masters::class, 'deletekot'])->name('delete_kot');
   //purchase return
 
@@ -488,4 +492,19 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('tally-report', [TallyController::class, 'tallyReport'])->name('tally-report');
   Route::get('outlet_customer', [Masters::class, 'outlet_customer'])->name('outlet_customer');
   Route::post('SaveOutletCustomer', [Masters::class, 'SaveOutletCustomer'])->name('SaveOutletCustomer');
+
+
+
+  //expense management
+  Route::get('expense-category', [expenseManagement::class, 'expenseCategory'])->name('expense-category');
+  Route::post('saveExpenseCategory', [expenseManagement::class, 'saveExpenseCategory'])->name('saveExpenseCategory');
+
+  Route::get('expense-sub-category', [expenseManagement::class, 'expenseSubCategory'])->name('expense-sub-category');
+  Route::post('saveExpenseSubCategory', [expenseManagement::class, 'saveExpenseSubCategory'])->name('saveExpenseSubCategory');
+
+
+  //pos management
+
+  Route::get('pos-order', [posOrderController::class, 'posOrder'])->name('pos-order');
+  Route::get('pos-order-view/{id}', [posOrderController::class, 'posOrderView'])->name('pos-order-view');
 });

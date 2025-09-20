@@ -37,6 +37,7 @@
                         <th>PO</th>
                         <th>Vendor</th>
 
+                        <th>Invoice No</th>
                         <th>Invoice</th>
                         <th>Invoice Date</th>
                         <th>R.M Date</th>
@@ -53,6 +54,7 @@
                             <td>{{ $item->po_name }}</td>
                             <td>{{ $item->vendor }}</td>
 
+                            <td>{{ $item->invoice_id }}</td>
                             <td>{{ $item->invoice_no }}</td>
                             <td>{{ $item->invoice_date }}</td>
                             <td>{{ $item->received_material_date }}</td>

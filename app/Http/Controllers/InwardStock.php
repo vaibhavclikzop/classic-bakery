@@ -164,8 +164,7 @@ class InwardStock extends Controller
             $po->whereDate("a.created_at", "<=", $toDt);
         }
 
-        $po_mst =  $po->whereIn("a.user_id", $request->userIds)
-            ->orderBy("a.id", "desc")
+        $po_mst =  $po->orderBy("a.id", "desc")
             ->get();
         return view("purchase-order", compact("po_mst", "status"));
     }
@@ -287,13 +286,20 @@ class InwardStock extends Controller
             DB::beginTransaction();
 
             foreach ($poGrouped as $po_id => $products) {
-
+                $inv_no =   DB::table("stock_inward_mst")->whereDate("created_at", now())->count();
+                if (!$inv_no) {
+                    $inv_no = 1;
+                }else{
+                    $inv_no++;
+                }
+                $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
+                $invoice_id = $invoice_prefix->invoice_prefix . date('d-m-y') . "-" . $inv_no;
 
                 $mst_id = DB::table('stock_inward_mst')->insertGetId(array(
                     "vendor_id" => $request->vendor_id,
                     "po_id" => $po_id,
-
                     "invoice_no" => $request->invoice_no,
+                    "invoice_id" => $invoice_id,
                     "invoice_date" => $request->invoice_date,
                     "received_material_date" => $request->received_material_date,
                     "description" => $request->description,
@@ -785,31 +791,29 @@ class InwardStock extends Controller
 
 
         try {
-         $exist = DB::table('po_det')
-            ->where('mst_id', $request->mst_id)
-            ->where('id', $request->pid)
-            ->first();
-
-        if ($exist) {
-            DB::table('po_det')
+            $exist = DB::table('po_det')
+                ->where('mst_id', $request->mst_id)
                 ->where('id', $request->pid)
-                ->update([
-                    'qty' => $request->qty,
-                    'price' => $request->price,
-                ]);
-           
-        } else {
-           DB::table('po_det')->insertGetId(array(
-                "mst_id" => $request->mst_id,
-                "product_id" => $request->product_id,
-                "qty" => $request->qty,
-                "price" => $products->price,
-                "gst" => $products->gst,
-                "gst_type" => $gst_type
+                ->first();
 
-            ));
-           
-        }
+            if ($exist) {
+                DB::table('po_det')
+                    ->where('id', $request->pid)
+                    ->update([
+                        'qty' => $request->qty,
+                        'price' => $request->price,
+                    ]);
+            } else {
+                DB::table('po_det')->insertGetId(array(
+                    "mst_id" => $request->mst_id,
+                    "product_id" => $request->product_id,
+                    "qty" => $request->qty,
+                    "price" => $products->price,
+                    "gst" => $products->gst,
+                    "gst_type" => $gst_type
+
+                ));
+            }
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }

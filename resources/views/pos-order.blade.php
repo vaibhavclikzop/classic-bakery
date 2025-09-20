@@ -1,44 +1,21 @@
 @extends('layouts.main')
 @section('main-section')
     @push('title')
-        <title>KOT Invoices</title>
+        <title>Invoices</title>
     @endpush
-    <style>
-        .wrap-text {
-            word-wrap: break-word !important;
-            overflow-wrap: break-word;
-            white-space: normal !important;
-            max-width: 200px;
-        }
-    </style>
+
+
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
-                <h4>KOT</h4>
+                <h4>Invoices</h4>
             </div>
-            @php
-                $status = request('status');
-            @endphp
+            <div class="">
 
-            <div>
-                <form action="" method="GET" class="d-flex">
-                    <div>
-                        <label for="">From</label>
-                        <input type="date" name="fromDt" class="form-control" onchange="this.form.submit()"
-                            value="{{ request('fromDt') ?? \Carbon\Carbon::now()->startOfMonth()->toDateString() }}">
+      
 
-                    </div>
 
-                    <div>
-                        <label for="">To</label>
-                        <input type="date" name="toDt" class="form-control" onchange="this.form.submit()"
-                            value="{{ request('toDt') ?? \Carbon\Carbon::now()->toDateString() }}">
 
-                    </div>
-                </form>
-
-            </div>
-            <div>
 
             </div>
         </div>
@@ -46,15 +23,22 @@
             <table class="table dataTable">
                 <thead>
                     <tr>
-                        <th>S.No</th>
-                        <th>Outlet</th>
-                        <th>Customer Name</th>
-                        <th>Customer No.</th>
-                        <th>Invoice No </th>
-                        <th>Invoice Date </th>
-                        <th>Subtotal </th>
-                        <th>Discount</th>
-                        <th>Action </th>
+                        <th>S.no</th>
+                        <th> Outlet </th>
+                        <th> Invoice No</th>
+                        <th> Customer Name</th>
+                        <th> Customer Number</th>
+                        <th> Sub Total</th>
+                        <th> Discount</th>
+                        <th> Total</th>
+                        <th>
+                            Action
+                        </th>
+              
+
+
+
+
                     </tr>
                 </thead>
                 <tbody>
@@ -64,29 +48,27 @@
                     @foreach ($data as $item)
                         <tr>
                             <td>{{ $sno++ }}</td>
-                            <td>{{ $item->outlet_name }}</td>
-                            <td class="wrap-text" style="width:25%">{{ $item->name }}</td>
+                            <td>{{ $item->outletDetails->outlet_name }}</td>
+                            <td><a href="/pos-order-view/{{$item->id}}" class="btn btn-sm btn-outline-primary"> {{ $item->invoice_no }}</a></td>
+                            <td>{{ $item->name }}</td>
                             <td>{{ $item->number }}</td>
-                            <td>{{ $item->invoice_no }}</td>
-                            <td>{{ \Carbon\Carbon::parse($item->order_date)->toDateString() }}</td>
                             <td>{{ $item->sub_total }}</td>
                             <td>{{ $item->discount_percentage }}</td>
-                            <td>
+                            <td>{{ $item->total }}</td>
+                              <td>
                                 <button class="btn btn-danger btn-sm delete" data-id="{{ $item->id }}"><i
                                         class="fa fa-trash" aria-hidden="true"></i></button>
                             </td>
-
                         </tr>
                     @endforeach
                 </tbody>
 
             </table>
-
         </div>
 
     </div>
 
-    <form action="" method="POST">
+        <form action="" method="POST">
         @csrf
         <div class="modal fade" id="modalId" tabindex="-1" role="dialog" aria-labelledby="modalTitleId"
             aria-hidden="true">

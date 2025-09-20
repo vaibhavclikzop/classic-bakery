@@ -81,7 +81,7 @@
 
 
                             <td class="wrap-text" style="width:25%">{{ $item->customer }}</td>
-                            <td>{{ $item->invoice_no }}</td>
+                            <td>{{ $item->order_no }}</td>
                             <td>{{ $item->invoice_date }}</td>
                             <td>
                                 <p class="mb-1">{{ $item->transport }}</p>

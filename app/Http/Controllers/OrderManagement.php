@@ -392,6 +392,11 @@ class OrderManagement extends Controller
 
 
         try {
+            DB::beginTransaction();
+
+
+            $company_setting = DB::table("company_settings")->where("id", 1)->first();
+            $order_no = $company_setting->order_prefix . "" . $company_setting->order_no;
             $mst_id =  DB::table('order_mst')->insertGetId(array(
                 "customer_id" => $request->customer_id,
                 "user_id" => $request->user->id,
@@ -403,6 +408,7 @@ class OrderManagement extends Controller
                 "description" => $request->description,
                 "order_type_id" => $request->order_type_id,
                 "order_type" => $request->order_type,
+                "order_no" => $order_no,
 
             ));
 
@@ -419,13 +425,12 @@ class OrderManagement extends Controller
                     "mrp" => $finish_products_mst->price,
                 ));
             }
+            $company_setting = DB::table("company_settings")->where("id", 1)->increment("order_no");
+            DB::commit();
         } catch (\Throwable $th) {
+            DB::rollBack();
             return  redirect()->back()->with("error", $th->getMessage());
         }
-
-
-
-
 
         return  redirect()->back()->with("success", "Save Successfully");
     }
@@ -774,7 +779,7 @@ class OrderManagement extends Controller
 
             ->where("a.status", "pending")
             ->whereDate("a.delivery_date", $date)
-   
+
             ->orderBy("id", "desc")
             ->get();
 
@@ -1234,7 +1239,7 @@ class OrderManagement extends Controller
 
             'id' => 'required',
             'order_pwd' => 'required',
- 
+
 
         ]);
 
@@ -1251,12 +1256,12 @@ class OrderManagement extends Controller
 
 
         try {
-            $company_setting = DB::table("company_settings")->where("id",$request->user->id)->select('order_pwd')->first();
-              if ($request->order_pwd !== $company_setting->order_pwd) {
-                 return  redirect()->back()->with("error", 'Incorrect password.');
-                }
-           
-               
+            $company_setting = DB::table("company_settings")->where("id", $request->user->id)->select('order_pwd')->first();
+            if ($request->order_pwd !== $company_setting->order_pwd) {
+                return  redirect()->back()->with("error", 'Incorrect password.');
+            }
+
+
             DB::table('order_mst')->where("id", $request->id)->update(array(
                 "status" => "cancel",
 

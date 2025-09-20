@@ -31,6 +31,7 @@ class StockReport extends Controller
 
         $user_type = $request->user->user_type;
 
+
         return view("current-stock", compact("current_stock", "user_type"));
     }
 
@@ -385,15 +386,14 @@ class StockReport extends Controller
             $id = 0;
             $total_stock = 0;
             if ($request->id) {
-                 $id = $request->id;
+                $id = $request->id;
                 $stock = DB::table('current_stock')->where('id', $request->id)->first();
 
-                if(!$stock || $stock->stock + $request->qty < 0){
+                if (!$stock || $stock->stock + $request->qty < 0) {
                     return response()->json(['error' => 'Stock cannot be negative'], 400);
                 }
-                DB::table('current_stock')->where("id", $request->id)->increment("stock", $request->qty);               
+                DB::table('current_stock')->where("id", $request->id)->increment("stock", $request->qty);
                 $total_stock = DB::table('current_stock')->where('id', $request->id)->value('stock');
-
             } else {
                 $mst_id = DB::table('current_stock')->insertGetId(array(
                     "product_id" => $request->product_id,
@@ -459,13 +459,13 @@ class StockReport extends Controller
 
 
         try {
-                $stock = DB::table('finish_product_stock')->where('id', $request->id)->first();
+            $stock = DB::table('finish_product_stock')->where('id', $request->id)->first();
 
-                if(!$stock || $stock->stock + $request->qty < 0){
-                    return response()->json(['error' => 'Stock cannot be negative'], 400);
-                }
+            if (!$stock || $stock->stock + $request->qty < 0) {
+                return response()->json(['error' => 'Stock cannot be negative'], 400);
+            }
             DB::table('finish_product_stock')->where("id", $request->id)->increment("stock", $request->qty);
-                $total_stock = DB::table('finish_product_stock')->where('id', $request->id)->value('stock');
+            $total_stock = DB::table('finish_product_stock')->where('id', $request->id)->value('stock');
 
             DB::table('fp_stock_adjustment')->insertGetId(array(
 
@@ -790,6 +790,155 @@ class StockReport extends Controller
                 DB::table("outlet_audit_report_mst")->where("id", $audit_report_det->mst_id)->update(array(
                     "status" => "complete"
                 ));
+            }
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+
+        return redirect()->back()->with("success", "Save successfully");
+    }
+
+
+    public function updateStock(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'updateStock' => 'required',
+
+
+
+        ]);
+
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $count = 0;
+            foreach ($messages->all() as $error) {
+                if ($count == 0)
+                    return redirect()->back()->with('error', $error);
+
+                $count++;
+            }
+        }
+
+
+        try {
+
+            foreach ($request->updateStock as $key => $value) {
+
+
+                $id = 0;
+                if ($key == "new") {
+                    foreach ($value as $k => $v) {
+
+
+                        if ($v) {
+
+
+                            $mst_id = DB::table('current_stock')->insertGetId(array(
+                                "product_id" => $k,
+                                "stock" => $v,
+                            ));
+                            $id = $mst_id;
+                            DB::table('stock_adjustment')->insertGetId(array(
+                                "cs_id" => $id,
+                                "qty" => $v,
+                            ));
+                        }
+                    }
+                } else {
+                    foreach ($value as $i => $j) {
+                        if ($j) {
+
+                            $id = $i;
+                            $stock = DB::table('current_stock')->where('id', $i)->first();
+
+                            if (!$stock || $stock->stock + $request->qty < 0) {
+                                return true;
+                            }
+                            DB::table('current_stock')->where("id", $i)->increment("stock", $j);
+
+                            DB::table('stock_adjustment')->insertGetId(array(
+
+                                "cs_id" => $id,
+                                "qty" => $j,
+
+                            ));
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+
+        return redirect()->back()->with("success", "Save successfully");
+    }
+
+
+    public function updateFGStock(Request $request) {
+           $validator = Validator::make($request->all(), [
+            'updateStock' => 'required',
+
+
+
+        ]);
+
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $count = 0;
+            foreach ($messages->all() as $error) {
+                if ($count == 0)
+                    return redirect()->back()->with('error', $error);
+
+                $count++;
+            }
+        }
+
+
+        try {
+
+            foreach ($request->updateStock as $key => $value) {
+
+
+                $id = 0;
+                if ($key == "new") {
+                    foreach ($value as $k => $v) {
+
+
+                        if ($v) {
+
+
+                            $mst_id = DB::table('finish_product_stock')->insertGetId(array(
+                                "product_id" => $k,
+                                "stock" => $v,
+                            ));
+                            $id = $mst_id;
+                            DB::table('fp_stock_adjustment')->insertGetId(array(
+                                "cs_id" => $id,
+                                "qty" => $v,
+                            ));
+                        }
+                    }
+                } else {
+                    foreach ($value as $i => $j) {
+                        if ($j) {
+
+                            $id = $i;
+                            $stock = DB::table('finish_product_stock')->where('id', $i)->first();
+
+                            if (!$stock || $stock->stock + $request->qty < 0) {
+                                return true;
+                            }
+                            DB::table('finish_product_stock')->where("id", $i)->increment("stock", $j);
+
+                            DB::table('fp_stock_adjustment')->insertGetId(array(
+
+                                "cs_id" => $id,
+                                "qty" => $j,
+
+                            ));
+                        }
+                    }
+                }
             }
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());

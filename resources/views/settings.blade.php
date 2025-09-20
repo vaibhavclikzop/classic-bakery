@@ -93,21 +93,34 @@
                     </select>
                 </div>
                 <div class="col-md-4 mt-2">
-                    <label for="">Invoice Prefix</label>
+                    <label for="">PO Invoice Prefix</label>
                     <input type="text" class="form-control" name="invoice_prefix"
                         value="{{ $settings->invoice_prefix }}">
 
                 </div>
                 <div class="col-md-4 mt-2">
-                    <label for="">Invoice No</label>
-                    <input type="text" class="form-control" name="invoice_no" value="{{ $settings->invoice_no }}">
+                    <label for="">PO Invoice No</label>
+                    <input type="number" class="form-control" name="invoice_no" value="{{ $settings->invoice_no }}">
+
+                </div>
+
+
+                <div class="col-md-4 mt-2">
+                    <label for="">Order Invoice Prefix</label>
+                    <input type="text" class="form-control" name="order_prefix"
+                        value="{{ $settings->order_prefix }}">
+
+                </div>
+                <div class="col-md-4 mt-2">
+                    <label for="">Order Invoice No</label>
+                    <input type="number" class="form-control" name="order_no" value="{{ $settings->order_no }}">
 
                 </div>
                 <div class="col-md-4 mt-2">
                     <label for="">Order Password</label>
                     <div class="pass-group">
                         <input type="password" class="pass-input form-control" value="{{ $settings->order_pwd }}"
-                        name="order_pwd">
+                            name="order_pwd">
                         <i class="fa toggle-password fa-eye "></i>
                     </div>
 

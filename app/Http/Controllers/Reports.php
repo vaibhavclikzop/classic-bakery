@@ -85,7 +85,7 @@ class Reports extends Controller
 
         $filterRawMaterial = DB::table("stock_inward_mst as a")
             ->select(
-                "a.id as invoice_id",
+                "a.invoice_id as invoice_id",
                 "a.received_material_date",
                 "c.name as vendor",
                 DB::raw("SUM((b.qty * b.price) + ((b.qty * b.price * b.gst) / 100)+ ((b.qty * b.price * b.cess_tax) / 100)) as total_amount"),
@@ -102,7 +102,7 @@ class Reports extends Controller
         if ($toDt) {
             $filterRawMaterial->whereDate("a.received_material_date", "<=", $toDt);
         }
-        $rawMaterial = $filterRawMaterial->groupBy("a.id", "a.received_material_date", "c.name", "a.delivery_charges")->get();
+        $rawMaterial = $filterRawMaterial->groupBy("a.invoice_id", "a.received_material_date", "c.name", "a.delivery_charges")->get();
 
 
 
@@ -153,7 +153,7 @@ class Reports extends Controller
         $sql = "
              SELECT
         a.invoice_no,
-        a.id,
+        a.order_no as id,
         a.invoice_date,
         e.name AS name,
         'Regular Order' AS order_type,
@@ -170,13 +170,13 @@ class Reports extends Controller
     JOIN customers e ON d.customer_id = e.id
     WHERE d.order_type = 'customer'
       AND a.invoice_date BETWEEN ? AND ?
-    GROUP BY a.invoice_no, a.invoice_date, a.id, e.name
+    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name
 
     UNION ALL
 
     SELECT
         a.invoice_no,
-        a.id,
+        a.order_no as id,
         a.invoice_date,
         e.outlet_name AS name,
         'Regular Order' AS order_type,
@@ -193,7 +193,7 @@ class Reports extends Controller
     JOIN outlet e ON d.customer_id = e.id
     WHERE d.order_type = 'outlet'
       AND a.invoice_date BETWEEN ? AND ?
-    GROUP BY a.invoice_no, a.invoice_date, a.id, e.outlet_name
+    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.outlet_name
 
     UNION ALL
 
