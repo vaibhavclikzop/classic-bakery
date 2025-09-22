@@ -52,7 +52,7 @@
 
                 <div>
                     <div style="text-align: right;">
-                        <h6>Order ID : {{ $order_mst->id }}</h6>
+                        <h6>Order ID : {{ $order_mst->order_id }}</h6>
                         <h4>{{ $order_mst->customer_name }}</h4>
                         <p>
                         

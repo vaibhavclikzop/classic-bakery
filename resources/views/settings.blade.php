@@ -98,24 +98,49 @@
                         value="{{ $settings->invoice_prefix }}">
 
                 </div>
-                <div class="col-md-4 mt-2">
+                {{-- <div class="col-md-4 mt-2 d-none">
                     <label for="">PO Invoice No</label>
                     <input type="number" class="form-control" name="invoice_no" value="{{ $settings->invoice_no }}">
 
-                </div>
+                </div> --}}
 
 
                 <div class="col-md-4 mt-2">
                     <label for="">Order Invoice Prefix</label>
-                    <input type="text" class="form-control" name="order_prefix"
-                        value="{{ $settings->order_prefix }}">
+                    <input type="text" class="form-control" name="order_prefix" value="{{ $settings->order_prefix }}">
 
                 </div>
                 <div class="col-md-4 mt-2">
+                    <label for="">Advance Order Prefix</label>
+                    <input type="text" class="form-control" name="adv_order_prefix"
+                        value="{{ $settings->adv_order_prefix }}">
+
+                </div>
+
+                <div class="col-md-4 mt-2">
+                    <label for="">Generate PO Prefix</label>
+                    <input type="text" class="form-control" name="po_prefix" value="{{ $settings->po_prefix }}">
+
+                </div>
+
+                <div class="col-md-4 mt-2">
+                    <label for="">Create Order Prefix</label>
+                    <input type="text" class="form-control" name="create_order_prefix"
+                        value="{{ $settings->create_order_prefix }}">
+
+                </div>
+
+                <div class="col-md-4 mt-2">
+                    <label for="">Outward Production Order Prefix</label>
+                    <input type="text" class="form-control" name="outward_production_prefix"
+                        value="{{ $settings->outward_production_prefix }}">
+
+                </div>
+                {{-- <div class="col-md-4 mt-2 d-none">
                     <label for="">Order Invoice No</label>
                     <input type="number" class="form-control" name="order_no" value="{{ $settings->order_no }}">
 
-                </div>
+                </div> --}}
                 <div class="col-md-4 mt-2">
                     <label for="">Order Password</label>
                     <div class="pass-group">

@@ -256,6 +256,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   Route::get('direct-inward-challan', [InwardStock::class, 'DirectInwardChallan'])->name('direct-inward-challan');
   Route::post('DeletePOProduct', [InwardStock::class, 'DeletePOProduct'])->name('DeletePOProduct');
+  Route::post('updatePOProduct', [InwardStock::class, 'updatePOProduct'])->name('updatePOProduct');
   Route::post('AddPOProduct', [InwardStock::class, 'AddPOProduct'])->name('AddPOProduct');
 
 
@@ -493,6 +494,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('outlet_customer', [Masters::class, 'outlet_customer'])->name('outlet_customer');
   Route::post('SaveOutletCustomer', [Masters::class, 'SaveOutletCustomer'])->name('SaveOutletCustomer');
 
+  Route::get('debit-credit-report', [TallyController::class, 'debitCreditReport'])->name('debit-credit-report');
 
 
   //expense management

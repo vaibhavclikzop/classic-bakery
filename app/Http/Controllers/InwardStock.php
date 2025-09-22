@@ -90,15 +90,27 @@ class InwardStock extends Controller
         if ($request->user->id == 1) {
             $status = "generated";
         }
+
+
+        $inv_no =   DB::table("po_mst")->whereDate("created_at", now())->count();
+        if (!$inv_no) {
+            $inv_no = 1;
+        } else {
+            $inv_no++;
+        }
+        $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
+        $invoice_id = $invoice_prefix->po_prefix . date('d-m-y') . "-" . $inv_no;
+
         DB::beginTransaction();
         try {
             $mst_id = DB::table('po_mst')->insertGetId(array(
                 "vendor_id" => $request->vendor_id,
                 "user_id" => $request->user->id,
-                "po_id" => $po_id,
+                "po_id" => $invoice_id,
                 "name" => $request->name,
                 "description" => $request->description,
                 "status" => $status,
+                "created_at" => now(),
 
             ));
 
@@ -195,14 +207,19 @@ class InwardStock extends Controller
 
         $po_det = $poRM->union($poFG)->get();
 
-        $products = DB::table("products as a")
+        $rm = DB::table("products as a")
             ->select("a.*")
             ->join("vendor_product as b", "a.id", "b.product_id")
             ->where("b.vendor_id", $po_mst->vendor_id)
             ->where("a.active", 1)->get();
+        $fg = DB::table("finish_products_mst as a")
+            ->select("a.*")
+            ->join("vendor_product_finish_goods as b", "a.id", "b.product_id")
+            ->where("b.vendor_id", $po_mst->vendor_id)
+            ->where("a.active", 1)->get();
 
 
-        return view("purchase-order-view", compact("po_mst", "po_det", "products"));
+        return view("purchase-order-view", compact("po_mst", "po_det", "rm", "fg"));
     }
 
 
@@ -289,7 +306,7 @@ class InwardStock extends Controller
                 $inv_no =   DB::table("stock_inward_mst")->whereDate("created_at", now())->count();
                 if (!$inv_no) {
                     $inv_no = 1;
-                }else{
+                } else {
                     $inv_no++;
                 }
                 $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
@@ -754,12 +771,13 @@ class InwardStock extends Controller
         return redirect()->back()->with('success', "Save Successfully");
     }
 
-    public function AddPOProduct(Request $request)
+    public function updatePOProduct(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'mst_id' => 'required',
             'product_id' => 'required',
             'qty' => 'required',
+
 
         ]);
         if ($validator->fails()) {
@@ -796,13 +814,82 @@ class InwardStock extends Controller
                 ->where('id', $request->pid)
                 ->first();
 
+
+
             if ($exist) {
                 DB::table('po_det')
                     ->where('id', $request->pid)
+
                     ->update([
                         'qty' => $request->qty,
                         'price' => $request->price,
                     ]);
+            } else {
+                // DB::table('po_det')->insertGetId(array(
+                //     "mst_id" => $request->mst_id,
+                //     "product_id" => $request->product_id,
+                //     "qty" => $request->qty,
+                //     "price" => $products->price,
+                //     "gst" => $products->gst,
+                //     "gst_type" => $gst_type,
+                //     "type" => $request->productType,
+
+                // ));
+            }
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+        return redirect()->back()->with('success', "Save Successfully");
+    }
+
+
+    public function AddPOProduct(Request $request){
+  $validator = Validator::make($request->all(), [
+            'mst_id' => 'required',
+            'product_id' => 'required',
+            'qty' => 'required',
+
+
+        ]);
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $count = 0;
+            foreach ($messages->all() as $error) {
+                if ($count == 0)
+                    return redirect()->back()->with('error', $error);
+                $count++;
+            }
+        }
+
+        $gst_type = "";
+        $po_mst = DB::table("po_mst")->where("id", $request->mst_id)->first();
+        $vendor = DB::table("vendor")->where("id", $po_mst->vendor_id)->first();
+        $products = DB::table("products")->where("id", $request->product_id)->first();
+        $company_setting = DB::table("company_settings")->where("id", 1)->first();
+        if ($vendor->gst) {
+            $gst_number = substr($vendor->gst, 0, 2);
+            $company_gst_no = substr($company_setting->gst_no, 0, 2);
+            if ($gst_number == $company_gst_no) {
+                $gst_type = "Inner GST";
+            } else {
+                $gst_type = "Outer GST";
+            }
+        } else {
+            $gst_type = "Outer GST";
+        }
+
+
+        try {
+            $exist = DB::table('po_det')
+                ->where('mst_id', $request->mst_id)
+                ->where('product_id', $request->product_id)
+                ->where('type', $request->productType)
+                ->first();
+
+
+
+            if ($exist) {
+                  return redirect()->back()->with('error', "Already Exists");
             } else {
                 DB::table('po_det')->insertGetId(array(
                     "mst_id" => $request->mst_id,
@@ -810,7 +897,8 @@ class InwardStock extends Controller
                     "qty" => $request->qty,
                     "price" => $products->price,
                     "gst" => $products->gst,
-                    "gst_type" => $gst_type
+                    "gst_type" => $gst_type,
+                    "type" => $request->productType,
 
                 ));
             }

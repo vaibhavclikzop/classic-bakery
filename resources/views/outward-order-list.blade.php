@@ -17,6 +17,7 @@
                     <tr>
                         <th>S.No</th>
                         <th>Department </th>
+                        <th>Invoice ID </th>
                     
                     
                         <th>Invoice Date </th>
@@ -35,6 +36,7 @@
                          
                     
                             <td>{{ $item->department }}</td>
+                            <td>{{ $item->order_id }}</td>
                             <td>{{ $item->invoice_date }}</td>
                  
                             <td>{{ $item->user }}</td>

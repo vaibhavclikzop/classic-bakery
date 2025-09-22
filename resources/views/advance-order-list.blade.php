@@ -7,18 +7,18 @@
             </div>
             <div class="">
                 <form class="d-flex" method="GET">
-                 
-                        <a class="btn btn-info" href="?date={{ date('Y-m-d', strtotime(request('date') . ' -1 day')) }}">
-                            << </a>
-                                <input type="date" name="date" class="form-control" required
-                                    value="{{ request('date') ?? date('Y-m-d', strtotime('+1 day')) }}"
-                                    onchange="this.form.submit()">
-                                <a class="btn btn-info"
-                                    href="?date={{ date('Y-m-d', strtotime(request('date') . ' +1 day')) }}">
-                                    >>
-                                </a>
 
-            
+                    <a class="btn btn-info" href="?date={{ date('Y-m-d', strtotime(request('date') . ' -1 day')) }}">
+                        << </a>
+                            <input type="date" name="date" class="form-control" required
+                                value="{{ request('date') ?? date('Y-m-d', strtotime('+1 day')) }}"
+                                onchange="this.form.submit()">
+                            <a class="btn btn-info"
+                                href="?date={{ date('Y-m-d', strtotime(request('date') . ' +1 day')) }}">
+                                >>
+                            </a>
+
+
 
 
                 </form>
@@ -37,6 +37,7 @@
                             <tr>
                                 <th>S.No</th>
                                 <th><input type="checkbox" id="all_check"></th>
+                                <th>Order ID</th>
                                 <th>Outlet</th>
                                 <th>Order Date</th>
                                 <th>Delivery Date Time</th>
@@ -54,24 +55,25 @@
                                     <td>{{ $sno++ }}</td>
                                     <td><input type="checkbox" name="ids[]" value="{{ $item->id }}" class="all_check">
                                     </td>
+                                    <td>{{ $item->order_id }}</td>
                                     <td>{{ $item->name }}</td>
                                     <td>{{ $item->order_date }}</td>
                                     <td>{{ \Carbon\Carbon::parse($item->delivery_date . ' ' . $item->delivery_time)->format('d-m-Y g:i A') }}
-</td>
+                                    </td>
                                     <td>{{ $item->type }}</td>
                                     <td>{{ $item->created_at }}</td>
                                     <td>
                                         <a class="btn btn-sm btn-primary" href="/advance-order-view/{{ $item->id }}">
                                             <i class="fa fa-eye" aria-hidden="true"></i> </a>
-                                        
-                                        @if ($item->status != 'cancel'  )
-                                        @if ($item->status != 'delivered' )
-                                            <button class="btn btn-dark btn-sm change_status" value="{{ $item->id }}"
-                                                data-status="{{ $item->status }}" type="button"><i class="fa fa-pencil"
-                                                    aria-hidden="true"></i></button>
+
+                                        @if ($item->status != 'cancel')
+                                            @if ($item->status != 'delivered')
+                                                <button class="btn btn-dark btn-sm change_status"
+                                                    value="{{ $item->id }}" data-status="{{ $item->status }}"
+                                                    type="button"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                            @endif
                                         @endif
-                                        @endif
-                                         @if ($item->status == 'pending')
+                                        @if ($item->status == 'pending')
                                             <button class="btn btn-danger btn-sm cancel_status" value="{{ $item->id }}"
                                                 data-status="{{ $item->status }}" type="button"><i class="fa fa-xmark"
                                                     aria-hidden="true"></i></button>
@@ -125,34 +127,37 @@
 
     </form>
 
-      <form action="{{ route('Cancel_order') }}" method="POST" class="needs-validation" novalidate>
+    <form action="{{ route('Cancel_order') }}" method="POST" class="needs-validation" novalidate>
         @csrf
-		<div class="modal fade" id="cancelOrderModal">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="page-wrapper-new p-0">
-						<div class="content p-5 px-3 text-center">
-								<span class="rounded-circle d-inline-flex p-2 bg-danger-transparent mb-2"><i class="fa fa-trash fs-24 text-danger"></i></span>
-								<h4 class="fs-20 text-gray-9 fw-bold mb-2 mt-1">Cancel Order</h4>
-								 <input type="hidden" id="deleteId" name="id">
-								<p class="text-gray-6 mb-0 fs-16">Enter password to cancel order?</p>
-								<div class="pass-group" style="position: relative;max-width: 300px; margin: 0 auto;">
-			                        <input type="password" class="pass-input form-control" value=""
-			                        name="order_pwd" required>
-			                       
-			                    </div>
-                                 {{-- <i class="fa toggle-password fa-eye "></i> --}}
+        <div class="modal fade" id="cancelOrderModal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="page-wrapper-new p-0">
+                        <div class="content p-5 px-3 text-center">
+                            <span class="rounded-circle d-inline-flex p-2 bg-danger-transparent mb-2"><i
+                                    class="fa fa-trash fs-24 text-danger"></i></span>
+                            <h4 class="fs-20 text-gray-9 fw-bold mb-2 mt-1">Cancel Order</h4>
+                            <input type="hidden" id="deleteId" name="id">
+                            <p class="text-gray-6 mb-0 fs-16">Enter password to cancel order?</p>
+                            <div class="pass-group" style="position: relative;max-width: 300px; margin: 0 auto;">
+                                <input type="password" class="pass-input form-control" value="" name="order_pwd"
+                                    required>
 
-								<div class="modal-footer-btn mt-3 d-flex justify-content-center">
-									<button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none" data-bs-dismiss="modal">Close</button>
-									<button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3">Yes Cancel</button>
-								</div>						
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		 </form>
+                            </div>
+                            {{-- <i class="fa toggle-password fa-eye "></i> --}}
+
+                            <div class="modal-footer-btn mt-3 d-flex justify-content-center">
+                                <button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
+                                    data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3">Yes
+                                    Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 
     <script>
         $("#all_check").on("click", function() {

@@ -5,8 +5,8 @@
     @endpush
     <style>
         .select2-container--open {
-    z-index: 9999!important; 
-}
+            z-index: 9999 !important;
+        }
     </style>
     <div class="card">
         <div class="card-header d-flex justify-content-between">
@@ -83,7 +83,7 @@
                         <div class="col-md-4">
                             <label for="">Select Vendor</label>
                             <select name="vendor_id" id="vendor_id" class="form-control ">
-                               
+
                                 @foreach ($vendors as $item)
                                     <option value="{{ $item->id }}">{{ $item->name }}
                                     </option>
@@ -164,14 +164,14 @@
             $("#modal_name").text("Add Purchase Return");
             $("#id").val("");
             $("#exampleModal").modal("show");
-             $("#inward_id").select2({
-        dropdownParent: $("#exampleModal")
-    });
-    $("#vendor_id").select2({
-        dropdownParent: $("#exampleModal"),
-        placeholder: "Select Vendor",
-       
-    });
+            $("#inward_id").select2({
+                dropdownParent: $("#exampleModal")
+            });
+            $("#vendor_id").select2({
+                dropdownParent: $("#exampleModal"),
+                placeholder: "Select Vendor",
+
+            });
         });
 
         $("#vendor_id").on("change", function() {
@@ -223,7 +223,7 @@
                     var html = "<option>Select</option>";
                     result.forEach(element => {
                         html +=
-                            `<option value='${element.id}' data-qty="${element.qty}"> ${element.product} : Qty - ${element.qty}</option>`;
+                            `<option value='${element.product_id}' data-qty="${element.qty}" data-type="${element.type}"> ${element.product} : Qty - ${element.qty}</option>`;
                     });
                     $("#product_id").html(html)
                 },
@@ -241,6 +241,7 @@
             var product_id = parseInt($("#product_id").val())
             var product_name = $("#product_id").find(":selected").text()
             var qty = parseInt($("#qty").val())
+            var type = $("#product_id").find(":selected").data("type")
 
 
             if (!product_id || isNaN(product_id)) {
@@ -261,7 +262,10 @@
 
 
 
-            let existingProduct = product_list.find(product => product.product_id === product_id);
+            let existingProduct = product_list.find(product =>
+                product.product_id === product_id && product.type === type
+            );
+
             if (existingProduct) {
                 toastr.error("Product already exists");
                 return;
@@ -283,9 +287,11 @@
             $("#prodList").append(html)
             product_list.push({
                 product_id,
-                qty
+                qty,
+                type,
 
             });
+            console.log(product_list);
 
         });
 
@@ -317,6 +323,5 @@
             $('#frmMain').submit()
 
         })
-       
     </script>
 @endsection

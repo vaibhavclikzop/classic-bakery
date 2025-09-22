@@ -9,9 +9,9 @@
 
                 <button type="button" onclick="printcontent()" class="btn btn-primary"><i class="fa fa-print"
                         aria-hidden="true"></i> Print</button>
-              
-                    {{-- <a class="btn btn-dark" href="?edit=0"><i class="fa fa-eye" aria-hidden="true"></i></a> --}}
-                  @if (($po_mst->status=='pending' || $po_mst->status=='generated'))
+
+                {{-- <a class="btn btn-dark" href="?edit=0"><i class="fa fa-eye" aria-hidden="true"></i></a> --}}
+                @if ($po_mst->status == 'pending' || $po_mst->status == 'generated')
                     <a class="btn btn-dark" href="?edit=1"><i class="fa fa-pencil" aria-hidden="true"></i></a>
                 @endif
 
@@ -114,7 +114,8 @@
                                 @if (request('edit') == 1)
                                     <td>
                                         <button class="btn btn-warning btn-info editStatus" type="button"
-                                        data-id="{{ $item->id }}" data-qty="{{$item->qty}}" data-price="{{$item->price}}" data-product="{{$item->product_id}}"><i
+                                            data-id="{{ $item->id }}" data-qty="{{ $item->qty }}"
+                                            data-price="{{ $item->price }}" data-product="{{ $item->product_id }}"><i
                                                 class="fa fa-pen" aria-hidden="true"></i></button>
                                         <button class="btn btn-danger delete" value="{{ $item->id }}" type="button"><i
                                                 class="fa fa-trash" aria-hidden="true"></i></button>
@@ -229,13 +230,21 @@
                         <div class="row">
                             <input type="hidden" name="mst_id" value="{{ $po_mst->id }}">
                             <div class="col-md-6">
+                                <input type="text" id="productType" name="productType" hidden>
                                 <label for="">
                                     Product
                                 </label>
                                 <select name="product_id" id="product_id" class="form-control">
                                     <option value="">Select Product</option>
-                                    @foreach ($products as $item)
-                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                    @foreach ($rm as $item)
+                                        <option value="{{ $item->id }}" data-type="raw material">
+                                            {{ $item->name }}
+                                        </option>
+                                    @endforeach
+                                    @foreach ($fg as $item)
+                                        <option value="{{ $item->id }}" data-type="finished product">
+                                            {{ $item->name }}
+                                        </option>
                                     @endforeach
                                 </select>
 
@@ -259,12 +268,12 @@
         </div>
     </form>
 
-      <form action="{{ route('AddPOProduct') }}" method="POST" class="needs-validation" novalidate>
+    <form action="{{ route('updatePOProduct') }}" method="POST" class="needs-validation" novalidate>
         @csrf
-       
+
         <div class="modal fade" id="editModal">
             <div class="modal-dialog" role="document">
-                 <div class="modal-content">
+                <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalTitleId">
                             Edit Product
@@ -275,16 +284,18 @@
 
                         <div class="row">
                             <input type="hidden" name="mst_id" value="{{ $po_mst->id }}">
-                            <input type="hidden" name="pid" id="pid" >
-                            <input type="hidden" name="product_id" id="prod_id" >
+                            <input type="hidden" name="pid" id="pid">
+                            <input type="hidden" name="product_id" id="prod_id">
                             <div class="col-md-6">
                                 <label for="">Qty</label>
-                                <input type="number" step="0.01" name="qty" id="eqty" class="form-control">
+                                <input type="number" step="0.01" name="qty" id="eqty"
+                                    class="form-control">
 
                             </div>
                             <div class="col-md-6">
                                 <label for="">Price</label>
-                                <input type="number" step="0.01" name="price" id="eprice" class="form-control">
+                                <input type="number" step="0.01" name="price" id="eprice"
+                                    class="form-control">
 
                             </div>
 
@@ -304,6 +315,10 @@
     <script>
         $(document).ready(function() {
             $("#product_id").select2();
+            $("#product_id").on("change", function() {
+                let productType = $(this).find(':selected').data('type');
+                $("#productType").val(productType)
+            })
         })
         $(document).on("click", ".delete", function() {
             $("#did").val($(this).val())
@@ -314,13 +329,12 @@
             $("#addModal").modal("show");
         })
 
-         $(document).on("click", ".editStatus", function() {
-                $("#pid").val($(this).data("id"));
-                $("#eqty").val($(this).data("qty"));
-                $("#eprice").val($(this).data("price"));
-                $("#prod_id").val($(this).data("product"));
-                $("#editModal").modal("show")
-            })
+        $(document).on("click", ".editStatus", function() {
+            $("#pid").val($(this).data("id"));
+            $("#eqty").val($(this).data("qty"));
+            $("#eprice").val($(this).data("price"));
+            $("#prod_id").val($(this).data("product"));
+            $("#editModal").modal("show")
+        })
     </script>
-
 @endsection

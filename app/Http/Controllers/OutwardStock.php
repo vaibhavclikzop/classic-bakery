@@ -76,6 +76,14 @@ class OutwardStock extends Controller
 
             $order_mst =  DB::table("order_mst")->where("id", $request->order_id)->first();
 
+            $inv_no =   DB::table("outward_mst")->whereDate("created_at", now())->count();
+            if (!$inv_no) {
+                $inv_no = 1;
+            } else {
+                $inv_no++;
+            }
+            $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
+            $invoice_id = $invoice_prefix->outward_production_prefix . date('d-m-y') . "-" . $inv_no;
 
 
             $mst_id = DB::table('outward_mst')->insertGetId(array(
@@ -84,6 +92,7 @@ class OutwardStock extends Controller
                 "invoice_date" => $request->invoice_date,
 
                 "description" => $request->description,
+                "order_id" => $invoice_id,
                 "user_id" => $request->user->id,
 
             ));

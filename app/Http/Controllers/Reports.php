@@ -198,8 +198,8 @@ class Reports extends Controller
     UNION ALL
 
     SELECT
-        a.id AS invoice_no,
-        a.id,
+        a.order_id AS invoice_no,
+        a.order_id as id,
         a.order_date AS invoice_date,
         c.name,
         'Advance Order' AS order_type,
@@ -215,13 +215,13 @@ class Reports extends Controller
     WHERE a.customer_type = 'customer' 
      AND (a.status = 'dispatch' OR a.status = 'delivered')
       AND a.order_date BETWEEN ? AND ?
-    GROUP BY a.order_date, a.id, c.name
+    GROUP BY a.order_date, a.id, c.name,a.order_id
 
     UNION ALL
 
     SELECT
-        a.id AS invoice_no,
-        a.id,
+        a.order_id AS invoice_no,
+        a.order_id as id,
         a.order_date AS invoice_date,
         c.outlet_name AS name,
         'Advance Order' AS order_type,
@@ -237,7 +237,7 @@ class Reports extends Controller
     WHERE a.customer_type = 'outlet'
       AND (a.status = 'dispatch' OR a.status = 'delivered')
       AND a.order_date BETWEEN ? AND ?
-    GROUP BY a.order_date, a.id, c.outlet_name
+    GROUP BY a.order_date, a.id, c.outlet_name,a.order_id
 ";
         $params = [$fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt];
 

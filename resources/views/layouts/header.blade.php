@@ -753,6 +753,8 @@
                                              <li><a href="/tally-report"
                                                      class="{{ Request::is('tally-report') ? 'active' : '' }}">Tally
                                                      Report</a></li>
+                                                       <li><a href="/debit-credit-report"
+                                                     class="{{ Request::is('tally-report') ? 'active' : '' }}">Debit Credit Note</a></li>
                                          </ul>
                                      </li>
                                  @endif

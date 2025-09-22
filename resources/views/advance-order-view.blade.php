@@ -40,7 +40,7 @@
 
                 <div>
                     <div style="text-align: right;">
-                        <h6>Order ID : {{ $order_mst->id }}</h6>
+                        <h6>Order ID : {{ $order_mst->order_id }}</h6>
                         <h4>Shop : {{ $order_mst->name }}</h4>
                         <h6>Order Type : {{ $order_mst->type }}</h6>
                         <p>

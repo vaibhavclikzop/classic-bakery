@@ -395,20 +395,29 @@ class OrderManagement extends Controller
             DB::beginTransaction();
 
 
-            $company_setting = DB::table("company_settings")->where("id", 1)->first();
-            $order_no = $company_setting->order_prefix . "" . $company_setting->order_no;
+            $inv_no =   DB::table("order_mst")->whereDate("created_at", now())->count();
+            if (!$inv_no) {
+                $inv_no = 1;
+            } else {
+                $inv_no++;
+            }
+            $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
+            $invoice_id = $invoice_prefix->create_order_prefix . date('d-m-y') . "-" . $inv_no;
+
+
+
             $mst_id =  DB::table('order_mst')->insertGetId(array(
                 "customer_id" => $request->customer_id,
                 "user_id" => $request->user->id,
 
-                "order_id" => $order_id,
+                "order_id" => $invoice_id,
                 "status" => "pending",
                 "order_date" => $request->order_date,
                 "delivery_date" => $request->delivery_date,
                 "description" => $request->description,
                 "order_type_id" => $request->order_type_id,
                 "order_type" => $request->order_type,
-                "order_no" => $order_no,
+                "order_no" => $invoice_id,
 
             ));
 

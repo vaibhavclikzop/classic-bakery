@@ -892,14 +892,18 @@ class Masters extends Controller
             "email" => $request->email,
             "gst_no" => $request->gst_no,
             "invoice_prefix" => $request->invoice_prefix,
-            "invoice_no" => $request->invoice_no,
+ 
             "fssai_no" => $request->fssai_no,
             "pan_no" => $request->pan_no,
             "cin_no" => $request->cin_no,
             "city" => $request->city,
             "order_pwd" => $request->order_pwd,
             "order_prefix" => $request->order_prefix,
-            "order_no" => $request->order_no,
+            "adv_order_prefix" => $request->adv_order_prefix,
+            "po_prefix" => $request->po_prefix,
+            "create_order_prefix" => $request->create_order_prefix,
+            "outward_production_prefix" => $request->outward_production_prefix,
+    
 
         ));
 

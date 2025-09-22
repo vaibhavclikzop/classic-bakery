@@ -179,4 +179,78 @@ class TallyController extends Controller
         $data = array_merge($data, $rawMaterial->toArray());
         return view("tally-report", compact("data"));
     }
+
+
+    public function debitCreditReport(Request $request)
+    {
+
+        $fromDt = $request->input("fromDt") ?: Carbon::now()->toDateString();
+        $toDt = $request->input("toDt") ?: Carbon::now()->toDateString();
+
+        $lastPriceSub = DB::table("stock_inward_det as si")
+            ->select("si.product_id", "si.price", "si.gst", "si.cess_tax", "si.type")
+            ->whereRaw("si.id = (select max(id) from stock_inward_det where product_id = si.product_id)");
+
+        $purchase_return = DB::table("purchase_return_mst as a")
+            ->join("purchase_return_det as b", "a.id", "=", "b.mst_id")
+            ->joinSub($lastPriceSub, "c", function ($join) {
+                $join->on("b.product_id", "=", "c.product_id");
+                $join->on("b.type", "=", "c.type");
+            })
+            ->join("vendor as v", "a.vendor_id", "=", "v.id")
+            ->select(
+                "v.name as name",
+                DB::raw("'purchase return' as invoice_type"),
+                DB::raw("'purchase return' as order_type"),
+                DB::raw("'0' as igst"),
+                DB::raw("'0' as cgst"),
+                DB::raw("'0' as sgst"),
+                DB::raw("a.return_date as invoice_date"),
+                DB::raw("a.id as id"),
+                DB::raw("SUM(b.qty * c.price) as sub_total"),
+                DB::raw("SUM((b.qty * c.price) * c.gst/100) as total_gst"),
+                DB::raw("SUM((b.qty * c.price) * c.cess_tax/100) as cess_amt"),
+                DB::raw("MAX(c.gst) as gst"),
+                DB::raw("SUM(b.qty * c.price + (b.qty * c.price) * c.gst/100 + (b.qty * c.price) * c.cess_tax/100) as grand_total")
+            )
+            ->whereDate("a.return_date",">=",$fromDt)
+            ->whereDate("a.return_date","<=",$toDt)
+            ->groupBy("v.id", "v.name", "a.return_date", "a.id");
+
+
+        $lastPriceSub = DB::table("finish_products_mst as f")
+            ->select("f.id as product_id", "f.price", "f.gst", "f.cess_tax")
+            ->whereRaw("f.id = (select max(id) from finish_products_mst where id = f.id)");
+
+        $sale_return = DB::table("sale_return_mst as a")
+            ->join("sale_return_det as b", "a.id", "b.mst_id")
+            ->joinSub($lastPriceSub, "c", function ($join) {
+                $join->on("b.product_id", "=", "c.product_id");
+            })
+            ->join("outlet as v", "a.customer_id", "v.id")
+            ->select(
+                "v.outlet_name as name",
+                DB::raw("'sale return' as invoice_type"),
+                DB::raw("'sale return' as order_type"),
+                DB::raw("'0' as igst"),
+                DB::raw("'0' as cgst"),
+                DB::raw("'0' as sgst"),
+                DB::raw("a.return_date as invoice_date"),
+                DB::raw("a.id as id"),
+                DB::raw("SUM(b.qty * c.price) as sub_total"),
+                DB::raw("SUM((b.qty * c.price) * c.gst/100) as total_gst"),
+                DB::raw("SUM((b.qty * c.price) * c.cess_tax/100) as cess_amt"),
+                DB::raw("MAX(c.gst) as gst"),
+                DB::raw("SUM(b.qty * c.price + (b.qty * c.price) * c.gst/100 + (b.qty * c.price) * c.cess_tax/100) as grand_total")
+            )
+                  ->whereDate("a.return_date",">=",$fromDt)
+            ->whereDate("a.return_date","<=",$toDt)
+            ->groupBy("v.id", "v.outlet_name", "a.return_date", "a.id");
+
+
+                $data=$purchase_return->union($sale_return)->get();
+        return view("debit-credit-note", compact("data"));
+
+        dd($data);
+    }
 }

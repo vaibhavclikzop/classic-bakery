@@ -93,7 +93,7 @@
                                         class="checks">
                                 </th>
                                 <th>{{ $sno++ }}</th>
-                                <th>{{ $item->order_id }}<br>{{ $item->order_no }}</th>
+                                <th>{{ $item->order_id }}</th>
                                 <th>{{ $item->customer }}</th>
                                 <th>{{ $item->category }}</th>
 

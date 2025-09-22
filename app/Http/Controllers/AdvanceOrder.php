@@ -356,7 +356,14 @@ class AdvanceOrder extends Controller
             return redirect()->back()->with('error', $firstError);
         }
 
-
+        $inv_no =   DB::table("adv_order_mst")->whereDate("created_at", now())->count();
+        if (!$inv_no) {
+            $inv_no = 1;
+        } else {
+            $inv_no++;
+        }
+        $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
+        $invoice_id = $invoice_prefix->adv_order_prefix . date('d-m-y') . "-" . $inv_no;
 
         try {
             DB::beginTransaction();
@@ -384,6 +391,7 @@ class AdvanceOrder extends Controller
                 "type" => $request->type,
                 "user_id" => $request->user->id,
                 "customer_type" => $request->customer_type,
+                "order_id" => $invoice_id,
             ));
 
             $uploadedFiles = [];
@@ -400,7 +408,7 @@ class AdvanceOrder extends Controller
                 $uploadedFilesString = implode(", ", $uploadedFiles);
             } else {
                 $uploadedFilesString = "";
-            } 
+            }
 
 
 
@@ -716,9 +724,9 @@ class AdvanceOrder extends Controller
             ->where("a.customer_type_id", $customer_type_id->customer_type_id)->get();
     }
 
-        public function Cancel_Order(Request $request)
+    public function Cancel_Order(Request $request)
     {
-       $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
 
             'id' => 'required',
             'order_pwd' => 'required',
@@ -737,20 +745,20 @@ class AdvanceOrder extends Controller
 
 
         try {
-            
-             $company_setting = DB::table("company_settings")->where("id",$request->user->id)->select('order_pwd')->first();
-              if ($request->order_pwd !== $company_setting->order_pwd) {
-                 return  redirect()->back()->with("error", 'Incorrect password.');
-                }
-           
-                DB::table('adv_order_mst')->where("id", $request->id)->update(array(
-                    "status" => "cancel",
 
-                ));
-                } catch (\Throwable $th) {
-                    return  redirect()->back()->with("error", $th->getMessage());
-                }
-
-                return  redirect()->back()->with("success", "Cancel Successfully");
+            $company_setting = DB::table("company_settings")->where("id", $request->user->id)->select('order_pwd')->first();
+            if ($request->order_pwd !== $company_setting->order_pwd) {
+                return  redirect()->back()->with("error", 'Incorrect password.');
             }
+
+            DB::table('adv_order_mst')->where("id", $request->id)->update(array(
+                "status" => "cancel",
+
+            ));
+        } catch (\Throwable $th) {
+            return  redirect()->back()->with("error", $th->getMessage());
+        }
+
+        return  redirect()->back()->with("success", "Cancel Successfully");
+    }
 }
