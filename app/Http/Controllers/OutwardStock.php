@@ -237,10 +237,13 @@ class OutwardStock extends Controller
     public function GetCustomerOrderProduct(Request $request)
     {
         $order_mst =  DB::table("order_det as a")
-            ->select("a.*", "b.name as name",   DB::raw("CASE WHEN c.stock IS NOT NULL THEN c.stock ELSE 0 END as stock"))
+            ->select("a.*", "b.name as name", "e.name as sub_category",  DB::raw("CASE WHEN c.stock IS NOT NULL THEN c.stock ELSE 0 END as stock"))
             ->join("finish_products_mst as b", "a.product_id", "b.id")
+            ->join("f_product_sub_category as e", "b.f_sub_category_id", "e.id")
             ->leftJoin("finish_product_stock as c", "b.id", "c.product_id")
             ->where("a.mst_id", $request->id)
+            ->orderBy("e.name","asc")
+            ->orderBy("b.name","asc")
 
             ->get();
         return $order_mst;

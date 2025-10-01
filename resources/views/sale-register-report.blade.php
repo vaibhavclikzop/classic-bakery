@@ -88,7 +88,7 @@
                         $('#load-more').hide();
                         return;
                     }
-
+                    var inv = 0;
                     const grouped = {};
                     response.data.forEach((item) => {
                         if (!grouped[item.name]) grouped[item.name] = [];
@@ -132,6 +132,7 @@
                     </tr>
                             `;
 
+                        var challan = "challan";
                         items.forEach((item, index) => {
 
                             const itemTax = parseFloat(item.igst) + parseFloat(item.cgst) +
@@ -149,10 +150,17 @@
 
                             grand_total += total;
 
+                            if (item.is_invoice == 1) {
+                                challan = item.id
+                            } else {
+                                inv++;
+                                challan = "challan " + inv
+                            }
+
                             html += `<tr style="border: solid 1px; padding:5px">
                 <td style="border: solid 1px; padding:5px">${sno++}</td>
                 <td style="border: solid 1px; padding:5px"> ${item.order_type}</td>
-                <td style="border: solid 1px; padding:5px">${item.id}</td>
+                <td style="border: solid 1px; padding:5px">${challan}</td>
                 <td style="border: solid 1px; padding:5px">${item.invoice_date}</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.sub_total)}</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.total_mrp)}</td>

@@ -10,4 +10,6 @@ return [
     'Finished Goods' => 'तैयार माल',
     'terms_conditions' => 'नियम और शर्तें',
     'authorized_signatory' => 'अधिकृत हस्ताक्षरकर्ता',
+    "department" => "विभाग",
+    'no_of_batch' => 'बैचों की संख्या',
 ];

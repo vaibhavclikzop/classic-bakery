@@ -17,7 +17,7 @@
                     <tr>
                         <th>S.No</th>
                         <th>Department </th>
-                        <th>Invoice ID </th>
+                        <th>Stock Issue No. </th>
                     
                     
                         <th>Invoice Date </th>

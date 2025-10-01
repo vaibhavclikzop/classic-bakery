@@ -9,4 +9,7 @@ return [
     'Raw Material' => 'Raw Material',
     'terms_conditions' => 'Terms & Conditions',
     'authorized_signatory' => 'Authorized Signatory',
+    'department' => 'Department',
+    'no_of_batch'=>'no. of batches',
+
 ];

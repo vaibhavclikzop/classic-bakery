@@ -648,18 +648,18 @@ class Masters extends Controller
         }
 
 
-         $products->appends(['search' => $search, 'perPage' => $perPage]);
+        $products->appends(['search' => $search, 'perPage' => $perPage]);
         $brand = DB::table("brand")->get();
         $unit_type = DB::table("unit_type")->get();
         $gst = DB::table("gst")->get();
         $product_category = DB::table("category")->get();
-       
+
         $sub_category = collect();
-         if ($category_id) {
+        if ($category_id) {
             $sub_category = DB::table("sub_category")->where("category_id", $category_id)->get();
         }
-       
-        return view("products", compact('products', "brand", "unit_type", "gst","product_category","sub_category"));
+
+        return view("products", compact('products', "brand", "unit_type", "gst", "product_category", "sub_category"));
     }
 
     public function SaveProduct(Request $request)
@@ -724,7 +724,8 @@ class Masters extends Controller
                     "gst" => $request->gst,
                     "image" => $file,
                     "manual_barcode" => $request->manual_barcode,
-                    "cess_tax" => $request->cess_tax
+                    "cess_tax" => $request->cess_tax,
+                    "hindi" => $request->hindi
 
                 ));
             } else {
@@ -744,7 +745,8 @@ class Masters extends Controller
                     "gst" => $request->gst,
                     "image" => $file,
                     "manual_barcode" => $request->manual_barcode,
-                    "cess_tax" => $request->cess_tax
+                    "cess_tax" => $request->cess_tax,
+                    "hindi" => $request->hindi
 
                 ));
             }
@@ -892,7 +894,7 @@ class Masters extends Controller
             "email" => $request->email,
             "gst_no" => $request->gst_no,
             "invoice_prefix" => $request->invoice_prefix,
- 
+
             "fssai_no" => $request->fssai_no,
             "pan_no" => $request->pan_no,
             "cin_no" => $request->cin_no,
@@ -903,7 +905,7 @@ class Masters extends Controller
             "po_prefix" => $request->po_prefix,
             "create_order_prefix" => $request->create_order_prefix,
             "outward_production_prefix" => $request->outward_production_prefix,
-    
+
 
         ));
 
@@ -2270,7 +2272,7 @@ class Masters extends Controller
         return view("outlet_customer", compact("outlet", "customer_type"));
     }
 
-     public function SaveOutletCustomer(Request $request)
+    public function SaveOutletCustomer(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
@@ -2304,7 +2306,6 @@ class Masters extends Controller
                 ));
                 $customer_id = $request->id;
             }
-
         } catch (Exception $e) {
 
             return redirect()->back()->with('error', $e->getMessage());
@@ -2313,18 +2314,18 @@ class Masters extends Controller
         return  redirect()->back()->with("success", "Save Successfully");
     }
 
-         public function kot(Request $request)
+    public function kot(Request $request)
     {
         $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
         $toDt = $request->input("toDt") ?: Carbon::now()->toDateString();
-        
+
         $status = request("status", "dispatch");
-       
-         $outlet = DB::table("outlet_customer_order_mst as a")
-         ->select("a.*", "b.name as outlet_name")
-          ->join("outlet_users as b", "a.outlet_id", "=", "b.id")
-         ->where("invoice_type", "draft")
-        ->orderBy("id", "desc");
+
+        $outlet = DB::table("outlet_customer_order_mst as a")
+            ->select("a.*", "b.name as outlet_name")
+            ->join("outlet_users as b", "a.outlet_id", "=", "b.id")
+            ->where("invoice_type", "draft")
+            ->orderBy("id", "desc");
 
         if ($fromDt) {
             $outlet->whereDate("a.order_date", ">=", $fromDt);
@@ -2332,8 +2333,8 @@ class Masters extends Controller
         if ($toDt) {
             $outlet->whereDate("a.order_date", "<=", $toDt);
         }
-         $data = $outlet->get();
-       
+        $data = $outlet->get();
+
         $customers = DB::table("customers")->get();
         return view("kot", compact("data"));
     }
@@ -2346,18 +2347,17 @@ class Masters extends Controller
                 'order_pwd' => 'required|string',
             ]);
 
-           $company_setting = DB::table("company_settings")->where("id",$request->user->id)->select('order_pwd')->first();
-              if ($request->order_pwd !== $company_setting->order_pwd) {
-                 return  redirect()->back()->with("error", 'Incorrect password.');
-                }
+            $company_setting = DB::table("company_settings")->where("id", $request->user->id)->select('order_pwd')->first();
+            if ($request->order_pwd !== $company_setting->order_pwd) {
+                return  redirect()->back()->with("error", 'Incorrect password.');
+            }
 
-           
+
             DB::table('outlet_customer_order_mst')->where("id", $validated['id'])->delete();
-           } catch (\Throwable $th) {
+        } catch (\Throwable $th) {
             return  redirect()->back()->with("error", $th->getMessage());
         }
 
         return  redirect()->back()->with("success", "Deleted Successfully");
     }
-
 }

@@ -7,6 +7,7 @@ use App\Models\products;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class RecipeController extends Controller
 {
@@ -14,7 +15,7 @@ class RecipeController extends Controller
     {
         $products =  products::with("unitType")->get();
         $department = DB::table('department')->orderBy("name", "ASC")->get();
-        return view("create-recipe", compact("products","department"));
+        return view("create-recipe", compact("products", "department"));
     }
 
     public function saveRecipe(Request $request)
@@ -59,18 +60,18 @@ class RecipeController extends Controller
     public function recipeList(Request $request)
     {
         $data = DB::table('recipe_mst as a')
-                     ->select("a.*","d.name as dname")
-                  ->Leftjoin('department as d',"a.department_id", "d.id")
-                  ->orderBy("a.id", "desc")->get();
+            ->select("a.*", "d.name as dname")
+            ->Leftjoin('department as d', "a.department_id", "d.id")
+            ->orderBy("a.id", "desc")->get();
         return view("recipe-list", compact("data"));
     }
 
     public function recipeView(Request $request, $id)
     {
         $data = DB::table("recipe_mst as a")
-                ->select("a.*","d.name as dname")
-                  ->Leftjoin('department as d',"a.department_id", "d.id")
-                     ->where("a.id", $id)->first();
+            ->select("a.*", "d.name as dname")
+            ->Leftjoin('department as d', "a.department_id", "d.id")
+            ->where("a.id", $id)->first();
         $det =  DB::table("recipe_det as a")
             ->select("a.*", "b.name as product", "c.name as category")
             ->join("products as b", "a.product_id", "b.id")
@@ -81,14 +82,16 @@ class RecipeController extends Controller
 
     public function makeRecipe(Request $request, $id)
     {
+
         $qty = request("qty", 1);
+ 
 
         $data = DB::table("recipe_mst as a")
-                ->select("a.*","d.name as dname")
-                  ->Leftjoin('department as d',"a.department_id", "d.id")
-                     ->where("a.id", $id)->first();
+            ->select("a.*", "d.name as dname")
+            ->Leftjoin('department as d', "a.department_id", "d.id")
+            ->where("a.id", $id)->first();
         $det =  DB::table("recipe_det as a")
-            ->select("a.*", "b.name as product", "c.name as category")
+            ->select("a.*", "b.name as product", "c.name as category","b.hindi")
             ->join("products as b", "a.product_id", "b.id")
             ->join("category as c", "b.category_id", "c.id")
             ->where("a.mst_id", $id)->get();
@@ -96,15 +99,13 @@ class RecipeController extends Controller
     }
     public function receipeDelete(Request $request)
     {
-            $id = $request->id;
-            DB::table('recipe_det')->where('mst_id', $id)->delete();
-            DB::table('recipe_mst')->where('id', $id)->delete();
-         
-            return response()->json([
+        $id = $request->id;
+        DB::table('recipe_det')->where('mst_id', $id)->delete();
+        DB::table('recipe_mst')->where('id', $id)->delete();
+
+        return response()->json([
             'success' => true,
             'message' => "Recipe deleted"
         ]);
-
-       
     }
 }

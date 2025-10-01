@@ -62,10 +62,10 @@
                 <table class="table">
                     <tr>
                         <th>{{ __('messages.name') }}</th>
-                        <th>Department</th>
+                        <th>{{ __('messages.department') }}</th>
                         <th>{{ __('messages.description') }}</th>
-                        <th>No. of Batches</th>
-                        <th>Per Unit</th>
+                        <th>{{ __('messages.no_of_batches') }}</th>
+                        <th>{{ __('messages.per_unit') }}</th>
                         <th>Total</th>
 
                     </tr>
@@ -76,8 +76,8 @@
                         <th>{{ $data->dname }}</th>
                         <th>{{ $data->description }}</th>
                         <th>{{ $data->batch }}</th>
-                        <th>{{request('qty', 1)}}</th>
-                        <th>{{$data->batch * (float)request('qty', 1)}}</th>
+                        <th>{{ request('qty', 1) }}</th>
+                        <th>{{ $data->batch * (float) request('qty', 1) }}</th>
 
 
                     </tr>
@@ -89,13 +89,13 @@
                 @php
                     $sno = 1;
                 @endphp
-                <table class="table">
+                <table class="w-100">
                     <thead>
-                        <th>S.No</th>
-                        <th>Category</th>
-                        <th>Product</th>
-                        <th>Qty</th>
-                        <th>UOM</th>
+                        <th style="border: solid 1px; padding:0px 4px">S.No</th>
+                        <th style="border: solid 1px; padding:0px 4px">Category</th>
+                        <th style="border: solid 1px; padding:0px 4px">Product</th>
+                        <th style="border: solid 1px; padding:0px 4px">Qty</th>
+                        <th style="border: solid 1px; padding:0px 4px">UOM</th>
 
 
                     </thead>
@@ -110,16 +110,20 @@
                                 $total += $item->qty * request('qty', 1);
                             @endphp
                             <tr>
-                                <td>{{ $sno++ }}</td>
-                                <td>{{ $item->category }}</td>
-                                <td>{{ $item->product }}</td>
-                                <td>{{ formatQtyPrice($item->qty * request('qty', 1)) }}</td>
-                                <td>{{ $item->uom }}</td>
+                                <td style="border: solid 1px; padding:0px 4px">{{ $sno++ }}</td>
+                                <td style="border: solid 1px; padding:0px 4px">{{ $item->category }}</td>
+                                <td style="border: solid 1px; padding:0px 4px">
+                                    {{ request('lang') == 'Hindi' ? $item->hindi : $item->product }}
+                                </td>
+
+                                <td style="border: solid 1px; padding:0px 4px">
+                                    {{ formatQtyPrice($item->qty * request('qty', 1)) }}</td>
+                                <td style="border: solid 1px; padding:0px 4px">{{ $item->uom }}</td>
                             </tr>
                         @endforeach
                         <tr>
-                            <th colspan="3">Total</th>
-                            <th colspan="2">{{ formatQtyPrice($total) }}</th>
+                            <th colspan="3" style="border: solid 1px; padding:0px 4px">Total</th>
+                            <th colspan="2" style="border: solid 1px; padding:0px 4px">{{ formatQtyPrice($total) }}</th>
                         </tr>
                     </tbody>
 

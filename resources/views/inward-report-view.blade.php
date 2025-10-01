@@ -35,7 +35,7 @@
 
                 <div>
                     <div style="text-align: right;">
-                        <h6>Invoice : {{ $stock_inward_mst->invoice_no }}</h6>
+                        <h6>PE No. : {{ $stock_inward_mst->invoice_no }}</h6>
                         <h4>{{ $stock_inward_mst->po_name }}</h4>
                         <h4>{{ $stock_inward_mst->vendor }}</h4>
                         <p>

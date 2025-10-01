@@ -37,7 +37,7 @@
                         <th>PO</th>
                         <th>Vendor</th>
 
-                        <th>Invoice No</th>
+                        <th>PE No</th>
                         <th>Invoice</th>
                         <th>Invoice Date</th>
                         <th>R.M Date</th>

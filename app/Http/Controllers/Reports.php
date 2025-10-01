@@ -156,6 +156,7 @@ class Reports extends Controller
         a.order_no as id,
         a.invoice_date,
         e.name AS name,
+        a.is_invoice,
         'Regular Order' AS order_type,
         SUM(b.qty * c.price) AS sub_total,
         SUM(b.qty * c.mrp) AS total_mrp,
@@ -170,7 +171,7 @@ class Reports extends Controller
     JOIN customers e ON d.customer_id = e.id
     WHERE d.order_type = 'customer'
       AND a.invoice_date BETWEEN ? AND ?
-    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name
+    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name,a.is_invoice
 
     UNION ALL
 
@@ -179,6 +180,7 @@ class Reports extends Controller
         a.order_no as id,
         a.invoice_date,
         e.outlet_name AS name,
+        a.is_invoice,
         'Regular Order' AS order_type,
         SUM(b.qty * c.price) AS sub_total,
         SUM(b.qty * c.mrp) AS total_mrp,
@@ -193,7 +195,7 @@ class Reports extends Controller
     JOIN outlet e ON d.customer_id = e.id
     WHERE d.order_type = 'outlet'
       AND a.invoice_date BETWEEN ? AND ?
-    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.outlet_name
+    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.outlet_name,a.is_invoice
 
     UNION ALL
 
@@ -202,6 +204,7 @@ class Reports extends Controller
         a.order_id as id,
         a.order_date AS invoice_date,
         c.name,
+        a.is_invoice,
         'Advance Order' AS order_type,
         SUM(b.total_price) AS sub_total,
         SUM(b.mrp) AS total_mrp,
@@ -215,7 +218,7 @@ class Reports extends Controller
     WHERE a.customer_type = 'customer' 
      AND (a.status = 'dispatch' OR a.status = 'delivered')
       AND a.order_date BETWEEN ? AND ?
-    GROUP BY a.order_date, a.id, c.name,a.order_id
+    GROUP BY a.order_date, a.id, c.name,a.order_id,a.is_invoice
 
     UNION ALL
 
@@ -224,6 +227,7 @@ class Reports extends Controller
         a.order_id as id,
         a.order_date AS invoice_date,
         c.outlet_name AS name,
+        a.is_invoice,
         'Advance Order' AS order_type,
         SUM(b.total_price) AS sub_total,
         SUM(b.mrp) AS total_mrp,
@@ -237,7 +241,7 @@ class Reports extends Controller
     WHERE a.customer_type = 'outlet'
       AND (a.status = 'dispatch' OR a.status = 'delivered')
       AND a.order_date BETWEEN ? AND ?
-    GROUP BY a.order_date, a.id, c.outlet_name,a.order_id
+    GROUP BY a.order_date, a.id, c.outlet_name,a.order_id,a.is_invoice
 ";
         $params = [$fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt];
 

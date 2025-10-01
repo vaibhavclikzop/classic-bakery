@@ -665,6 +665,8 @@ class OrderManagement extends Controller
             ->join("finish_products_mst as b", "a.product_id", "b.id")
             ->join("f_product_sub_category as c", "b.f_sub_category_id", "c.id")
             ->where("a.mst_id", $id)
+            ->orderBy("c.name","asc")
+            ->orderBy("b.name","asc")
             ->get();
 
 
@@ -1202,17 +1204,16 @@ class OrderManagement extends Controller
                     ->select("b.id", "b.order_id")
                     ->join("order_mst as b", "a.order_id", "b.id")
 
-
-
                     ->whereIn("b.id", $request->order_id)
                     ->groupBy("b.id", "b.order_id")
+                  
                     ->get();
             }
 
 
             // $work_order->where("a.mst_id", $work_order_mst->id);
 
-            $work_order_det = $work_order->get();
+            $work_order_det = $work_order->orderBy("e.name","asc")->get();
         }
 
 

@@ -105,7 +105,8 @@
                                 </tr>
                                 <tr>
                                     <th>S.No</th>
-                                    <th colspan="3">Product </th>
+                                    <th >Sub Category </th>
+                                    <th>Product </th>
                                     <th>Current Stock </th>
                                     <th>Ordered Qty </th>
                                     <th>Qty</th>
@@ -292,7 +293,8 @@
                             }
                             var html = `<tr class="product${element.product_id}" style="color:green">
                             <td class="${color}">${sno++}</td>    
-                            <td colspan="3" class="${color}">${element.name}</td>    
+                            <td colspan="" class="${color}">${element.sub_category}</td>    
+                            <td colspan="" class="${color}">${element.name}</td>    
                             <td colspan="" class="${color}">${element.stock}</td>    
                             <td class="${color}"> ${element.qty}</td>    
                             <td class="${color}">

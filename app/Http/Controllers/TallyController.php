@@ -213,8 +213,8 @@ class TallyController extends Controller
                 DB::raw("MAX(c.gst) as gst"),
                 DB::raw("SUM(b.qty * c.price + (b.qty * c.price) * c.gst/100 + (b.qty * c.price) * c.cess_tax/100) as grand_total")
             )
-            ->whereDate("a.return_date",">=",$fromDt)
-            ->whereDate("a.return_date","<=",$toDt)
+            ->whereDate("a.created_at", ">=", $fromDt)
+            ->whereDate("a.created_at", "<=", $toDt)
             ->groupBy("v.id", "v.name", "a.return_date", "a.id");
 
 
@@ -243,12 +243,12 @@ class TallyController extends Controller
                 DB::raw("MAX(c.gst) as gst"),
                 DB::raw("SUM(b.qty * c.price + (b.qty * c.price) * c.gst/100 + (b.qty * c.price) * c.cess_tax/100) as grand_total")
             )
-                  ->whereDate("a.return_date",">=",$fromDt)
-            ->whereDate("a.return_date","<=",$toDt)
+            ->whereDate("a.created_at", ">=", $fromDt)
+            ->whereDate("a.created_at", "<=", $toDt)
             ->groupBy("v.id", "v.outlet_name", "a.return_date", "a.id");
 
 
-                $data=$purchase_return->union($sale_return)->get();
+        $data = $purchase_return->union($sale_return)->get();
         return view("debit-credit-note", compact("data"));
 
         dd($data);

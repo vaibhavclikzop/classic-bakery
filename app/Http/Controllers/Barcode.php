@@ -20,56 +20,56 @@ class Barcode extends Controller
 
         $productNames = array();
 
-       
+
         $data =  DB::table("finish_products_mst")->get();
         $f_product_category = DB::table("f_product_category")->get();
 
-        if($delivery_date){
-         if($from_order=='add'){
-        $mst = DB::table("order_mst as a")
-            ->select(
-                "c.id as product_id",
-                "c.name as product_name",
-                "a.delivery_date",
-                "c.warranty_days as expiry",
-                DB::raw("SUM(b.qty) as qty"),
-            )
-            ->join("order_det as b", "a.id", "b.mst_id")
-            ->join("finish_products_mst as c", "b.product_id", "c.id")
-            ->whereDate("a.delivery_date", "=", $delivery_date);
+        if ($delivery_date) {
+            if ($from_order == 'add') {
+                $mst = DB::table("order_mst as a")
+                    ->select(
+                        "c.id as product_id",
+                        "c.name as product_name",
+                        "a.delivery_date",
+                        "c.warranty_days as expiry",
+                        DB::raw("SUM(b.qty) as qty"),
+                    )
+                    ->join("order_det as b", "a.id", "b.mst_id")
+                    ->join("finish_products_mst as c", "b.product_id", "c.id")
+                    ->whereDate("a.delivery_date", "=", $delivery_date)
+                    ->where("a.status","!=","cancel");
                 if ($product_id) {
                     $mst->where("b.product_id", "=", $product_id);
                 }
                 if ($sub_category_id) {
                     $mst->where("c.f_category_id", "=", $category_id);
                     $mst->where("c.f_sub_category_id", "=", $sub_category_id);
-                    
                 }
-        
-                $productNames = $mst->groupBy("c.id", "c.name", "a.delivery_date",  "c.warranty_days","c.f_sub_category_id")
-                    ->get();
 
-            }
-            else{
-               $product =  DB::table("finish_products_mst as a")->select('a.name as product_name', 
-               'a.id as product_id', 'a.warranty_days as expiry');
-               if ($product_id) {
+                $productNames = $mst->groupBy("c.id", "c.name", "a.delivery_date",  "c.warranty_days", "c.f_sub_category_id")
+                    ->get();
+            } else {
+                $product =  DB::table("finish_products_mst as a")->select(
+                    'a.name as product_name',
+                    'a.id as product_id',
+                    'a.warranty_days as expiry'
+                );
+                if ($product_id) {
                     $product->where("a.id", "=", $product_id);
                 }
                 if ($sub_category_id) {
                     $product->where("a.f_category_id", "=", $category_id);
                     $product->where("a.f_sub_category_id", "=", $sub_category_id);
-                    
                 }
-              $productNames= $product->get(); 
+                $productNames = $product->get();
             }
         }
-        return view("barcode", compact("data", "productNames","f_product_category"));
+        return view("barcode", compact("data", "productNames", "f_product_category"));
     }
 
     public function PrintBarcode(Request $request, $id)
     {
-         $data =  DB::table("finish_products_mst")->where("id", $id)->first();
+        $data =  DB::table("finish_products_mst")->where("id", $id)->first();
         // if (!$data->manual_barcode) {
         //     return redirect()->back()->with('error', "Barcode not found, Please enter barcode");
         // }
@@ -78,16 +78,16 @@ class Barcode extends Controller
 
     public function PrintallBarcode(Request $request)
     {
-        
-        $products = $request->input('products', []);
-       
-        $data = collect($products)->map(function ($product) {
-        $mst = DB::table("finish_products_mst")
-                ->select('price','bar_code','name')
-                 ->where("id", $product['id'])
-                 ->first();
 
-        return array_merge((array) $mst, [
+        $products = $request->input('products', []);
+
+        $data = collect($products)->map(function ($product) {
+            $mst = DB::table("finish_products_mst")
+                ->select('price', 'bar_code', 'name')
+                ->where("id", $product['id'])
+                ->first();
+
+            return array_merge((array) $mst, [
                 'qty'    => $product['qty'],
                 'expiry' => $product['expiry'],
             ]);

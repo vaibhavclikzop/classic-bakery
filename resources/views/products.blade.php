@@ -49,7 +49,7 @@
                     {{-- Category --}}
                     <div class="col-md-3">
                         <label for="category_id" class="form-label">Category</label>
-                        <select name="category_id" id="category_id" class="form-select" onchange="this.form.submit()">
+                        <select name="category_id" class="form-select" onchange="this.form.submit()">
                             <option value="">Select</option>
                             @foreach ($product_category as $item)
                                 <option value="{{ $item->id }}"
@@ -63,8 +63,7 @@
                     {{-- Sub Category --}}
                     <div class="col-md-3">
                         <label for="sub_category_id" class="form-label">Sub Category</label>
-                        <select name="sub_category_id" id="sub_category_id" class="form-select"
-                            onchange="this.form.submit()">
+                        <select name="sub_category_id" class="form-select" onchange="this.form.submit()">
                             <option value="">Select</option>
                             @foreach ($sub_category as $item)
                                 <option value="{{ $item->id }}"
@@ -140,7 +139,7 @@
                             <td>{{ $item->category_name }}</td>
                             <td>{{ $item->sub_category }}</td>
 
-                            <td>{{ $item->name }}</td>
+                            <td>{{ $item->name }} <br> {{ $item->hindi }} </td>
                             <td>{{ $item->article_no }}</td>
                             <td>{{ $item->manual_barcode }}</td>
                             <td>{{ $item->price }}</td>
@@ -164,8 +163,8 @@
                                     data-warranty_days="{{ $item->warranty_days }}" data-active="{{ $item->active }}"
                                     data-raw_material="{{ $item->raw_material }}" data-gst="{{ $item->gst }}"
                                     data-manual_barcode="{{ $item->manual_barcode }}"
-                                    data-cess_tax="{{ $item->cess_tax }}"><i class="fa fa-pencil"
-                                        aria-hidden="true"></i></button>
+                                    data-cess_tax="{{ $item->cess_tax }}" data-hindi="{{ $item->hindi }}"><i
+                                        class="fa fa-pencil" aria-hidden="true"></i></button>
                             </td>
 
                         </tr>
@@ -234,6 +233,11 @@
                             <label for="">Product Name</label>
                             <input id="name" name="name" class="form-control" placeholder="Enter Product Name"
                                 required>
+
+                        </div>
+                        <div class="col-md-4  mt-4">
+                            <label for="">Hindi</label>
+                            <input id="hindi" name="hindi" class="form-control" placeholder="Enter Hindi Name">
 
                         </div>
 
@@ -380,6 +384,7 @@
             $("#warranty_days").val($(this).data("warranty_days"));
             $("#active").val($(this).data("active"));
             $("#gst").val($(this).data("gst"));
+            $("#hindi").val($(this).data("hindi"));
             $("#manual_barcode").val($(this).data("manual_barcode"));
             $("#cess_tax").val($(this).data("cess_tax"));
             $("#modal_name").text("Update  Product");
