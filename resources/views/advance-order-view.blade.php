@@ -71,6 +71,8 @@
                             <th>Description</th>
                             <th>Qty</th>
                             <th>Price</th>
+                            <th>Outlet Price</th>
+                            <th>Customer Price</th>
 
                         </tr>
                     </thead>
@@ -102,6 +104,8 @@
                                 <td>{{ $item->description }}</td>
                                 <td>{{ $item->qty }}</td>
                                 <td>{{ $item->total_price }}</td>
+                                <td>{{ $item->outlet_price }}</td>
+                                <td>{{ $item->customer_price }}</td>
                             </tr>
                         @endforeach
                     </tbody>

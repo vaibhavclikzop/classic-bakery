@@ -236,7 +236,8 @@ class AdvanceOrder extends Controller
             ->join("adv_order_category as b", "a.category_id", "b.id")
             ->get();
         $category = DB::table("adv_order_category")->get();
-        return view("advance-order-items", compact("data", "category"));
+        $gst = DB::table("gst")->get();
+        return view("advance-order-items", compact("data", "category", "gst"));
     }
     public function SaveAdvanceOrderItem(Request $request)
     {
@@ -263,6 +264,7 @@ class AdvanceOrder extends Controller
                 "category_id" => $request->category_id,
                 "discount" => $request->discount,
                 "margin" => $request->margin,
+                "gst" => $request->gst,
 
             ];
 
@@ -417,25 +419,32 @@ class AdvanceOrder extends Controller
 
                 $adv_order_item_det =  DB::table("adv_order_item_det")
                     ->where("id", $value->flavour_id)
-
                     ->first();
 
-
-
+                $adv_order_item_mst = DB::table("adv_order_item_mst")->where("id", $value->product_id)->first();
                 $total_price = 0;
+                $customer_price = 0;
+                $outlet_price = 0;
                 if ($value->weight > 1) {
-
                     $extra_weight = ($value->weight - 1);
                     $increment_price = ($adv_order_item_det->increment_rate * $extra_weight);
                     $net_weight = $value->weight  - $extra_weight;
                     $price = $net_weight * $adv_order_item_det->fix_rate;
                     $total_price = ($increment_price + $price) * $value->qty;
+                    $customer_price = $total_price;
                     $total_price = $total_price - ($total_price / 100 * $customer_type_adv_item->margin);
+                    $outlet_price = $total_price;
                 } else {
                     $total_price = ($adv_order_item_det->fix_rate * $value->weight) * $request->qty;
+                    $customer_price = $total_price;
                     $total_price = $total_price - ($total_price / 100 * $customer_type_adv_item->margin);
+                    $outlet_price = $total_price;
                 }
+
                 $total_price = $total_price - $value->discount_price;
+                $customer_price = $customer_price - $value->discount_price;
+                $outlet_price = $outlet_price - $value->discount_price;
+
                 DB::table("adv_order_det")->insertGetId(array(
                     "mst_id" => $mst_id,
                     "product_id" => $value->product_id,
@@ -452,6 +461,9 @@ class AdvanceOrder extends Controller
                     "files" => $uploadedFilesString,
                     "description" => $value->description,
                     "discount_price" => $value->discount_price,
+                    "customer_price" => $customer_price,
+                    "outlet_price" => $outlet_price,
+                    "gst" => $adv_order_item_mst->gst,
 
                 ));
             }
@@ -492,26 +504,42 @@ class AdvanceOrder extends Controller
         $toDt = request("toDt", date("Y-m-d", strtotime("+5days")));
 
 
+        if ($status == "invoices") {
+            $outlet = DB::table("adv_order_mst as a")
+                ->select("a.*", "b.outlet_name as name")
+                ->join("outlet as b", "a.outlet_id", "b.id")
+                ->whereDate("a.delivery_date", "=", $fromDt)
+                ->where("a.customer_type", "outlet")
+                ->where("a.is_invoice", 1);
 
-        $outlet = DB::table("adv_order_mst as a")
-            ->select("a.*", "b.outlet_name as name")
-            ->join("outlet as b", "a.outlet_id", "b.id")
-            ->orderBy("a.id", "desc")
-            ->whereDate("a.delivery_date", "=", $fromDt)
+            $customer = DB::table("adv_order_mst as a")
+                ->select("a.*", "b.name as name")
+                ->join("customers as b", "a.outlet_id", "b.id")
+                ->whereDate("a.delivery_date", "=", $fromDt)
+                ->where("a.customer_type", "customer")
+                ->where("a.is_invoice", 1);
+        } else {
+            $outlet = DB::table("adv_order_mst as a")
+                ->select("a.*", "b.outlet_name as name")
+                ->join("outlet as b", "a.outlet_id", "b.id")
+                ->whereDate("a.delivery_date", "=", $fromDt)
+                ->where("a.customer_type", "outlet")
+                ->where("a.status", $status);
 
-            ->where("a.customer_type", "outlet")
-            ->where("a.status", $status);
+            $customer = DB::table("adv_order_mst as a")
+                ->select("a.*", "b.name as name")
+                ->join("customers as b", "a.outlet_id", "b.id")
+                ->whereDate("a.delivery_date", "=", $fromDt)
+                ->where("a.customer_type", "customer")
+                ->where("a.status", $status);
+        }
 
-        $customer = DB::table("adv_order_mst as a")
-            ->select("a.*", "b.name as name")
-            ->join("customers as b", "a.outlet_id", "b.id")
-            ->orderBy("a.id", "desc")
-            ->whereDate("a.delivery_date", "=", $fromDt)
+        // Combine and order
+        $data = DB::query()
+            ->fromSub($outlet->union($customer), 'combined')
+            ->orderByDesc('id')
+            ->get();
 
-            ->where("a.customer_type", "customer")
-            ->where("a.status", $status);
-
-        $data = $outlet->union($customer)->get();
         return view("advance-order-list", compact("data"));
     }
 
@@ -760,5 +788,85 @@ class AdvanceOrder extends Controller
         }
 
         return  redirect()->back()->with("success", "Cancel Successfully");
+    }
+
+    public function advConvertToInvoice(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+
+            'convertID' => 'required',
+
+        ]);
+
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $count = 0;
+            foreach ($messages->all() as $error) {
+                if ($count == 0)
+                    return redirect()->back()->with('error', $error);
+
+                $count++;
+            }
+        }
+        try {
+
+            $inv_no =   DB::table("outward_customer_order_mst")->whereDate("created_at", now())->count();
+
+            if (!$inv_no) {
+                $inv_no =   DB::table("adv_order_mst")->whereDate("created_at", now())->count();
+                if (!$inv_no) {
+                    $inv_no = 1;
+                } else {
+                    $inv_no++;
+                }
+            } else {
+
+                $inv_no++;
+            }
+
+
+            $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
+            $invoice_id = $invoice_prefix->order_prefix . date('d-m-y') . "-" . $inv_no;
+            DB::table('adv_order_mst')->where("id", $request->convertID)->update(array(
+                "is_invoice" => 1,
+                "status" => "delivered",
+                "order_id" => $invoice_id,
+            ));
+        } catch (\Throwable $th) {
+            return  redirect()->back()->with("error", $th->getMessage());
+        }
+
+        return  redirect()->back()->with("success", "Cancel Successfully");
+    }
+
+
+    public function advanceInvoiceView(Request $request, $id)
+    {
+
+        $outlet = DB::table("adv_order_mst as a")
+            ->select("a.*", "b.outlet_name as name", "b.number", "b.address", "b.city", "b.state")
+            ->join("outlet as b", "a.outlet_id", "b.id")
+            ->orderBy("a.id", "desc")
+            ->where("a.id", $id)
+            ->where("a.customer_type", "outlet")
+            ->first();
+
+        $customer = DB::table("adv_order_mst as a")
+            ->select("a.*", "b.name as name", "b.number", "b.address", "b.city", "b.state")
+            ->join("customers as b", "a.outlet_id", "b.id")
+            ->orderBy("a.id", "desc")
+            ->where("a.id", $id)
+            ->where("a.customer_type", "customer")
+            ->first();
+
+        $order_det = DB::table("adv_order_det as a")
+            ->select("a.*", "a.outlet_price as price", "b.name as flavour", "c.name as product", DB::raw("'Inner Gst' as gst_type,'0' as cess_amt"))
+            ->join("adv_order_flavour as b", "a.flavour_id", "b.id")
+            ->join("adv_order_item_mst as c", "a.product_id", "c.id")
+            ->where("a.mst_id", $id)
+            ->get();
+        $order_mst = $outlet ?? $customer;
+
+        return view("advanced-invoice-view", compact("order_mst", "order_det"));
     }
 }

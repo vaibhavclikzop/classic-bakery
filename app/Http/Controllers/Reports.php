@@ -216,7 +216,7 @@ class Reports extends Controller
     JOIN adv_order_det b ON a.id = b.mst_id
     JOIN customers c ON a.outlet_id = c.id
     WHERE a.customer_type = 'customer' 
-     AND (a.status = 'dispatch' OR a.status = 'delivered')
+     AND (a.status = 'dispatch' OR a.status = 'delivered' or a.is_invoice=1)
       AND a.order_date BETWEEN ? AND ?
     GROUP BY a.order_date, a.id, c.name,a.order_id,a.is_invoice
 
@@ -239,7 +239,7 @@ class Reports extends Controller
     JOIN adv_order_det b ON a.id = b.mst_id
     JOIN outlet c ON a.outlet_id = c.id
     WHERE a.customer_type = 'outlet'
-      AND (a.status = 'dispatch' OR a.status = 'delivered')
+      AND (a.status = 'dispatch' OR a.status = 'delivered' or a.is_invoice=1)
       AND a.order_date BETWEEN ? AND ?
     GROUP BY a.order_date, a.id, c.outlet_name,a.order_id,a.is_invoice
 ";

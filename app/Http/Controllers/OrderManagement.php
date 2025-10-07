@@ -665,8 +665,8 @@ class OrderManagement extends Controller
             ->join("finish_products_mst as b", "a.product_id", "b.id")
             ->join("f_product_sub_category as c", "b.f_sub_category_id", "c.id")
             ->where("a.mst_id", $id)
-            ->orderBy("c.name","asc")
-            ->orderBy("b.name","asc")
+            ->orderBy("c.name", "asc")
+            ->orderBy("b.name", "asc")
             ->get();
 
 
@@ -1007,6 +1007,8 @@ class OrderManagement extends Controller
                 ->select("a.*", "b.name as sub_category")
                 ->join("f_product_sub_category as b", "a.f_sub_category_id", "b.id")
                 ->where("a.id", $product)
+                ->orderBy("b.name", "asc")
+                ->orderBy("a.name", "asc")
                 ->first();
 
             $emp_data = [['name' => $f_product->name, "sub_category" => $f_product->sub_category]];
@@ -1065,6 +1067,17 @@ class OrderManagement extends Controller
             $customers[] = $customer ?? $outlet;
         }
 
+        usort($report, function ($a, $b) {
+            // Compare by sub_category first
+            $subCategoryCompare = strcmp($a[0]['sub_category'], $b[0]['sub_category']);
+
+            if ($subCategoryCompare === 0) {
+                // If sub_category is same, compare by name
+                return strcmp($a[0]['name'], $b[0]['name']);
+            }
+
+            return $subCategoryCompare;
+        });
         $department = DB::table("department")->get();
         return view("order-summary-customer-wise", compact("report", "customers", "department", "department_details"));
     }
@@ -1206,14 +1219,14 @@ class OrderManagement extends Controller
 
                     ->whereIn("b.id", $request->order_id)
                     ->groupBy("b.id", "b.order_id")
-                  
+
                     ->get();
             }
 
 
             // $work_order->where("a.mst_id", $work_order_mst->id);
 
-            $work_order_det = $work_order->orderBy("e.name","asc")->get();
+            $work_order_det = $work_order->orderBy("e.name", "asc")->get();
         }
 
 

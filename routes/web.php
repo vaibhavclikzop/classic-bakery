@@ -471,7 +471,10 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('GetAdvProduct', [AdvanceOrder::class, 'GetAdvProduct'])->name('GetAdvProduct');
   Route::post('Cancel_order', [AdvanceOrder::class, 'Cancel_Order'])->name('Cancel_order');
 
+  Route::post('advConvertToInvoice', [AdvanceOrder::class, 'advConvertToInvoice'])->name('advConvertToInvoice');
 
+
+  Route::get('advance-invoice-view/{id}', [AdvanceOrder::class, 'advanceInvoiceView'])->name('advance-invoice-view');
 
   //recipe
   Route::get('create-recipe', [RecipeController::class, 'createRecipe'])->name('create-recipe');

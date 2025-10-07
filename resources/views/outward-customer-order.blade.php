@@ -105,7 +105,7 @@
                                 </tr>
                                 <tr>
                                     <th>S.No</th>
-                                    <th >Sub Category </th>
+                                    <th>Sub Category </th>
                                     <th>Product </th>
                                     <th>Current Stock </th>
                                     <th>Ordered Qty </th>
@@ -137,7 +137,7 @@
             $("#customer_id").select2();
             $("#order_id").select2();
 
-             $(window).on("pageshow", function(event) {
+            $(window).on("pageshow", function(event) {
                 if (event.originalEvent.persisted) {
                     // Browser back button used
                     $("#UploadForm")[0].reset();
@@ -452,12 +452,12 @@
 
         $("#UploadForm").on("submit", function() {
 
-            if ($("#mode_of_transport").val()==false) {
-                    toastr.error("Please select mode of transport");
-                    return;
+            if ($("#mode_of_transport").val() == false) {
+                toastr.error("Please select mode of transport");
+                return;
             }
 
-            $('#prod_list').val(JSON.stringify(product_list));  
+            $('#prod_list').val(JSON.stringify(product_list));
             $("#btnSubmit").attr("disabled", "disabled")
 
         });

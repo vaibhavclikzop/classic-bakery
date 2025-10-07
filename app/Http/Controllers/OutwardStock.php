@@ -242,9 +242,8 @@ class OutwardStock extends Controller
             ->join("f_product_sub_category as e", "b.f_sub_category_id", "e.id")
             ->leftJoin("finish_product_stock as c", "b.id", "c.product_id")
             ->where("a.mst_id", $request->id)
-            ->orderBy("e.name","asc")
-            ->orderBy("b.name","asc")
-
+            ->orderBy("e.name", "asc")
+            ->orderBy("b.name", "asc")
             ->get();
         return $order_mst;
     }
@@ -274,11 +273,19 @@ class OutwardStock extends Controller
         try {
 
             $inv_no =   DB::table("outward_customer_order_mst")->whereDate("created_at", now())->count();
+
             if (!$inv_no) {
-                $inv_no = 1;
+                $inv_no =   DB::table("adv_order_mst")->whereDate("created_at", now())->count();
+                if (!$inv_no) {
+                    $inv_no = 1;
+                } else {
+                    $inv_no++;
+                }
             } else {
+
                 $inv_no++;
             }
+
             $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
             $order_no = $invoice_prefix->order_prefix . date('d-m-y') . "-" . $inv_no;
 
@@ -539,7 +546,7 @@ class OutwardStock extends Controller
     public function InvoiceView(Request $request, $id)
     {
         $customer =  DB::table("outward_customer_order_mst as a")
-            ->select("a.*", "c.name as customer_name", "c.name as customer", "c.number", "c.*", "d.name as mot", "d.vehicle_no")
+            ->select("a.*", "c.name as customer_name", "c.name as customer", "c.number", "c.*", "d.name as mot", "d.vehicle_no",  "a.order_no")
             ->join("order_mst as b", "a.order_id", "b.id")
             ->join("customers as c", "b.customer_id", "c.id")
             ->join("mode_of_transport as d", "a.mode_of_transport", "d.id")
@@ -559,6 +566,7 @@ class OutwardStock extends Controller
                 "e.fssai_no as ship_fssai_no",
                 "e.gst_no as ship_gst",
                 "e.address as ship_address",
+                "a.order_no",
                 DB::raw("'pincode' as pincode,'city' as city,'state' as state,'ship_city','ship_state','ship_pincode'")
             )
             ->join("order_mst as b", "a.order_id", "=", "b.id")

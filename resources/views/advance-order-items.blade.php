@@ -25,6 +25,7 @@
                         <th> Category</th>
                         <th> Discount</th>
                         <th> Margin</th>
+                        <th> GST</th>
 
                         <th>Action</th>
 
@@ -44,16 +45,13 @@
                                 </button>
                             </td>
                             <td>{{ $item->category }}</td>
-
                             <td>{{ $item->discount }}</td>
                             <td>{{ $item->margin }}</td>
-
-
-
+                            <td>{{ $item->gst }}</td>
                             <td><button class="btn btn-primary btn-sm edit" type="button" data-id="{{ $item->id }}"
                                     data-name="{{ $item->name }}" data-category_id="{{ $item->category_id }}"
-                                    data-discount="{{ $item->discount }}" data-margin="{{ $item->margin }}"><i
-                                        class="fa fa-pencil" aria-hidden="true"></i></button>
+                                    data-discount="{{ $item->discount }}" data-margin="{{ $item->margin }}"
+                                    data-gst="{{ $item->gst }}"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                             </td>
 
                         </tr>
@@ -106,6 +104,15 @@
                             <label for="">Margin</label>
                             <input type="number" step="0.01" name="margin" id="margin" value="0"
                                 class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <label for="">GST</label>
+                            <select step="0.01" name="gst" id="gst" class="form-control" required>
+                                <option value="">Select GST</option>
+                                @foreach ($gst as $item)
+                                    <option value="{{ $item->gst }}">{{ $item->gst }} </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -166,6 +173,7 @@
             $("#category_id").val($(this).data("category_id"));
             $("#discount").val($(this).data("discount"));
             $("#margin").val($(this).data("margin"));
+            $("#gst").val($(this).data("gst"));
             $("#modal_name").text("Update Item");
             $("#exampleModal").modal("show");
         });
@@ -195,9 +203,9 @@
                 success: function(result) {
                     var html = "";
                     result.forEach(element => {
-                        var select="";
-                        if(element.active==1){
-                            select="checked";
+                        var select = "";
+                        if (element.active == 1) {
+                            select = "checked";
                         }
                         html += `
                             <tr>

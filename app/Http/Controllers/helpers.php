@@ -16,14 +16,9 @@ if (!function_exists('CheckUserPassword')) {
 }
 
 if (!function_exists('formatPriceQty')) {
-    function formatQtyPrice($v)
-    {
-        $v = floatval($v);
-
-        if (fmod($v, 1) == 0 || round($v, 2) == $v) {
-            return number_format($v, 2, '.', '');
-        }
-
-        return (string) $v;
-    }
+  function formatQtyPrice($v)
+{
+    $v = floatval($v);
+    return number_format($v, 2, '.', '');
+}
 }

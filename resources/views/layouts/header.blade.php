@@ -127,12 +127,9 @@
              'advance-order-list/processing',
              'advance-order-list/dispatch',
              'advance-order-list/delivered',
+             'advance-order-list/invoices',
          ];
-            $posOrder = [
-             'pos-order',
-             'kot',
-           
-         ];
+         $posOrder = ['pos-order', 'kot'];
          $recipeRoute = ['create-recipe', 'recipe-list'];
      @endphp
      <div id="global-loader">
@@ -641,6 +638,8 @@
                                              <li><a href="/advance-order-list/delivered"
                                                      class="{{ Request::is('advance-order-list/delivered') ? 'active' : '' }}">Delivered
                                                      Orders</a></li>
+                                             <li><a href="/advance-order-list/invoices"
+                                                     class="{{ Request::is('advance-order-list/invoice') ? 'active' : '' }}">Invoices</a></li>
                                              <li><a href="/advance-order-list/cancel"
                                                      class="{{ Request::is('advance-order-list/cancel') ? 'active' : '' }}">Cancel
                                                      Order</a></li>
@@ -649,7 +648,7 @@
                                  @endif
 
 
-                                       @if ($rolePermissions->where('permission_id', 27)->where('view', 1)->isNotEmpty())
+                                 @if ($rolePermissions->where('permission_id', 27)->where('view', 1)->isNotEmpty())
                                      <li
                                          class="submenu {{ collect($posOrder)->contains(fn($route) => Request::is($route)) ? 'submenu-open' : '' }}">
                                          <a href="javascript:void(0);"
@@ -661,13 +660,13 @@
                                              style="{{ collect($posOrder)->contains(fn($route) => Request::is($route)) ? 'display: block;' : '' }}">
                                              <li><a href="/pos-order"
                                                      class="{{ Request::is('pos-order') ? 'active' : '' }}">Order
-                                                     </a></li>
+                                                 </a></li>
                                              <li><a href="/kot"
                                                      class="{{ Request::is('kot') ? 'active' : '' }}">KOT</a></li>
-                                             
- 
 
-                                            
+
+
+
                                          </ul>
                                      </li>
                                  @endif
@@ -677,11 +676,11 @@
                                              href="/inward-finish-goods"><i data-feather="download"></i><span>Inward
                                                  Finish Goods</span></a></li>
                                  @endif
-                                   @if ($rolePermissions->where('permission_id', 19)->where('view', 1)->isNotEmpty())
-                                     <li class="{{ Request::is('invoices') ? 'active' : '' }}"><a
-                                             href="/invoices"><i data-feather="user-plus"></i><span>Invoices</span></a></li>
+                                 @if ($rolePermissions->where('permission_id', 19)->where('view', 1)->isNotEmpty())
+                                     <li class="{{ Request::is('invoices') ? 'active' : '' }}"><a href="/invoices"><i
+                                                 data-feather="user-plus"></i><span>Invoices</span></a></li>
                                  @endif
-                                 
+
                                  @if ($rolePermissions->where('permission_id', 19)->where('view', 1)->isNotEmpty())
                                      <li class="{{ Request::is('sale-return') ? 'active' : '' }}"><a
                                              href="/sale-return"><i data-feather="user-plus"></i><span>Sale
@@ -753,8 +752,9 @@
                                              <li><a href="/tally-report"
                                                      class="{{ Request::is('tally-report') ? 'active' : '' }}">Tally
                                                      Report</a></li>
-                                                       <li><a href="/debit-credit-report"
-                                                     class="{{ Request::is('tally-report') ? 'active' : '' }}">Debit Credit Note</a></li>
+                                             <li><a href="/debit-credit-report"
+                                                     class="{{ Request::is('tally-report') ? 'active' : '' }}">Debit
+                                                     Credit Note</a></li>
                                          </ul>
                                      </li>
                                  @endif

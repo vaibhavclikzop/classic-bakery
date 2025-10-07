@@ -1,13 +1,13 @@
 @extends('layouts.main')
 @section('main-section')
     @push('title')
-        <title>Invoice View</title>
+        <title>Advance Invoice View</title>
     @endpush
 
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
-                <h4>Invoice View</h4>
+                <h4>Advance Invoice View</h4>
             </div>
             <div class="">
                 {{-- @if (empty($previousProduct->id))
@@ -88,38 +88,37 @@
                     CIN No : {{ $setting->cin_no }}
                 </div>
                 <div style="padding: 5px; border:solid 1px;width: 50%">
-                    Invoice No : {{ $order_mst->order_no }} <br>
-                    Invoice Date : {{ $order_mst->invoice_date }} <br>
+                    Invoice No : {{ $order_mst->order_id }} <br>
+                    Invoice Date : {{ $order_mst->order_date }} <br>
                     Email : {{ $setting->email }} <br>
                     Contact No : {{ $setting->number }}
                 </div>
                 <div style="padding: 5px; border:solid 1px;width: 50%">
-                    Mode of Transport: {{ $order_mst->mot }} <br>
-                    Vehicle No : {{ $order_mst->vehicle_no }} <br>
-                    Supply Date : {{ $order_mst->invoice_date }} <br>
+                    {{-- Mode of Transport: {{ $order_mst->mot }} <br>
+                    Vehicle No : {{ $order_mst->vehicle_no }} <br> --}}
+                    Supply Date : {{ $order_mst->order_date }} <br>
                     Place of Supply : CHANDIGARH
                 </div>
 
             </div>
             <div style="display: flex; justify-content: space-between; border: solid 1px; padding: 8px;">
                 <div style="padding: 5px; border:solid 1px; width: 50%">
-                    (Billed To) {{ $order_mst->customer_name }}
+                    (Billed To) {{ $order_mst->name }}
                     <p>
-                        FSSAI No : {{ $order_mst->fssai_no }} <br>
-                        GSTIN : {{ $order_mst->gst }} <br>
+                        {{-- FSSAI No : {{ $order_mst->fssai_no }} <br>
+                        GSTIN : {{ $order_mst->gst }} <br> --}}
                         Contact : {{ $order_mst->number }} <br>
                         Address : {{ $order_mst->address }}, {{ $order_mst->city }}, {{ $order_mst->state }},
-                        {{ $order_mst->pincode }} <br>
+                        <br>
                     </p>
                 </div>
                 <div style="padding: 5px; border:solid 1px; width: 50%">
-                    (Shipped To) {{ $order_mst->customer_name }}
+                    (Shipped To) {{ $order_mst->name }}
                     <p>
-                        FSSAI No : {{ $order_mst->ship_fssai_no }} <br>
-                        GSTIN : {{ $order_mst->ship_gst }} <br>
+                        {{-- FSSAI No : {{ $order_mst->ship_fssai_no }} <br>
+                        GSTIN : {{ $order_mst->ship_gst }} <br> --}}
                         Contact : {{ $order_mst->number }} <br>
-                        Address : {{ $order_mst->ship_address }}, {{ $order_mst->ship_city }},
-                        {{ $order_mst->ship_state }}, {{ $order_mst->ship_pincode }} <br>
+                        Address : {{ $order_mst->address }}, {{ $order_mst->city }}, {{ $order_mst->state }},
                     </p>
                 </div>
             </div>
@@ -134,9 +133,10 @@
                         <th style="border:  solid 1px; padding:2px">S.No</th>
 
                         <th style="border:  solid 1px; padding:2px">Description of goods</th>
-                        <th style="border:  solid 1px; padding:2px">HSN Code</th>
+             
                         <th style="border:  solid 1px; padding:2px">UOM</th>
                         <th style="border:  solid 1px; padding:2px">MRP</th>
+                        <th style="border:  solid 1px; padding:2px">Weight</th>
                         <th style="border:  solid 1px; padding:2px">Qty</th>
 
 
@@ -171,13 +171,20 @@
                         @foreach ($order_det as $item)
                             @php
 
-                              
+                                if ($item->gst_type == 'Outer GST') {
+                                    $igst_amt += (($item->price * $item->qty) / 100) * $item->gst;
+                                } else {
+                                    $cgst_amt += ((($item->price * $item->qty) / 100) * $item->gst) / 2;
+                                    $sgst_amt += ((($item->price * $item->qty) / 100) * $item->gst) / 2;
+                                }
                                 $rate = formatQtyPrice($item->price);
                                 $taxable = formatQtyPrice(
                                     ($item->price * $item->qty) / (1 + $item->gst / 100) -
                                         (($item->price * $item->qty) / 100) * $item->cess_amt,
                                 );
-                                $gst = formatQtyPrice(($item->price*$item->qty)- ($item->price * $item->qty) / (1 + $item->gst / 100));
+                                $gst = formatQtyPrice(
+                                    $item->price * $item->qty - ($item->price * $item->qty) / (1 + $item->gst / 100),
+                                );
                                 $cess = formatQtyPrice((($item->price * $item->qty) / 100) * $item->cess_amt);
 
                                 $total = $taxable + $gst + $cess;
@@ -186,22 +193,17 @@
                                 $total_gst += $gst;
                                 $total_cess += (($item->price * $item->qty) / 100) * $item->cess_amt;
                                 $gross_total += $total;
-                                $total_mrp += $item->mrp * $item->qty;
-                                  if ($item->gst_type == 'Outer GST') {
-                                    $igst_amt += $gst;
-                                } else {
-                                    $cgst_amt +=$gst / 2;
-                                    $sgst_amt += $gst / 2;
-                                }
+                                $total_mrp += $item->mrp * $item->weight;
                             @endphp
                             <tr>
                                 <td style="border:  solid 1px; padding:2px">{{ $sno++ }}</td>
 
-                                <td style="border:  solid 1px; padding:2px">{{ $item->product }}</td>
-                                <td style="border:  solid 1px; padding:2px">{{ $item->hsn_code }}</td>
-                                <td style="border:  solid 1px; padding:2px">{{ $item->uom }}</td>
-                                <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->mrp) }}</td>
+                                <td style="border:  solid 1px; padding:2px">{{ $item->product }}, {{$item->weight}} KG {{$item->shape}} <br> {{$item->flavour}} </td>
+                            
+                                <td style="border:  solid 1px; padding:2px">QTY</td>
+                                <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->mrp*$item->weight) }}</td>
 
+                                <td style="border:  solid 1px; padding:2px">{{ ($item->weight) }}</td>
                                 <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->qty) }}</td>
                                 <td style="border:  solid 1px; padding:2px">{{ $rate }}</td>
                                 <td style="border:  solid 1px; padding:2px">
@@ -317,7 +319,7 @@
                 </div>
                 <div>
                     <h5>MRP Total : {{ formatQtyPrice($total_mrp) }}, Dealer Margin :
-                        {{ formatQtyPrice($total_mrp - $gross_total) }}</h5>
+                        {{ formatQtyPrice($total_mrp-$gross_total) }}</h5>
                 </div>
             </div>
         </div>

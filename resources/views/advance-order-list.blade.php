@@ -63,8 +63,15 @@
                                     <td>{{ $item->type }}</td>
                                     <td>{{ $item->created_at }}</td>
                                     <td>
-                                        <a class="btn btn-sm btn-primary" href="/advance-order-view/{{ $item->id }}">
-                                            <i class="fa fa-eye" aria-hidden="true"></i> </a>
+                                        @if ($item->is_invoice == 1)
+                                            <a class="btn btn-sm btn-primary"
+                                                href="/advance-invoice-view/{{ $item->id }}">
+                                                <i class="fa fa-eye" aria-hidden="true"></i> </a>
+                                        @else
+                                            <a class="btn btn-sm btn-primary"
+                                                href="/advance-order-view/{{ $item->id }}">
+                                                <i class="fa fa-eye" aria-hidden="true"></i> </a>
+                                        @endif
 
                                         @if ($item->status != 'cancel')
                                             @if ($item->status != 'delivered')
@@ -77,6 +84,11 @@
                                             <button class="btn btn-danger btn-sm cancel_status" value="{{ $item->id }}"
                                                 data-status="{{ $item->status }}" type="button"><i class="fa fa-xmark"
                                                     aria-hidden="true"></i></button>
+                                        @endif
+
+                                        @if ($item->is_invoice == 0)
+                                            <button class="btn btn-dark btn-sm convertToInvoice"
+                                                value="{{ $item->id }}" type="button">Convert to invoice</button>
                                         @endif
 
                                     </td>
@@ -159,6 +171,37 @@
         </div>
     </form>
 
+
+    <form action="{{ route('advConvertToInvoice') }}" method="POST" class="needs-validation" novalidate>
+        @csrf
+        <div class="modal fade" id="convertModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+            role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitleId">
+                            Convert to Invoice
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" name="convertID" id="convertID" hidden>
+                        Are you sure you want to convert this into an invoice?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+
+
     <script>
         $("#all_check").on("click", function() {
             if ($(this).prop("checked") == true) {
@@ -178,6 +221,11 @@
         $(document).on("click", ".cancel_status", function() {
             $("#deleteId").val($(this).val())
             $("#cancelOrderModal").modal("show")
+        });
+
+        $(document).on("click", ".convertToInvoice", function() {
+            $("#convertID").val($(this).val())
+            $("#convertModal").modal("show")
         });
     </script>
 @endsection
