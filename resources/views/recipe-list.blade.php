@@ -11,7 +11,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
-                <h4> Recipe List </h4>
+                <h4> Recipe for Production </h4>
             </div>
             <div class="">
 

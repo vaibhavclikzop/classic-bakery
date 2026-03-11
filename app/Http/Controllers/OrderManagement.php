@@ -366,12 +366,7 @@ class OrderManagement extends Controller
     public function SaveOrder(Request $request)
     {
         $validator = Validator::make($request->all(), [
-
             'customer_id' => 'required',
-
-
-
-
         ]);
 
         if ($validator->fails()) {
@@ -391,8 +386,31 @@ class OrderManagement extends Controller
         $order_id = 'ORD_' . date('dmyhis');
 
 
+
+
         try {
             DB::beginTransaction();
+
+
+            $gst_type = "";
+
+            if ($request->order_type == "customer") {
+                $city = DB::table("customers")->where("id", $request->customer_id)->select("city")->first();
+            } else {
+                $city = DB::table("company_settings")->where("outlet_id", $request->customer_id)->select("city")->first();
+            }
+
+            $company_setting = DB::table("company_settings")->where("id", 1)->first();
+            if ($city->city && $company_setting->city) {
+                if ($city->city == $company_setting->city) {
+                    $gst_type = "Inner GST";
+                } else {
+                    $gst_type = "Outer GST";
+                }
+            } else {
+                return redirect()->back()->with('error', "Select Outlet City");
+            }
+
 
 
             $inv_no =   DB::table("order_mst")->whereDate("created_at", now())->count();
@@ -422,19 +440,20 @@ class OrderManagement extends Controller
             ));
 
             foreach ($prod_list as $key => $value) {
-                $finish_products_mst =   DB::table("finish_products_mst")->where("id", $value->product_id)->first();
+                $finish_products_mst = DB::table("finish_products_mst")->where("id", $value->product_id)->first();
                 DB::table('order_det')->insertGetId(array(
                     "mst_id" => $mst_id,
                     "product_id" => $value->product_id,
                     "qty" => $value->qty,
                     "price" => $value->price,
                     "gst" => $value->gst,
-                    "gst_type" => $value->gst_type,
+                    "gst_type" => $gst_type,
                     "cess_amt" => $finish_products_mst->cess_tax,
                     "mrp" => $finish_products_mst->price,
                 ));
             }
             $company_setting = DB::table("company_settings")->where("id", 1)->increment("order_no");
+            $this->generateWordOrder($mst_id);
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -442,6 +461,79 @@ class OrderManagement extends Controller
         }
 
         return  redirect()->back()->with("success", "Save Successfully");
+    }
+
+
+
+    public function generateWordOrder($id)
+    {
+        $department_id = [];
+        $order_mst =  DB::table("order_mst")->where("id", $id)->first();
+
+
+        $order_det =  DB::table("order_det as a")
+            ->select("a.*", "b.department_id")
+            ->join("finish_products_mst as b", "a.product_id", "b.id")
+            ->where("b.f_category_id", 1)
+            ->where("a.mst_id", $id)->get();
+
+        foreach ($order_det as $k => $v) {
+
+            if ($v->qty - $v->booked_qty > 0) {
+
+
+                $mst_id =  DB::table("work_order_mst")->where("department_id", $v->department_id)->whereDate("delivery_date", $order_mst->delivery_date)->first();
+                if (!$mst_id) {
+                    $mst_id =   DB::table("work_order_mst")->insertGetId(array(
+                        "department_id" => $v->department_id,
+                        "delivery_date" => $order_mst->delivery_date,
+                    ));
+                    DB::table("work_order_det")->insertGetId(array(
+                        "mst_id" => $mst_id,
+                        "product_id" => $v->product_id,
+                        "order_id" => $v->mst_id,
+                        "qty" => $v->qty - $v->booked_qty,
+                    ));
+                    $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id, "delivery_date" => $order_mst->delivery_date);
+                } else {
+                    // $v->department_id=1;
+                    // $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id->id, "delivery_date" => "2025-01-07");
+
+                    if (empty($department_id)) {
+                        $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id->id, "delivery_date" => $order_mst->delivery_date);
+                    }
+
+                    if (!empty($department_id)) {
+                        $find_value = 0;
+                        $mst_id = 0;
+
+                        foreach ($department_id as $i) {
+
+                            if ($i['department_id'] == $v->department_id && $i['delivery_date'] == $order_mst->delivery_date) {
+                                $find_value = 1;
+                                $mst_id = $i['mst_id'];
+                                break;
+                            }
+                        }
+                        if ($find_value == 1) {
+                            DB::table("work_order_det")->insertGetId(array(
+                                "mst_id" => $mst_id,
+                                "product_id" => $v->product_id,
+                                "order_id" => $v->mst_id,
+                                "qty" => $v->qty - $v->booked_qty,
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+        DB::table("order_mst")->where("id", $id)->update(array(
+            "status" => "processing",
+        ));
+
+
+
+        return  true;
     }
 
     public function GeneratePOProduct(Request $request, $id = 0)
@@ -477,7 +569,6 @@ class OrderManagement extends Controller
 
     public function SavePoProducts(Request $request)
     {
-
 
 
 
@@ -798,6 +889,9 @@ class OrderManagement extends Controller
         $customers = DB::table("customers")->get();
         return view("order-summary", compact("orders", "customers"));
     }
+
+
+
 
     public function GenerateWorkOrder(Request $request)
     {

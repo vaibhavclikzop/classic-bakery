@@ -139,14 +139,14 @@
                                 parseFloat(item.sgst) + parseFloat(item.cess_amt);
                             const dc = parseFloat(item.total_mrp);
 
-                            subtotal += parseFloat(item.sub_total);
+                            subtotal += parseFloat(item.sub_total-item.igst-item.cgst-item.sgst);
                             tax += parseFloat(itemTax);
                             cess += parseFloat(item.cess_amt);
                             cgst += parseFloat(item.cgst);
                             sgst += parseFloat(item.sgst);
                             igst += parseFloat(item.igst);
                             dc_total += dc;
-                            total = parseFloat(item.sub_total) + parseFloat(itemTax);
+                            total = parseFloat(item.sub_total-item.igst-item.cgst-item.sgst) + parseFloat(itemTax);
 
                             grand_total += total;
 
@@ -162,7 +162,7 @@
                 <td style="border: solid 1px; padding:5px"> ${item.order_type}</td>
                 <td style="border: solid 1px; padding:5px">${challan}</td>
                 <td style="border: solid 1px; padding:5px">${item.invoice_date}</td>
-                <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.sub_total)}</td>
+                <td style="border: solid 1px; padding:5px">${formatQtyPrice(parseFloat(item.sub_total-item.igst-item.cgst-item.sgst).toFixed(2))}</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.total_mrp)}</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(itemTax)}</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.cess_amt)}</td>
@@ -178,7 +178,7 @@
                         html += `<tr style="background: #e2e3e5; font-weight: bold;">
             <td colspan="4" style="border: solid 1px; padding:5px;">Total</td>
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(subtotal).toFixed(2))}</td>
-            <td style="border: solid 1px; padding:5px;">${formatQtyPrice( parseFloat(dc_total).toFixed(2))}</td>
+            <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(dc_total).toFixed(2))}</td>
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(tax).toFixed(2))}</td>
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(cess).toFixed(2))}</td>
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(cgst).toFixed(2))}</td>

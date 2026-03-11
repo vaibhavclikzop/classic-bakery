@@ -15,7 +15,8 @@ class RecipeController extends Controller
     {
         $products =  products::with("unitType")->get();
         $department = DB::table('department')->orderBy("name", "ASC")->get();
-        return view("create-recipe", compact("products", "department"));
+        $finish_products_mst =  finish_products_mst::get();
+        return view("create-recipe", compact("products", "department", "finish_products_mst"));
     }
 
     public function saveRecipe(Request $request)
@@ -84,17 +85,30 @@ class RecipeController extends Controller
     {
 
         $qty = request("qty", 1);
- 
+
 
         $data = DB::table("recipe_mst as a")
             ->select("a.*", "d.name as dname")
             ->Leftjoin('department as d', "a.department_id", "d.id")
             ->where("a.id", $id)->first();
-        $det =  DB::table("recipe_det as a")
-            ->select("a.*", "b.name as product", "c.name as category","b.hindi")
+        $det = DB::table("recipe_det as a")
+            ->select(
+                "a.*",
+                "b.name as product",
+                "c.name as category",
+                "b.hindi",
+                DB::raw("COALESCE(d.price, b.price) as price")
+            )
             ->join("products as b", "a.product_id", "b.id")
             ->join("category as c", "b.category_id", "c.id")
-            ->where("a.mst_id", $id)->get();
+            ->leftJoin("stock_inward_det as d", function ($join) {
+                $join->on("b.id", "=", "d.product_id")
+                    ->where("d.type", "raw_material");
+            })
+            ->where("a.mst_id", $id)
+            ->orderBy("d.id", "desc")
+            ->get();
+
         return view("make-recipe", compact("data", "det"));
     }
     public function receipeDelete(Request $request)

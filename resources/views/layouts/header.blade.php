@@ -331,9 +331,7 @@
                                          </a>
                                          <ul
                                              style="{{ in_array(Request::path(), $advanceMasterRoutes) ? 'display: block;' : '' }}">
-                                             <li><a href="/advance-order-category"
-                                                     class="{{ Request::is('advance-order-category') ? 'active' : '' }}">Category</a>
-                                             </li>
+                                            
                                              <li><a href="/advance-order-flavour"
                                                      class="{{ Request::is('advance-order-flavour') ? 'active' : '' }}">Flavour</a>
                                              </li>
@@ -449,7 +447,7 @@
                                              </li>
                                              <li><a href="/recipe-list"
                                                      class="{{ Request::is('recipe-list') ? 'active' : '' }}">
-                                                     Recipe List</a>
+                                                     Recipe for Production</a>
                                              </li>
 
                                          </ul>
@@ -587,9 +585,9 @@
                                              <li><a href="/create-order"
                                                      class="{{ Request::is('create-order') ? 'active' : '' }}">Create
                                                      Order</a></li>
-                                             <li><a href="/orders/pending?date={{ date('Y-m-d', strtotime('+1 day')) }}"
+                                             {{-- <li><a href="/orders/pending?date={{ date('Y-m-d', strtotime('+1 day')) }}"
                                                      class="{{ Request::is('orders/pending') ? 'active' : '' }}">Created
-                                                     Order</a></li>
+                                                     Order</a></li> --}}
                                              <li><a href="/orders/processing"
                                                      class="{{ Request::is('orders/processing') ? 'active' : '' }}">Production</a>
                                              </li>

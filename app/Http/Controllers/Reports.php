@@ -13,66 +13,64 @@ class Reports extends Controller
 {
     public function PurchaseVariationReport(Request $request)
     {
-        $fromDt = $request->input("fromDt");
-        $toDt   = $request->input("toDt");
+    $fromDt = $request->input('fromDt', date('Y-m-d')); 
 
-        if (!$fromDt && !$toDt) {
-            $from = Carbon::now()->startOfMonth();
-            $to   = Carbon::now()->endOfMonth();
-        } else {
-            $from = $fromDt ? Carbon::parse($fromDt)->startOfDay() : null;
-            $to   = $toDt   ? Carbon::parse($toDt)->endOfDay() : null;
-        }
-
+        // Step 1️⃣: Base query
         $query = DB::table("stock_inward_mst as a")
+            ->join("stock_inward_det as b", "a.id", "b.mst_id")
+            ->join("vendor as c", "a.vendor_id", "c.id")
+            ->join("products as d", "b.product_id", "d.id")
             ->select(
                 "a.id as mst_id",
                 "a.invoice_date",
                 "b.product_id",
-                "c.id as vendor_id",
                 "c.name as vendor",
                 "d.name as product",
                 "b.price",
                 "b.qty"
-            )
-            ->join("stock_inward_det as b", "a.id", "b.mst_id")
-            ->join("vendor as c", "a.vendor_id", "c.id")
-            ->join("products as d", "b.product_id", "d.id");
+            );
 
-        if ($from && $to) {
-            $query->whereBetween("a.invoice_date", [$from, $to]);
-        } elseif ($from) {
-            $query->where("a.invoice_date", ">=", $from);
-        } elseif ($to) {
-            $query->where("a.invoice_date", "<=", $to);
+        // Step 2️⃣: Filter only products that have at least one invoice on fromDt
+        if ($fromDt) {
+            $query->whereIn("b.product_id", function ($q) use ($fromDt) {
+                $q->select("b.product_id")
+                    ->from("stock_inward_mst as a")
+                    ->join("stock_inward_det as b", "a.id", "b.mst_id")
+                    ->whereDate("a.invoice_date", $fromDt);
+            });
         }
 
-        $grouped = $query
-            ->orderBy("a.invoice_date", "asc")
-            ->orderBy("a.id", "asc")
-            ->get()
-            ->groupBy(fn($row) => $row->product_id . '-' . $row->vendor_id);
+        // Step 3️⃣: Fetch ordered data (all entries for those products)
+        $records = $query
+            ->orderBy("b.product_id")
+            ->orderByDesc("a.invoice_date")
+            ->orderByDesc("a.id")
+            ->get();
 
-        $filter = [];
+        // Step 4️⃣: Group by product_id
+        $grouped = $records->groupBy("product_id");
 
-        foreach ($grouped as $entries) {
-            $entries = collect($entries)->values();
+        // Step 5️⃣: For each product, take last 5 purchases
+        $latestFive = $grouped->map(function ($items) {
+            return $items
+                ->sortByDesc(function ($item) {
+                    return $item->invoice_date . '-' . $item->mst_id;
+                })
+                ->take(5);
+        });
 
-            for ($i = 1; $i < $entries->count(); $i++) {
-                $prev   = $entries[$i - 1];
-                $latest = $entries[$i];
+        // Step 6️⃣: Filter only those products where price varied
+        $variationReport = $latestFive->filter(function ($entries) {
+            $uniquePrices = $entries->pluck("price")->unique();
+            return $uniquePrices->count() > 1;
+        });
 
-                if (intval($prev->price) !== intval($latest->price)) {
+        // Step 7️⃣: Flatten for Blade display
+        $filter = $variationReport->flatten(1)->values();
 
-                    $filter[] = $prev;
-                    $filter[] = $latest;
-                }
-            }
-        }
 
-        $filter = collect($filter)->unique(function ($item) {
-            return $item->product_id . '-' . $item->vendor_id . '-' . $item->invoice_date . '-' . $item->price;
-        })->values();
+
+
 
         return view("purchase-variation-report", compact("filter"));
     }
@@ -161,9 +159,9 @@ class Reports extends Controller
         SUM(b.qty * c.price) AS sub_total,
         SUM(b.qty * c.mrp) AS total_mrp,
         SUM(c.cess_amt) AS cess_amt,
-        ROUND(SUM(IF(c.gst_type = 'Outer GST', b.qty * c.price * c.gst / 100, 0)), 2) AS igst,
-        ROUND(SUM(IF(c.gst_type = 'Inner GST', b.qty * c.price * c.gst / 200, 0)), 2) AS cgst,
-        ROUND(SUM(IF(c.gst_type = 'Inner GST', b.qty * c.price * c.gst / 200, 0)), 2) AS sgst
+        ROUND(SUM(IF(c.gst_type = 'Outer GST', (b.qty * c.price) -((b.qty*c.price)/(1+(c.gst/100))), 0)), 2) AS igst,
+        ROUND(SUM(IF(c.gst_type = 'Inner GST',  (b.qty * c.price) -((b.qty*c.price)/(1+(c.gst/200))), 0)), 2) AS cgst,
+        ROUND(SUM(IF(c.gst_type = 'Inner GST',  (b.qty * c.price) -((b.qty*c.price)/(1+(c.gst/200))), 0)), 2) AS sgst
     FROM outward_customer_order_mst a
     JOIN outward_customer_order_det b ON a.id = b.mst_id
     JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
@@ -185,9 +183,9 @@ class Reports extends Controller
         SUM(b.qty * c.price) AS sub_total,
         SUM(b.qty * c.mrp) AS total_mrp,
         SUM(c.cess_amt) AS cess_amt,
-        ROUND(SUM(IF(c.gst_type = 'Outer GST', b.qty * c.price * c.gst / 100, 0)), 2) AS igst,
-        ROUND(SUM(IF(c.gst_type = 'Inner GST', b.qty * c.price * c.gst / 200, 0)), 2) AS cgst,
-        ROUND(SUM(IF(c.gst_type = 'Inner GST', b.qty * c.price * c.gst / 200, 0)), 2) AS sgst
+        ROUND(SUM(IF(c.gst_type = 'Outer GST', (b.qty * c.price) -((b.qty*c.price)/(1+(c.gst/100))), 0)), 2) AS igst,
+        ROUND(SUM(IF(c.gst_type = 'Inner GST',  (b.qty * c.price) -((b.qty*c.price)/(1+(c.gst/200))), 0)), 2) AS cgst,
+        ROUND(SUM(IF(c.gst_type = 'Inner GST',  (b.qty * c.price) -((b.qty*c.price)/(1+(c.gst/200))), 0)), 2) AS sgst
     FROM outward_customer_order_mst a
     JOIN outward_customer_order_det b ON a.id = b.mst_id
     JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
@@ -209,9 +207,9 @@ class Reports extends Controller
         SUM(b.total_price) AS sub_total,
         SUM(b.mrp) AS total_mrp,
         0 AS cess_amt,
-        0 AS igst,
-        0 AS cgst,
-        0 AS sgst
+          ROUND(SUM(IF(b.gst_type = 'Outer GST', (b.outlet_price) -((b.outlet_price)/(1+(b.gst/100))), 0)), 2) AS igst,
+        ROUND(SUM(IF(b.gst_type = 'Inner GST',  (b.outlet_price) -((b.outlet_price)/(1+(b.gst/200))), 0)), 2) AS cgst,
+        ROUND(SUM(IF(b.gst_type = 'Inner GST',  (b.outlet_price) -((b.outlet_price)/(1+(b.gst/200))), 0)), 2) AS sgst
     FROM adv_order_mst a
     JOIN adv_order_det b ON a.id = b.mst_id
     JOIN customers c ON a.outlet_id = c.id
@@ -232,9 +230,10 @@ class Reports extends Controller
         SUM(b.total_price) AS sub_total,
         SUM(b.mrp) AS total_mrp,
         0 AS cess_amt,
-        0 AS igst,
-        0 AS cgst,
-        0 AS sgst
+         ROUND(SUM(IF(b.gst_type = 'Outer GST', (b.outlet_price) -((b.outlet_price)/(1+(b.gst/100))), 0)), 2) AS igst,
+      ROUND(SUM(IF(b.gst_type = 'Inner GST', ((b.outlet_price) - (b.outlet_price / (1 + (b.gst / 100)))) / 2, 0)), 2) AS cgst,
+ROUND(SUM(IF(b.gst_type = 'Inner GST', ((b.outlet_price) - (b.outlet_price / (1 + (b.gst / 100)))) / 2, 0)), 2) AS sgst
+
     FROM adv_order_mst a
     JOIN adv_order_det b ON a.id = b.mst_id
     JOIN outlet c ON a.outlet_id = c.id

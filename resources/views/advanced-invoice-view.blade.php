@@ -133,7 +133,7 @@
                         <th style="border:  solid 1px; padding:2px">S.No</th>
 
                         <th style="border:  solid 1px; padding:2px">Description of goods</th>
-             
+
                         <th style="border:  solid 1px; padding:2px">UOM</th>
                         <th style="border:  solid 1px; padding:2px">MRP</th>
                         <th style="border:  solid 1px; padding:2px">Weight</th>
@@ -171,12 +171,6 @@
                         @foreach ($order_det as $item)
                             @php
 
-                                if ($item->gst_type == 'Outer GST') {
-                                    $igst_amt += (($item->price * $item->qty) / 100) * $item->gst;
-                                } else {
-                                    $cgst_amt += ((($item->price * $item->qty) / 100) * $item->gst) / 2;
-                                    $sgst_amt += ((($item->price * $item->qty) / 100) * $item->gst) / 2;
-                                }
                                 $rate = formatQtyPrice($item->price);
                                 $taxable = formatQtyPrice(
                                     ($item->price * $item->qty) / (1 + $item->gst / 100) -
@@ -194,16 +188,25 @@
                                 $total_cess += (($item->price * $item->qty) / 100) * $item->cess_amt;
                                 $gross_total += $total;
                                 $total_mrp += $item->mrp * $item->weight;
+                                if ($item->gst_type == 'Outer GST') {
+                                    $igst_amt += $gst;
+                                } else {
+                                    $cgst_amt += $gst / 2;
+                                    $sgst_amt += $gst / 2;
+                                }
                             @endphp
                             <tr>
                                 <td style="border:  solid 1px; padding:2px">{{ $sno++ }}</td>
 
-                                <td style="border:  solid 1px; padding:2px">{{ $item->product }}, {{$item->weight}} KG {{$item->shape}} <br> {{$item->flavour}} </td>
-                            
-                                <td style="border:  solid 1px; padding:2px">QTY</td>
-                                <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->mrp*$item->weight) }}</td>
+                                <td style="border:  solid 1px; padding:2px">{{ $item->product }}, {{ $item->weight }} KG
+                                    {{ $item->shape }} <br> {{ $item->flavour }} </td>
 
-                                <td style="border:  solid 1px; padding:2px">{{ ($item->weight) }}</td>
+                                <td style="border:  solid 1px; padding:2px">QTY</td>
+                                <td style="border:  solid 1px; padding:2px">
+                                    {{ formatQtyPrice($item->mrp * $item->weight) }}
+                                </td>
+
+                                <td style="border:  solid 1px; padding:2px">{{ $item->weight }}</td>
                                 <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->qty) }}</td>
                                 <td style="border:  solid 1px; padding:2px">{{ $rate }}</td>
                                 <td style="border:  solid 1px; padding:2px">
@@ -319,7 +322,7 @@
                 </div>
                 <div>
                     <h5>MRP Total : {{ formatQtyPrice($total_mrp) }}, Dealer Margin :
-                        {{ formatQtyPrice($total_mrp-$gross_total) }}</h5>
+                        {{ formatQtyPrice($total_mrp - $gross_total) }}</h5>
                 </div>
             </div>
         </div>

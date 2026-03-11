@@ -616,7 +616,7 @@ class Masters extends Controller
         $category_id = $request->input("category_id");
         $sub_category_id = $request->input("sub_category_id");
         $search = $request->input('search');
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('perPage', 0);
 
         $product = DB::table("products as a")
             ->select("a.*", "b.name as category_name", "c.name as brand_name", "ut.name as unit_type", "d.name as sub_category")

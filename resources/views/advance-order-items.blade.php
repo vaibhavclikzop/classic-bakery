@@ -22,7 +22,7 @@
                         <th>S.no</th>
 
                         <th> Name </th>
-                        <th> Category</th>
+      
                         <th> Discount</th>
                         <th> Margin</th>
                         <th> GST</th>
@@ -44,7 +44,7 @@
                                     value="{{ $item->id }}"> <i class="fa-solid fa-circle-info"></i>
                                 </button>
                             </td>
-                            <td>{{ $item->category }}</td>
+             
                             <td>{{ $item->discount }}</td>
                             <td>{{ $item->margin }}</td>
                             <td>{{ $item->gst }}</td>
@@ -81,13 +81,11 @@
                         <input type="hidden" name="id" id="id">
 
 
-                        <div class="col-md-6">
+                        <div class="col-md-6 d-none">
                             <label for="">Category</label>
                             <select name="category_id" id="category_id" class="form-control" required>
-                                <option value="">Select</option>
-                                @foreach ($category as $item)
-                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                @endforeach
+                                <option value="1" selected>Select</option>
+                               
                             </select>
 
                         </div>
@@ -95,7 +93,7 @@
                             <label for="">Name</label>
                             <input type="text" name="name" id="name" class="form-control" required>
                         </div>
-                        <div class="col-md-6 mt-3">
+                        <div class="col-md-6">
                             <label for="">Discount</label>
                             <input type="number" step="0.01" name="discount" id="discount" value="0"
                                 class="form-control" required>

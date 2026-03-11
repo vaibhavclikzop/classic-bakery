@@ -4,36 +4,54 @@
         <title>Inward Finish Goods</title>
     @endpush
     <div class="card">
-        <div class="card-header d-flex justify-content-between">
-            <div class="">
+        <div class="card-header">
+            <div class=" d-flex justify-content-between">
 
-                <h4>Inward Finish Products</h4>
 
-                <a class="btn btn-dark mt-3" href="/direct-inward"> <i class="fa fa-download" aria-hidden="true"></i> Direct Inward</a>
-                <a class="btn btn-dark mt-3" href="/direct-inward-challan"> <i class="fa fa-download" aria-hidden="true"></i> Direct Inward Challan</a>
+                <div class="">
+
+                    <h4>Inward Finish Products</h4>
+
+                    <a class="btn btn-dark mt-3" href="/direct-inward"> <i class="fa fa-download" aria-hidden="true"></i> Direct
+                        Inward</a>
+                    <a class="btn btn-dark mt-3" href="/direct-inward-challan"> <i class="fa fa-download"
+                            aria-hidden="true"></i>
+                        Direct Inward Challan</a>
+                </div>
+                <div class="">
+
+                    <form method="GET" class="needs-validation d-flex" novalidate>
+                        <a class="btn btn-info"
+                            href="inward-finish-goods?date={{ date('Y-m-d', strtotime(request('date') . ' -1 day')) }}">
+                            << </a>
+                                <input type="date" name="date" class="form-control" required
+                                    value="{{ request('date') ?? date('Y-m-d') }}" onchange="this.form.submit()">
+                                <a class="btn btn-info"
+                                    href="inward-finish-goods?date={{ date('Y-m-d', strtotime(request('date') . ' +1 day')) }}">
+                                    >>
+                                </a>
+
+
+                    </form>
+
+
+                </div>
             </div>
-            <div class="">
+            <div class="mt-3">
+                <a href="?department=all&date={{ request('date') }}"
+                    class="btn btn-sm {{ request('department') == 'all' ? 'btn-success' : 'btn-dark' }}">
+                    All
+                </a>
 
-                <form method="GET" class="needs-validation d-flex" novalidate>
-                    <a class="btn btn-info"
-                        href="inward-finish-goods?date={{ date('Y-m-d', strtotime(request('date') . ' -1 day')) }}">
-                        << </a>
-                            <input type="date" name="date" class="form-control" required
-                                value="{{ request('date') ?? date('Y-m-d') }}">
-                            <a class="btn btn-info"
-                                href="inward-finish-goods?date={{ date('Y-m-d', strtotime(request('date') . ' +1 day')) }}">
-                                >>
-                            </a>
-                            <button type="submit" class="btn btn-primary mx-2">Search</button>
-                        
-                </form>
-
-
+                @foreach ($department as $item)
+                    <a  href="?department={{$item->id}}&date={{ request('date') }}"    class="btn btn-sm {{ request('department') == $item->id ? 'btn-success' : 'btn-dark' }}">{{ $item->name }}</a>
+                @endforeach
             </div>
         </div>
         <div class="card-body">
             <form action="{{ route('SaveInwardFinishGoods') }}" method="POST">
                 <input type="date" value="{{ request('date') ?? date('Y-m-d') }}" name="date" class="d-none">
+                <input type="text" value="{{ request('department') ?? "all" }}" name="department_id" class="d-none">
                 @csrf
                 <table class="table">
                     <thead>
@@ -60,7 +78,7 @@
                                 <td>
                                     @if ($finish_inward_mst->status == 0)
                                         <input type="number" step="0.01" name="inward_qty[{{ $item->id }}][]"
-                                            value="{{ $item->qty -$item->inward_qty}}" class="form-control">
+                                            value="{{ $item->qty - $item->inward_qty }}" class="form-control">
                                     @else
                                         {{ $item->inward_qty }}
                                     @endif

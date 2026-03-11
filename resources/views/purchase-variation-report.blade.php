@@ -11,16 +11,12 @@
             <div>
                 <form action="" method="GET" class="d-flex">
                     <div>
-                        <label for="">From</label>
+                        <label for="">Date</label>
                         <input type="date" name="fromDt" class="form-control" onchange="this.form.submit()"
                             value="{{ request('fromDt') }}">
                     </div>
 
-                    <div>
-                        <label for="">To</label>
-                        <input type="date" name="toDt" class="form-control" onchange="this.form.submit()"
-                            value="{{ request('toDt') }}">
-                    </div>
+                    
                 </form>
 
             </div>

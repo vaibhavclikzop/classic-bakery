@@ -15,24 +15,24 @@
             <form method="POST" id="frmMain" action="{{ route('SaveAdvanceOrder') }}" enctype="multipart/form-data">
                 @csrf
 
-                <div class="row">
-                    <div class="col-md-3">
+                <div class="d-flex">
+                    <div class="">
                         <label for="">Order Date</label>
                         <input type="date" name="order_date" value="{{ date('Y-m-d') }}" class="form-control" required>
 
                     </div>
-                    <div class="col-md-3">
+                    <div class="mx-2">
                         <label for="">Delivery Date</label>
                         <input type="date" name="delivery_date" value="{{ date('Y-m-d') }}" class="form-control"
                             required>
 
                     </div>
-                    <div class="col-md-3">
+                    <div class="">
                         <label for="">Delivery Time</label>
                         <input type="time" name="delivery_time" value="" class="form-control" required>
 
                     </div>
-                    <div class="col-md-3">
+                    <div class="mx-2" style="width: 15%">
                         <label for="">Customer Type</label>
                         <select name="customer_type" id="customer_type" class="form-control" required>
                             <option value="">Select</option>
@@ -41,7 +41,7 @@
                         </select>
 
                     </div>
-                    <div class="col-md-3 mt-3">
+                    <div class="">
                         <label for="">Shop/Customer</label>
                         <select name="outlet_id" id="outlet_id" class="form-control" required>
                             <option value="">Select</option>
@@ -58,7 +58,7 @@
 
                     </div>
                 </div>
-                <hr>
+                <hr style="padding: 0; margin: 0; margin-top: 5px">
                 <div class="row">
                     <div class="col-md-12">
 
@@ -87,13 +87,8 @@
                                     </th>
                                     <th>
                                         <label for="">Weight</label> <br>
-                                        <select name="weight" id="weight" class="form-control">
-                                            <option value="">Select weight</option>
-                                            @foreach ($adv_order_weight as $item)
-                                                <option value="{{ $item->name }}">{{ $item->name }}</option>
-                                            @endforeach
-
-                                        </select>
+                                        <input type="number" step="0.01" name="weight" id="weight" class="form-control">
+                                        
                                     </th>
                                     <th>
                                         <label for="">Shape</label> <br>
@@ -274,24 +269,24 @@
                 $("#weight").val("")
             });
             var price = 0;
-            $("#weight").on("change", function() {
-                const weight = $(this).val();
-                const mrp = $("#mrp").val();
-                const increment_rate = $("#increment_rate").val()
-                const qty = $("#qty").val();
-                const margin = $("#margin").val();
+            $("#weight").on("keyup", function() {
+                let weight = $(this).val();
+                let mrp = $("#mrp").val();
+                let increment_rate = $("#increment_rate").val()
+                let qty = $("#qty").val();
+                let margin = $("#margin").val();
 
                 if (parseFloat(weight) > 1) {
-                    const extra_weight = parseFloat(weight - 1);
-                    const increment_price = (increment_rate * extra_weight)
-                    const net_weight = weight - extra_weight;
-                    const net_price = net_weight * mrp
+                    let extra_weight = parseFloat(weight - 1);
+                    let increment_price = (increment_rate * extra_weight)
+                    let net_weight = weight - extra_weight;
+                    let net_price = net_weight * mrp
                     price = (increment_price + net_price * qty)
-                    price =price-(price/100*margin)
+                    price = price - (price / 100 * margin)
                     $("#price").val(price)
                 } else {
                     price = (mrp * weight) * qty;
-                    price =price-(price/100*margin)
+                    price = price - (price / 100 * margin)
                     $("#price").val(price)
                 }
 

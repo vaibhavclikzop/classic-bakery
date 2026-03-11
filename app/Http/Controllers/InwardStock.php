@@ -74,8 +74,6 @@ class InwardStock extends Controller
         $vendor = DB::table("vendor")->where("id", $request->vendor_id)->first();
         $company_setting = DB::table("company_settings")->where("id", 1)->first();
         if ($vendor->city && $company_setting->city) {
-
-
             if ($vendor->city == $company_setting->city) {
                 $gst_type = "Inner GST";
             } else {
@@ -616,6 +614,8 @@ class InwardStock extends Controller
     public function InwardFinishGoods(Request $request)
     {
 
+        $department_id = request("department", "all");
+
         $date = request("date", date('Y-m-d'));
 
         $finish_inward_mst =   DB::table("finish_inward_mst")->whereDate("date", $date)->first();
@@ -631,10 +631,16 @@ class InwardStock extends Controller
                 $finish_inward->whereColumn("a.qty", ">", "a.inward_qty");
             }
 
+            if ($department_id != "all") {
+                $finish_inward->where("b.department_id", $department_id);
+            }
+
             $finish_inward_det = $finish_inward->get();
         }
-        return view("inward-finish-goods", compact("finish_inward_det", "finish_inward_mst"));
+        $department = DB::table("department")->get();
+        return view("inward-finish-goods", compact("finish_inward_det", "finish_inward_mst", "department"));
     }
+
 
     public function SaveInwardFinishGoods(Request $request)
     {
@@ -653,9 +659,21 @@ class InwardStock extends Controller
                 $count++;
             }
         }
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
-            DB::table("finish_inward_mst")->where("date", $request->date)->update(array(
+
+            $department_id = request("department_id", "all");
+
+            $where =  DB::table("finish_inward_mst as a")
+
+                ->join("finish_inward_det as b", "a.id", "b.mst_id")
+                ->join("finish_products_mst as c", "b.product_id", "c.id")
+                ->where("date", $request->date);
+            if ($department_id != "all") {
+
+                $where->where("c.department_id", $department_id);
+            }
+            $where->update(array(
                 "status" => 1
             ));
             DB::table("order_mst")
@@ -678,6 +696,24 @@ class InwardStock extends Controller
                     ));
                 }
             }
+
+            $completeMstIds = DB::table('finish_inward_det as a')
+                ->join('finish_inward_mst as b', 'a.mst_id', '=', 'b.id')
+                ->whereDate('b.date', $request->date)
+                ->groupBy('a.mst_id')
+                ->havingRaw('SUM(CASE WHEN a.qty > a.inward_qty THEN 1 ELSE 0 END) = 0')
+                ->pluck('a.mst_id');
+
+            DB::table('finish_inward_mst')
+                ->whereIn('id', $completeMstIds)
+                ->update(['status' => 1]);
+
+            DB::table('finish_inward_mst')
+                ->whereDate('date', $request->date)
+                ->whereNotIn('id', $completeMstIds)
+                ->update(['status' => 0]);
+
+
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -843,8 +879,9 @@ class InwardStock extends Controller
     }
 
 
-    public function AddPOProduct(Request $request){
-  $validator = Validator::make($request->all(), [
+    public function AddPOProduct(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'mst_id' => 'required',
             'product_id' => 'required',
             'qty' => 'required',
@@ -889,7 +926,7 @@ class InwardStock extends Controller
 
 
             if ($exist) {
-                  return redirect()->back()->with('error', "Already Exists");
+                return redirect()->back()->with('error', "Already Exists");
             } else {
                 DB::table('po_det')->insertGetId(array(
                     "mst_id" => $request->mst_id,

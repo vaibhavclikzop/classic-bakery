@@ -47,7 +47,7 @@
                             <th>S.no</th>
 
 
-                            <th>Category</th>
+                            
              
                             <th>Product Name</th>
                   
@@ -64,7 +64,7 @@
                             <tr>
                                 <td>{{ $sno++ }}</td>
 
-                                <td>{{ $item->category }}</td>
+                       
                              
                                 <td>{{ $item->name }}</td>
                              
@@ -108,7 +108,7 @@
                                 <tr>
                                     <th>S.no</th>
                                     <th><input type="checkbox" class="product_id" id="selectall"></th>
-                                    <th>Category</th>
+                             
                                   
                                     <th>Name</th>
                              
@@ -124,7 +124,7 @@
                                         <td>{{ $sno++ }}</td>
                                         <td><input type="checkbox" class="checks" name="product_id[]"
                                                 value="{{ $item->id }}"></td>
-                                        <td>{{ $item->category }}</td>
+                             
                                
                                         <td>{{ $item->name }}</td>
                                   

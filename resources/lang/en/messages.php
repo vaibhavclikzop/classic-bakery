@@ -10,6 +10,6 @@ return [
     'terms_conditions' => 'Terms & Conditions',
     'authorized_signatory' => 'Authorized Signatory',
     'department' => 'Department',
-    'no_of_batch'=>'no. of batches',
+    'no_of_batch'=>'No. of Batches',
 
 ];

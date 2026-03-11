@@ -26,8 +26,12 @@
 
                     <div class="col-md-3">
                         <label for="">Recipe Name</label>
-                        <input type="text" name="name" id="name" class="form-control"
-                            placeholder="Enter Recipe Name">
+                        <select name="name" id="name" class="form-control" required>
+                            <option value="">Select Name</option>
+                            @foreach ($finish_products_mst as $item)
+                                <option value="{{ $item->name }}">{{ $item->name }} </option>
+                            @endforeach
+                        </select>
 
                     </div>
                     <div class="col-md-3">
@@ -125,6 +129,7 @@
 
             $("#vendor_id").select2();
             $("#product_id").select2();
+            $("#name").select2();
 
 
             $("#product_id").on("change", function() {

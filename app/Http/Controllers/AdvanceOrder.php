@@ -385,6 +385,28 @@ class AdvanceOrder extends Controller
                 return redirect()->back()->with('error', "Select at least one product");
             }
 
+            $gst_type = "";
+
+            if ($request->order_type == "customer") {
+                $city = DB::table("customer")->where("id", $request->outlet_id)->select("city")->first();
+            } else {
+                $city = DB::table("company_settings")->where("outlet_id", $request->outlet_id)->select("city")->first();
+            }
+
+            $company_setting = DB::table("company_settings")->where("id", 1)->first();
+            if ($city->city && $company_setting->city) {
+                if ($city->city == $company_setting->city) {
+                    $gst_type = "Inner GST";
+                } else {
+                    $gst_type = "Outer GST";
+                }
+            } else {
+                return redirect()->back()->with('error', "Select Outlet City");
+            }
+
+
+
+
             $mst_id = DB::table("adv_order_mst")->insertGetId(array(
                 "order_date" => $request->order_date,
                 "delivery_date" => $request->delivery_date,
@@ -411,6 +433,9 @@ class AdvanceOrder extends Controller
             } else {
                 $uploadedFilesString = "";
             }
+
+
+
 
 
 
@@ -464,6 +489,7 @@ class AdvanceOrder extends Controller
                     "customer_price" => $customer_price,
                     "outlet_price" => $outlet_price,
                     "gst" => $adv_order_item_mst->gst,
+                    "gst_type" => $gst_type,
 
                 ));
             }
@@ -810,17 +836,12 @@ class AdvanceOrder extends Controller
         }
         try {
 
-            $inv_no =   DB::table("outward_customer_order_mst")->whereDate("created_at", now())->count();
-
+            $out_inv_no =   DB::table("outward_customer_order_mst")->whereDate("created_at", now())->count();
+            $adv_inv_no =   DB::table("adv_order_mst")->whereDate("created_at", now())->where("is_invoice", 1)->count();
+            $inv_no = $out_inv_no + $adv_inv_no;
             if (!$inv_no) {
-                $inv_no =   DB::table("adv_order_mst")->whereDate("created_at", now())->count();
-                if (!$inv_no) {
-                    $inv_no = 1;
-                } else {
-                    $inv_no++;
-                }
+                $inv_no = 1;
             } else {
-
                 $inv_no++;
             }
 
