@@ -683,15 +683,7 @@ class OrderManagement extends Controller
 
         $outlet->whereDate("a.delivery_date", $date);
         $outlet->where("d.type", $type);
-
-
-
         $orders = $order->union($outlet)->orderBy("id", "desc")->get();
-
-
-
-
-
 
         $department = DB::table("department")->first();
 
@@ -1289,14 +1281,7 @@ class OrderManagement extends Controller
         $work_order_det = collect();
         $selected_order = collect();
 
-
-
-
-
-
-        if ($order_id) {
-
-
+       if ($order_id) {
 
             $work_order =    DB::table("work_order_det as a")
                 ->select("a.*", "d.name as product", "e.name as sub_category", "f.name as category")
@@ -1317,15 +1302,10 @@ class OrderManagement extends Controller
                     ->get();
             }
 
-
             // $work_order->where("a.mst_id", $work_order_mst->id);
 
             $work_order_det = $work_order->orderBy("e.name", "asc")->get();
         }
-
-
-
-
 
 
         if (request("type") == "customer") {
@@ -1343,7 +1323,6 @@ class OrderManagement extends Controller
 
     public function GetWordOrder(Request $request)
     {
-
         return     DB::table("order_mst as a")
             ->select("a.*", "b.name as order_type")
             ->join("order_type as b", "a.order_type_id", "b.id")

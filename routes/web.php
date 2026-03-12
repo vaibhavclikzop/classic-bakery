@@ -21,6 +21,7 @@ use App\Http\Controllers\StockReport;
 use App\Http\Controllers\Barcode;
 use App\Http\Controllers\expenseManagement;
 use App\Http\Controllers\posOrderController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TallyController;
 use Illuminate\Database\Console\Migrations\ResetCommand;
 use Illuminate\Support\Facades\Artisan;
@@ -499,7 +500,15 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   Route::get('debit-credit-report', [TallyController::class, 'debitCreditReport'])->name('debit-credit-report');
 
+  //report
+  Route::get('rm-consumpton-report', [ReportController::class, 'rmConsumptionReport'])->name('rm-consumption-report');
+  Route::get('getRmConsumptionReportData', [ReportController::class, 'getRmConsumptionReportData'])->name('getRmConsumptionReportData');
 
+  Route::get('sub-report-consumption', [ReportController::class, 'SubReportConsumption'])->name('sub-report-consumption');
+  Route::get('getSaleRegisterReportData', [ReportController::class, 'getSaleRegisterReportData'])->name('getSaleRegisterReportData');
+
+  Route::get('/production-chart-report', [ReportController::class, 'productionChartReport']);
+  Route::get('/productionChartReportData', [ReportController::class, 'productionChartReportData']);
   //expense management
   Route::get('expense-category', [expenseManagement::class, 'expenseCategory'])->name('expense-category');
   Route::post('saveExpenseCategory', [expenseManagement::class, 'saveExpenseCategory'])->name('saveExpenseCategory');
