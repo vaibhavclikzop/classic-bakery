@@ -1,318 +1,318 @@
 @extends('layouts.main')
 @section('main-section')
-    <div class="card">
-        <div class="card-header d-flex justify-content-between">
-            <div class="page-title">
-                <h4>Generate PO</h4>
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <div class="page-title">
+            <h4>Generate PO</h4>
 
-
-            </div>
-            <div class="">
-
-                {{-- <a href="generate-po-product" class="btn btn-dark">Generate PO Via Products</a> --}}
-
-            </div>
 
         </div>
-        <div class="card-body">
-            <div class="alert alert-danger" role="alert" style="display: none">
-                <strong id="vendor_name"> </strong>
-            </div>
+        <div class="">
 
-            <form method="POST" id="frmMain" action="{{ route('SavePO') }}">
-                @csrf
+            {{-- <a href="generate-po-product" class="btn btn-dark">Generate PO Via Products</a> --}}
 
-                <div class="row">
-                    <div class="col-md-3">
-                        <label>Vendor</label>
-                        <select name="vendor_id" id="vendor_id" class="form-control">
-                            <option value="">Select Vendor</option>
-                            @foreach ($vendor as $item)
-                                <option value="{{ $item->id }}" data-city="{{ $item->city }}">
-                                    {{ $item->company_name }} ( {{ $item->name }})
-                                </option>
-                            @endforeach
-
-                        </select>
-
-                    </div>
-                    <div class="col-md-3">
-                        <label for="">PO Name</label>
-                        <input type="text" name="name" id="name" class="form-control"
-                            placeholder="Enter PO Name">
-
-                    </div>
-                    <div class="col-md-6">
-                        <label for="">Description</label>
-                        <input type="text" name="description" id="description" class="form-control"
-                            placeholder="Enter PO Description">
-
-                    </div>
-                </div>
-                <hr>
-                <div class="row">
-                    <div class="col-md-12">
-
-                        <table class="table">
-                            <thead>
-                                <tr>
-
-                                    <th>
-                                        <label for="">Type</label> <br>
-                                        <select name="type" id="type" class="form-control">
-                                            <option value="">Select Type</option>
-                                            <option value="raw material">Raw Material</option>
-                                            <option value="finished product">Finish Product</option>
-                                        </select>
-                                    </th>
-
-                                    <th colspan="4">
-                                        <label for="">Products</label> <br>
-                                        <select name="product_id" id="product_id" class="form-control">
-                                            <option value="">Select Product</option>
-                                        </select>
-                                    </th>
-                                    <th colspan="2">
-                                        <label for="">Qty</label>
-                                        <input type="number" name="qty" id="qty" min="1" value="1"
-                                            class="form-control" placeholder="Enter Qty">
-                                    </th>
-
-                                    <th>
-                                        <label for=""> Price</label>
-                                        <input type="number" step="0.01" name="price" id="price"
-                                            class="form-control" placeholder="Enter price">
-
-                                    </th>
-
-                                    <th>
-                                        <button class="btn btn-primary mt-4" type="button" id="addProduct">Add</button>
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th>S.No</th>
-                                    <th>Type</th>
-                                    <th>Product Name</th>
-                                    <th>Qty</th>
-                                    <th>Price</th>
-                                    <th>Cess</th>
-                                    <th>GST</th>
-
-                                    <th>Total</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="prodList">
-
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th colspan="7">Total </th>
-                                    <th id="subtotal"></th>
-                                    <th></th>
-                                </tr>
-                            </tfoot>
-                        </table>
-                        <input type="hidden" name="prod_list" id="prod_list" value="">
-
-                        <div class="text-center col-md-12 mt-3">
-
-                            <button type="button" id="SavePO" name="btnSubmit" class="btn btn-warning">Submit</button>
-
-                        </div>
-
-
-                    </div>
-
-                </div>
-
-            </form>
         </div>
 
     </div>
+    <div class="card-body">
+        <div class="alert alert-danger" role="alert" style="display: none">
+            <strong id="vendor_name"> </strong>
+        </div>
 
-    <!-- Edit Product Modal -->
-    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Product</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <form method="POST" id="frmMain" action="{{ route('SavePO') }}">
+            @csrf
+
+            <div class="row">
+                <div class="col-md-3">
+                    <label>Vendor</label>
+                    <select name="vendor_id" id="vendor_id" class="form-control">
+                        <option value="">Select Vendor</option>
+                        @foreach ($vendor as $item)
+                        <option value="{{ $item->id }}" data-city="{{ $item->city }}">
+                            {{ $item->company_name }} ( {{ $item->name }})
+                        </option>
+                        @endforeach
+
+                    </select>
+
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" id="edit_product_id">
-                    <div class="mb-3">
-                        <label for="edit_qty" class="form-label">Quantity</label>
-                        <input type="number" min="1" class="form-control" id="edit_qty">
+                <div class="col-md-3">
+                    <label for="">PO Name</label>
+                    <input type="text" name="name" id="name" class="form-control"
+                        placeholder="Enter PO Name">
+
+                </div>
+                <div class="col-md-6">
+                    <label for="">Description</label>
+                    <input type="text" name="description" id="description" class="form-control"
+                        placeholder="Enter PO Description">
+
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-12">
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+
+                                <th>
+                                    <label for="">Type</label> <br>
+                                    <select name="type" id="type" class="form-control">
+                                        <option value="">Select Type</option>
+                                        <option value="raw material">Raw Material</option>
+                                        <option value="finished product">Finish Product</option>
+                                    </select>
+                                </th>
+
+                                <th colspan="4">
+                                    <label for="">Products</label> <br>
+                                    <select name="product_id" id="product_id" class="form-control">
+                                        <option value="">Select Product</option>
+                                    </select>
+                                </th>
+                                <th colspan="2">
+                                    <label for="">Qty</label>
+                                    <input type="number" name="qty" id="qty" min="1" value="1"
+                                        class="form-control" placeholder="Enter Qty">
+                                </th>
+
+                                <th>
+                                    <label for=""> Price</label>
+                                    <input type="number" step="0.01" name="price" id="price"
+                                        class="form-control" placeholder="Enter price">
+
+                                </th>
+
+                                <th>
+                                    <button class="btn btn-primary mt-4" type="button" id="addProduct">Add</button>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Type</th>
+                                <th>Product Name</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Cess</th>
+                                <th>GST</th>
+
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prodList">
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="7">Total </th>
+                                <th id="subtotal"></th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <input type="hidden" name="prod_list" id="prod_list" value="">
+
+                    <div class="text-center col-md-12 mt-3">
+
+                        <button type="button" id="SavePO" name="btnSubmit" class="btn btn-warning">Submit</button>
+
                     </div>
-                    <div class="mb-3">
-                        <label for="edit_price" class="form-label">Price</label>
-                        <input type="number" step="0.01" class="form-control" id="edit_price">
-                    </div>
+
+
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" id="updateProduct" class="btn btn-primary">Update</button>
+
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+<!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit_product_id">
+                <div class="mb-3">
+                    <label for="edit_qty" class="form-label">Quantity</label>
+                    <input type="number" min="1" class="form-control" id="edit_qty">
                 </div>
+                <div class="mb-3">
+                    <label for="edit_price" class="form-label">Price</label>
+                    <input type="number" step="0.01" min="0" class="form-control" id="edit_price">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="updateProduct" class="btn btn-primary">Update</button>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        $(document).ready(function() {
-            var product_list = [];
-            var sno = 1;
+<script>
+    $(document).ready(function() {
+        var product_list = [];
+        var sno = 1;
 
-            $("#vendor_id").select2();
-            $("#product_id").select2();
-            $("#vendor_id").on("change", function() {
-                product_list = [];
-                $("#prodList").html("")
-                $("#product_id").html("")
-                $("#type").val("")
-            })
+        $("#vendor_id").select2();
+        $("#product_id").select2();
+        $("#vendor_id").on("change", function() {
+            product_list = [];
+            $("#prodList").html("")
+            $("#product_id").html("")
+            $("#type").val("")
+        })
 
-            $("#type").on("change", function() {
+        $("#type").on("change", function() {
 
-                var vendor_id = $("#vendor_id").val();
-                var type = $(this).val();
-                var city = $(this).find(":selected").data("city")
-                var company_city = "{{ $setting->city }}";
+            var vendor_id = $("#vendor_id").val();
+            var type = $(this).val();
+            var city = $(this).find(":selected").data("city")
+            var company_city = "{{ $setting->city }}";
 
-                if (vendor_id == false) {
-                    toastr.error("Please select vendor");
-                    return;
+            if (vendor_id == false) {
+                toastr.error("Please select vendor");
+                return;
+            }
+
+            if (city == false) {
+
+                $("#vendor_name").text(
+                    "Vendor has no city selected. Please select a city before proceeding.")
+                $(".alert").show()
+                return;
+            }
+            if (company_city == false) {
+                $("#vendor_name").text(
+                    "Company has no city selected. Please select a city before proceeding. Go to setting select city and save"
+                )
+                $(".alert").show()
+                return;
+            } else {
+                $(".alert").hide()
+            }
+            $.ajax({
+                url: "/GetVendorProducts",
+                type: "POST",
+                data: {
+                    id: vendor_id,
+                    type: type,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function() {
+                    $("#loader").show();
+                },
+                success: function(result) {
+                    var html = "";
+                    html += '<option value="">----Select Products----</option>';
+                    result.forEach(element => {
+
+                        html += '<option value="' + element.id + '" data-price="' +
+                            element
+                            .price + '"   data-gst="' +
+                            element
+                            .gst + '" data-cess="' + element.cess_tax + '">' +
+                            element.name +
+                            '</option>';
+                    });
+                    $("#product_id").html(html)
+                },
+                complete: function() {
+                    $("#loader").hide();
+                },
+                error: function(result) {
+                    toastr.error(result.responseJSON.message);
                 }
-
-                if (city == false) {
-
-                    $("#vendor_name").text(
-                        "Vendor has no city selected. Please select a city before proceeding.")
-                    $(".alert").show()
-                    return;
-                }
-                if (company_city == false) {
-                    $("#vendor_name").text(
-                        "Company has no city selected. Please select a city before proceeding. Go to setting select city and save"
-                    )
-                    $(".alert").show()
-                    return;
-                } else {
-                    $(".alert").hide()
-                }
-                $.ajax({
-                    url: "/GetVendorProducts",
-                    type: "POST",
-                    data: {
-                        id: vendor_id,
-                        type: type,
-                    },
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    beforeSend: function() {
-                        $("#loader").show();
-                    },
-                    success: function(result) {
-                        var html = "";
-                        html += '<option value="">----Select Products----</option>';
-                        result.forEach(element => {
-
-                            html += '<option value="' + element.id + '" data-price="' +
-                                element
-                                .price + '"   data-gst="' +
-                                element
-                                .gst + '" data-cess="' + element.cess_tax + '">' +
-                                element.name +
-                                '</option>';
-                        });
-                        $("#product_id").html(html)
-                    },
-                    complete: function() {
-                        $("#loader").hide();
-                    },
-                    error: function(result) {
-                        toastr.error(result.responseJSON.message);
-                    }
-                });
-
-            });
-            $("#product_id").on("change", function() {
-                var product_price = $(this).find(":selected").data("price");
-
-                $.ajax({
-                    url: "/getLastPurchasePriceRM",
-                    type: "POST",
-                    data: {
-                        product_id: $(this).val(),
-                        vendor_id: $("#vendor_id").val(),
-                    },
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    beforeSend: function() {
-                        $("#loader").show();
-                    },
-                    success: function(result) {
-                        $("#product_price").val(product_price)
-                        $("#price").val(result)
-                    },
-                    complete: function() {
-                        $("#loader").hide();
-                    },
-                    error: function(result) {
-                        toastr.error(result.responseJSON.message);
-                    }
-                });
-
             });
 
+        });
+        $("#product_id").on("change", function() {
+            var product_price = $(this).find(":selected").data("price");
 
-            $("#addProduct").on("click", function() {
-                var product_id = parseInt($("#product_id").val())
-                var product_name = $("#product_id").find(":selected").text()
-                var qty = parseFloat($("#qty").val())
-                var price = parseFloat($("#price").val())
-                var gst = $("#product_id").find(":selected").data("gst")
-                var cess = $("#product_id").find(":selected").data("cess")
-                var type = $("#type").val();
-
-
-                if (!product_id || isNaN(product_id)) {
-                    toastr.error("Select a valid Product");
-                    return;
+            $.ajax({
+                url: "/getLastPurchasePriceRM",
+                type: "POST",
+                data: {
+                    product_id: $(this).val(),
+                    vendor_id: $("#vendor_id").val(),
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function() {
+                    $("#loader").show();
+                },
+                success: function(result) {
+                    $("#product_price").val(product_price)
+                    $("#price").val(parseFloat(result).toFixed(2))
+                },
+                complete: function() {
+                    $("#loader").hide();
+                },
+                error: function(result) {
+                    toastr.error(result.responseJSON.message);
                 }
+            });
 
-                if (!type) {
-                    toastr.error("Select type");
-                    return;
-                }
+        });
 
-                if (!qty || isNaN(qty) || qty <= 0) {
-                    toastr.error("Enter a valid quantity");
-                    return;
-                }
 
-                if (!price || isNaN(price) || price <= 0) {
-                    toastr.error("Enter a valid price");
-                    return;
-                }
+        $("#addProduct").on("click", function() {
+            var product_id = parseInt($("#product_id").val())
+            var product_name = $("#product_id").find(":selected").text()
+            var qty = parseFloat($("#qty").val())
+            var price = parseFloat($("#price").val())
+            var gst = $("#product_id").find(":selected").data("gst")
+            var cess = $("#product_id").find(":selected").data("cess")
+            var type = $("#type").val();
 
-                let existingProduct = product_list.find(product => product.product_id === product_id);
-                if (existingProduct) {
-                    toastr.error("Product already exists");
-                    return;
-                }
 
-                var html = `<tr class="product${product_id}">
+            if (!product_id || isNaN(product_id)) {
+                toastr.error("Select a valid Product");
+                return;
+            }
+
+            if (!type) {
+                toastr.error("Select type");
+                return;
+            }
+
+            if (!qty || isNaN(qty) || qty <= 0) {
+                toastr.error("Enter a valid quantity");
+                return;
+            }
+
+            if (!price || isNaN(price) || price <= 0) {
+                toastr.error("Enter a valid price");
+                return;
+            }
+
+            let existingProduct = product_list.find(product => product.product_id === product_id);
+            if (existingProduct) {
+                toastr.error("Product already exists");
+                return;
+            }
+
+            var html = `<tr class="product${product_id}">
                             <td>${sno++}</td>    
                             <td>${type}</td>    
                             <td>${product_name}</td>    
                             <td>${qty}</td>    
-                            <td>${price}</td>    
+                            <td>${price.toFixed(2)}</td>    
                             <td>${cess}</td>   
                             <td>${gst}</td>    
-                            <td>${ formatQtyPrice((price*qty)+price*qty/100*gst+(price*qty/100*cess))}</td>   
+                            <td>${((price*qty) + (price*qty*gst/100) + (price*qty*cess/100)).toFixed(2)}</td>
                             <td> 
 
                                 <button type="button"  class="btn btn-primary edit btn-sm"  data-id="${product_id}" data-price="${price}" data-qty="${qty}">
@@ -326,115 +326,114 @@
                             </td>    
                         </tr>`;
 
-                $("#prodList").append(html)
-                product_list.push({
-                    product_id,
-                    qty,
-                    price,
-                    gst,
-                    cess,
-                    type
-                });
-                console.log(product_list);
-                calculate_total(product_list);
-                $("#qty").val("")
-                $("#price").val("")
-                $("#product_id").val(null).trigger("change");
-
-
+            $("#prodList").append(html)
+            product_list.push({
+                product_id,
+                qty,
+                price,
+                gst,
+                cess,
+                type
             });
-
-            $(document).on("click", ".remove", function() {
-                let id = parseInt($(this).data("id"))
-
-                $(`.product${id}`).remove();
-                product_list = product_list.filter(item => item.product_id !== id);
-                calculate_total(product_list)
-
-            });
-            $("#SavePO").on("click", function() {
-                $('#prod_list').val(JSON.stringify(product_list));
-                if (!$("#vendor_id").val()) {
-                    toastr.error("Select Vendor");
-                    return;
-                }
-
-                if (!$("#name").val()) {
-                    toastr.error("Enter PO name");
-                    return;
-                }
-
-                if (product_list.length === 0) {
-                    toastr.error("Select at least one product");
-                    return;
-                }
+            console.log(product_list);
+            calculate_total(product_list);
+            $("#qty").val("")
+            $("#price").val("")
+            $("#product_id").val(null).trigger("change");
 
 
-                if ($("#password").val() == false) {
-                    toastr.error("Enter Password");
-                    return;
-                }
-                $('#frmMain').submit()
+        });
 
-            })
+        $(document).on("click", ".remove", function() {
+            let id = parseInt($(this).data("id"))
 
+            $(`.product${id}`).remove();
+            product_list = product_list.filter(item => item.product_id !== id);
+            calculate_total(product_list)
 
-            function calculate_total(product_list) {
-                let total = 0;
+        });
+        $("#SavePO").on("click", function() {
+            $('#prod_list').val(JSON.stringify(product_list));
+            if (!$("#vendor_id").val()) {
+                toastr.error("Select Vendor");
+                return;
+            }
 
-                product_list.forEach(item => {
-                    const base_total = item.qty * item.price;
-                    const gst_amount = item.gst ? (base_total * item.gst / 100) : 0;
-                    const cess_amount = item.cess ? (base_total * item.cess / 100) : 0;
-                    total += base_total + gst_amount + cess_amount;
-                });
+            if (!$("#name").val()) {
+                toastr.error("Enter PO name");
+                return;
+            }
 
-                $("#subtotal").text(total.toFixed(2));
-
-
+            if (product_list.length === 0) {
+                toastr.error("Select at least one product");
+                return;
             }
 
 
-            let currentEditId = null;
+            if ($("#password").val() == false) {
+                toastr.error("Enter Password");
+                return;
+            }
+            $('#frmMain').submit()
 
-            $(document).on("click", ".edit", function() {
-                const id = $(this).data("id");
-                const price = $(this).data("price");
-                const qty = $(this).data("qty");
+        })
 
-                currentEditId = id;
-                $("#edit_product_id").val(id);
-                $("#edit_qty").val(qty);
-                $("#edit_price").val(price);
 
-                $('#editProductModal').modal('show');
+        function calculate_total(product_list) {
+            let total = 0;
+
+            product_list.forEach(item => {
+                const base_total = item.qty * item.price;
+                const gst_amount = item.gst ? (base_total * item.gst / 100) : 0;
+                const cess_amount = item.cess ? (base_total * item.cess / 100) : 0;
+                total += base_total + gst_amount + cess_amount;
             });
 
-            $("#updateProduct").on("click", function() {
-                const id = parseInt($("#edit_product_id").val());
-                const newQty = parseFloat($("#edit_qty").val());
-                const newPrice = parseFloat($("#edit_price").val());
+            $("#subtotal").text(total.toFixed(2));
 
-                if (!newQty || newQty <= 0 || !newPrice || newPrice <= 0) {
-                    toastr.error("Enter valid quantity and price");
-                    return;
-                }
 
-                // Update the row
-                let row = $(`.product${id}`);
-                console.log(row);
-                const type = row.find("td").eq(1).text();
-                const product_name = row.find("td").eq(2).text();
-                const gst = row.find("td").eq(6).text();
-                const cess = row.find("td").eq(5).text();
-                const total = (newPrice * newQty) + ((newPrice * newQty * parseFloat(gst)) / 100);
+        }
 
-                row.html(`
+
+        let currentEditId = null;
+
+        $(document).on("click", ".edit", function() {
+            const id = $(this).data("id");
+            const price = $(this).data("price");
+            const qty = $(this).data("qty");
+
+            currentEditId = id;
+            $("#edit_product_id").val(id);
+            $("#edit_qty").val(qty);
+            $("#edit_price").val(parseFloat(price).toFixed(2));
+            $('#editProductModal').modal('show');
+        });
+
+        $("#updateProduct").on("click", function() {
+            const id = parseInt($("#edit_product_id").val());
+            const newQty = parseFloat($("#edit_qty").val());
+            const newPrice = parseFloat($("#edit_price").val());
+
+            if (!newQty || newQty <= 0 || !newPrice || newPrice <= 0) {
+                toastr.error("Enter valid quantity and price");
+                return;
+            }
+
+            // Update the row
+            let row = $(`.product${id}`);
+            console.log(row);
+            const type = row.find("td").eq(1).text();
+            const product_name = row.find("td").eq(2).text();
+            const gst = row.find("td").eq(6).text();
+            const cess = row.find("td").eq(5).text();
+            const total = (newPrice * newQty) + ((newPrice * newQty * parseFloat(gst)) / 100);
+
+            row.html(`
                     <td>${row.index() + 1}</td>
                      <td>${type}</td>    
                     <td>${product_name}</td>
                     <td>${newQty}</td>
-                    <td>${newPrice}</td>
+                    <td>${newPrice.toFixed(2)}</td>
                     <td>${cess}</td>
                     <td>${gst}</td>
                     <td>${total.toFixed(2)}</td>
@@ -448,42 +447,42 @@
                     </td>
                 `);
 
-                // Update in the array
-                product_list = product_list.map(item => {
-                    if (item.product_id === id) {
-                        return {
-                            ...item,
-                            qty: newQty,
-                            price: newPrice
-                        };
-                    }
-                    return item;
-                });
-
-                calculate_total(product_list);
-                $('#editProductModal').modal('hide');
-            });
-            $(window).on("pageshow", function(event) {
-                if (event.originalEvent.persisted) {
-                    // Browser back button used
-                    $("#frmMain")[0].reset();
-                    product_list = [];
-                    $("#prodList").html("");
-                    $("#subtotal").text("");
-                    $("#prodList").val("");
-                    $("#po_id").val("")
+            // Update in the array
+            product_list = product_list.map(item => {
+                if (item.product_id === id) {
+                    return {
+                        ...item,
+                        qty: newQty,
+                        price: newPrice
+                    };
                 }
+                return item;
             });
-        });
 
-        $(document).ready(function() {
-            // Bind keydown event on all relevant inputs
-            $('#product_id, #qty, #price').on('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    $('#addProduct').click();
-                }
-            });
+            calculate_total(product_list);
+            $('#editProductModal').modal('hide');
         });
-    </script>
+        $(window).on("pageshow", function(event) {
+            if (event.originalEvent.persisted) {
+                // Browser back button used
+                $("#frmMain")[0].reset();
+                product_list = [];
+                $("#prodList").html("");
+                $("#subtotal").text("");
+                $("#prodList").val("");
+                $("#po_id").val("")
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        // Bind keydown event on all relevant inputs
+        $('#product_id, #qty, #price').on('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                $('#addProduct').click();
+            }
+        });
+    });
+</script>
 @endsection

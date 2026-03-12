@@ -93,7 +93,7 @@
         "autoWidth": false,
         "ordering": true,
         "buttons": ["excel", 'csv'],
-        "pageLength": 10,
+        "pageLength": -1,
         "lengthMenu": [
             [10, 25, 50, -1],
             [10, 25, 50, "All"]
@@ -107,7 +107,7 @@
         "autoWidth": false,
         "ordering": true,
         "buttons": ["excel", 'csv'],
-        "pageLength": 10,
+        "pageLength": -1,
         "lengthMenu": [
             [10, 25, 50, -1],
             [10, 25, 50, "All"]

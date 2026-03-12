@@ -110,7 +110,8 @@ class OutwardStock extends Controller
             return redirect()->back()->with('error', $th->getMessage());
         }
 
-        return  redirect()->back()->with("success", "Save Successfully");
+        return redirect('/outward-challan-view/' . $mst_id)
+            ->with("success", "Save Successfully");
     }
 
     public function OutwardOrderList(Request $request)
@@ -285,10 +286,10 @@ class OutwardStock extends Controller
 
 
 
-            
+
 
             $out_inv_no =   DB::table("outward_customer_order_mst")->whereDate("created_at", now())->count();
-            $adv_inv_no =   DB::table("adv_order_mst")->whereDate("created_at", now())->where("is_invoice",1)->count();
+            $adv_inv_no =   DB::table("adv_order_mst")->whereDate("created_at", now())->where("is_invoice", 1)->count();
             $inv_no = $out_inv_no + $adv_inv_no;
             if (!$inv_no) {
                 $inv_no = 1;
