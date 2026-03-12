@@ -320,7 +320,7 @@ ROUND(SUM(IF(b.gst_type = 'Inner GST', ((b.outlet_price) - (b.outlet_price / (1 
     {
 
 
-        $date = request("date");
+        $date = request("date",date("Y-m-d"));
 
 
 
