@@ -13,7 +13,7 @@ class Reports extends Controller
 {
     public function PurchaseVariationReport(Request $request)
     {
-    $fromDt = $request->input('fromDt', date('Y-m-d')); 
+        $fromDt = $request->input('fromDt', date('Y-m-d'));
 
         // Step 1️⃣: Base query
         $query = DB::table("stock_inward_mst as a")
@@ -320,7 +320,7 @@ ROUND(SUM(IF(b.gst_type = 'Inner GST', ((b.outlet_price) - (b.outlet_price / (1 
     {
 
 
-        $date = request("date",date("Y-m-d"));
+        $date = request("date", date("Y-m-d"));
 
 
 
