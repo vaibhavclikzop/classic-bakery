@@ -96,7 +96,7 @@
 
         $.ajax({
 
-            url: "/getSaleRegisterReportData",
+            url: "/SaleRegisterReport",
 
             type: "GET",
 

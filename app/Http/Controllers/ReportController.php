@@ -66,7 +66,7 @@ class ReportController extends Controller
     {
         return view("report.sub-report-consumption");
     }
-    public function getSaleRegisterReportData(Request $request)
+    public function SaleRegisterReport(Request $request)
     {
 
         $fromDt = $request->fromDt;
@@ -119,6 +119,9 @@ class ReportController extends Controller
 
         return response()->json(['data' => $data]);
     }
+
+
+
     public function productionChartReport()
     {
         $category = DB::table("f_product_category")->get();

@@ -505,7 +505,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('getRmConsumptionReportData', [ReportController::class, 'getRmConsumptionReportData'])->name('getRmConsumptionReportData');
 
   Route::get('sub-report-consumption', [ReportController::class, 'SubReportConsumption'])->name('sub-report-consumption');
-  // Route::get('getSaleRegisterReportData', [ReportController::class, 'getSaleRegisterReportData'])->name('getSaleRegisterReportData');
+  Route::get('SaleRegisterReport', [ReportController::class, 'SaleRegisterReport'])->name('SaleRegisterReport');
 
   Route::get('/production-chart-report', [ReportController::class, 'productionChartReport']);
   Route::get('/productionChartReportData', [ReportController::class, 'productionChartReportData']);
