@@ -139,14 +139,16 @@
                                 parseFloat(item.sgst) + parseFloat(item.cess_amt);
                             const dc = parseFloat(item.total_mrp);
 
-                            subtotal += parseFloat(item.sub_total-item.igst-item.cgst-item.sgst);
+                            subtotal += parseFloat(item.sub_total - item.igst - item.cgst - item
+                                .sgst);
                             tax += parseFloat(itemTax);
                             cess += parseFloat(item.cess_amt);
                             cgst += parseFloat(item.cgst);
                             sgst += parseFloat(item.sgst);
                             igst += parseFloat(item.igst);
                             dc_total += dc;
-                            total = parseFloat(item.sub_total-item.igst-item.cgst-item.sgst) + parseFloat(itemTax);
+                            total = parseFloat(item.sub_total - item.igst - item.cgst - item
+                                .sgst) + parseFloat(itemTax);
 
                             grand_total += total;
 
@@ -171,7 +173,7 @@
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.igst)}</td>
                 <td style="border: solid 1px; padding:5px">${parseFloat(total).toFixed(2)}</td>
              
-            </tr>`;
+                </tr>`;
                         });
 
                         // Shop Total Row
