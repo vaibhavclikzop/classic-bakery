@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Spatie\FlareClient\View;
 
 class ReportController extends Controller
 {
@@ -166,5 +167,62 @@ class ReportController extends Controller
         return response()->json([
             'data' => $data
         ]);
+    }
+
+    public function FaStockUploadReport()
+    {
+        return view("report.fa-stock-upload-report");
+    }
+
+    public function getFaStockReportData(Request $request)
+    {
+        $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
+        $toDt   = $request->input("toDt") ?: Carbon::now()->toDateString();
+
+        $page = $request->page ?? 1;
+        $limit = 100;
+        $offset = ($page - 1) * $limit;
+
+        $data = DB::select("
+        SELECT 
+            a.id AS upload_code,
+            a.date AS upload_date,
+
+            c.name AS category_name,
+            sc.name AS sub_category_name,
+
+            p.name AS item_name,
+            u.name AS uom,
+
+            b.inward_qty AS qty
+
+        FROM finish_inward_mst a
+
+        JOIN finish_inward_det b 
+            ON a.id = b.mst_id
+
+        LEFT JOIN products p 
+            ON b.product_id = p.id
+
+        LEFT JOIN category c 
+            ON p.category_id = c.id
+
+        LEFT JOIN sub_category sc 
+            ON p.sub_category_id = sc.id
+
+        LEFT JOIN unit_type u 
+            ON p.uom = u.id
+
+        WHERE a.date BETWEEN ? AND ?
+
+        ORDER BY a.date DESC
+
+        LIMIT ? OFFSET ?
+    ", [$fromDt, $toDt, $limit, $offset]);
+
+        return response()->json(['data' => $data]);
+    }
+    public function manualOrderReport(){
+        return view('report.manual-order-report');
     }
 }

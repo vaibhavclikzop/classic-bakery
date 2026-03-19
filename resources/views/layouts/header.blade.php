@@ -764,7 +764,10 @@
                                              Report Consumption </a></li>
                                      <li><a href="/production-chart-report"
                                              class="{{ Request::is('production-chart-report') ? 'active' : '' }}">
-                                           Production Chart Report  </a></li>
+                                             Production Chart Report </a></li>
+                                     <li><a href="/fa-stock-upload-report"
+                                             class="{{ Request::is('fa-stock-upload-report') ? 'active' : '' }}">
+                                           FaStock Upload Report </a></li>
                                  </ul>
                              </li>
                              @endif

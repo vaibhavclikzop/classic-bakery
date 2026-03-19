@@ -521,4 +521,9 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   Route::get('pos-order', [posOrderController::class, 'posOrder'])->name('pos-order');
   Route::get('pos-order-view/{id}', [posOrderController::class, 'posOrderView'])->name('pos-order-view');
+
+  Route::get('fa-stock-upload-report', [ReportController::class, 'FaStockUploadReport'])->name('fa-stock-upload-report');
+  Route::get('getFaStockReportData', [ReportController::class, 'getFaStockReportData'])->name('getFaStockReportData');
+    Route::get('manual-order-report', [ReportController::class, 'manualOrderReport'])->name('manualOrderReport');
+
 });
