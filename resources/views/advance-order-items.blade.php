@@ -83,10 +83,8 @@
 
                         <div class="col-md-6 d-none">
                             <label for="">Category</label>
-                            <select name="category_id" id="category_id" class="form-control" required>
-                                <option value="1" selected>Select</option>
-                               
-                            </select>
+                            <input name="category_id" id="category_id" class="form-control" value="1" >
+                             
 
                         </div>
                         <div class="col-md-6">

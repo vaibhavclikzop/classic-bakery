@@ -498,12 +498,14 @@ class OrderManagement extends Controller
                 } else {
                     // $v->department_id=1;
                     // $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id->id, "delivery_date" => "2025-01-07");
+                    
 
                     if (empty($department_id)) {
                         $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id->id, "delivery_date" => $order_mst->delivery_date);
                     }
 
                     if (!empty($department_id)) {
+                  
                         $find_value = 0;
                         $mst_id = 0;
 
