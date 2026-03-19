@@ -454,9 +454,12 @@ class OrderManagement extends Controller
             }
             $company_setting = DB::table("company_settings")->where("id", 1)->increment("order_no");
             $this->generateWordOrder($mst_id);
+
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
+
+
             return  redirect()->back()->with("error", $th->getMessage());
         }
 
@@ -467,75 +470,82 @@ class OrderManagement extends Controller
 
     public function generateWordOrder($id)
     {
-        $department_id = [];
-        $order_mst =  DB::table("order_mst")->where("id", $id)->first();
+        DB::beginTransaction();
+        try {
+
+            $department_id = [];
+            $order_mst =  DB::table("order_mst")->where("id", $id)->first();
 
 
-        $order_det =  DB::table("order_det as a")
-            ->select("a.*", "b.department_id")
-            ->join("finish_products_mst as b", "a.product_id", "b.id")
-            ->where("b.f_category_id", 1)
-            ->where("a.mst_id", $id)->get();
+            $order_det =  DB::table("order_det as a")
+                ->select("a.*", "b.department_id")
+                ->join("finish_products_mst as b", "a.product_id", "b.id")
+                ->where("b.f_category_id", 1)
+                ->where("a.mst_id", $id)->get();
 
-        foreach ($order_det as $k => $v) {
+            foreach ($order_det as $k => $v) {
 
-            if ($v->qty - $v->booked_qty > 0) {
+                if ($v->qty - $v->booked_qty > 0) {
 
 
-                $mst_id =  DB::table("work_order_mst")->where("department_id", $v->department_id)->whereDate("delivery_date", $order_mst->delivery_date)->first();
-                if (!$mst_id) {
-                    $mst_id =   DB::table("work_order_mst")->insertGetId(array(
-                        "department_id" => $v->department_id,
-                        "delivery_date" => $order_mst->delivery_date,
-                    ));
-                    DB::table("work_order_det")->insertGetId(array(
-                        "mst_id" => $mst_id,
-                        "product_id" => $v->product_id,
-                        "order_id" => $v->mst_id,
-                        "qty" => $v->qty - $v->booked_qty,
-                    ));
-                    $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id, "delivery_date" => $order_mst->delivery_date);
-                } else {
-                    // $v->department_id=1;
-                    // $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id->id, "delivery_date" => "2025-01-07");
-                    
+                    $mst_id =  DB::table("work_order_mst")->where("department_id", $v->department_id)->whereDate("delivery_date", $order_mst->delivery_date)->first();
+                    if (!$mst_id) {
+                        $mst_id =   DB::table("work_order_mst")->insertGetId(array(
+                            "department_id" => $v->department_id,
+                            "delivery_date" => $order_mst->delivery_date,
+                        ));
+                        DB::table("work_order_det")->insertGetId(array(
+                            "mst_id" => $mst_id,
+                            "product_id" => $v->product_id,
+                            "order_id" => $v->mst_id,
+                            "qty" => $v->qty - $v->booked_qty,
+                        ));
+                        $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id, "delivery_date" => $order_mst->delivery_date);
+                    } else {
+                        // $v->department_id=1;
+                        // $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id->id, "delivery_date" => "2025-01-07");
 
-                    if (empty($department_id)) {
-                        $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id->id, "delivery_date" => $order_mst->delivery_date);
-                    }
 
-                    if (!empty($department_id)) {
-                  
-                        $find_value = 0;
-                        $mst_id = 0;
-
-                        foreach ($department_id as $i) {
-
-                            if ($i['department_id'] == $v->department_id && $i['delivery_date'] == $order_mst->delivery_date) {
-                                $find_value = 1;
-                                $mst_id = $i['mst_id'];
-                                break;
-                            }
+                        if (empty($department_id)) {
+                            $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id->id, "delivery_date" => $order_mst->delivery_date);
                         }
-                        if ($find_value == 1) {
-                            DB::table("work_order_det")->insertGetId(array(
-                                "mst_id" => $mst_id,
-                                "product_id" => $v->product_id,
-                                "order_id" => $v->mst_id,
-                                "qty" => $v->qty - $v->booked_qty,
-                            ));
+
+                        if (!empty($department_id)) {
+
+
+                            $find_value = 0;
+                            $mst_id = 0;
+
+                            foreach ($department_id as $i) {
+
+                                if ($i['department_id'] == $v->department_id && $i['delivery_date'] == $order_mst->delivery_date) {
+                                    $find_value = 1;
+                                    $mst_id = $i['mst_id'];
+                                    break;
+                                }
+                            }
+                            if ($find_value == 1) {
+
+                                $wodt = DB::table("work_order_det")->insertGetId(array(
+                                    "mst_id" => $mst_id,
+                                    "product_id" => $v->product_id,
+                                    "order_id" => $v->mst_id,
+                                    "qty" => $v->qty - $v->booked_qty,
+                                ));
+                            }
                         }
                     }
                 }
             }
+            DB::table("order_mst")->where("id", $id)->update(array(
+                "status" => "processing",
+            ));
+            DB::commit();
+            return  true;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            echo $th->getMessage();
         }
-        DB::table("order_mst")->where("id", $id)->update(array(
-            "status" => "processing",
-        ));
-
-
-
-        return  true;
     }
 
     public function GeneratePOProduct(Request $request, $id = 0)
@@ -1283,7 +1293,7 @@ class OrderManagement extends Controller
         $work_order_det = collect();
         $selected_order = collect();
 
-       if ($order_id) {
+        if ($order_id) {
 
             $work_order =    DB::table("work_order_det as a")
                 ->select("a.*", "d.name as product", "e.name as sub_category", "f.name as category")

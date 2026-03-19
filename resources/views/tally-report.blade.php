@@ -152,7 +152,7 @@
                             <td>{{ $row->gst }}</td>
                             <td></td>
                             <td></td>
-                            <td>-{{ number_format($row->sub_total, 2) }}</td>
+                            <td>-{{ number_format($row->sub_total-$row->cgst- $row->sgst-$row->igst   , 2) }}</td>
                             <td></td>
                             <td></td>
                         </tr>
