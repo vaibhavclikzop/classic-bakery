@@ -1196,6 +1196,7 @@ class OrderManagement extends Controller
             ->leftJoin("finish_product_stock as c", "b.id", "c.product_id")
             ->join("f_product_sub_category as e", "b.f_sub_category_id", "e.id")
             ->where("a.customer_type_id", $customers->customer_type_id)
+            ->where('active',1)
             ->whereIn("e.id", explode(', ', $order_type->f_sub_category_id))
             ->orderBy("b.name", "asc")
             ->get();

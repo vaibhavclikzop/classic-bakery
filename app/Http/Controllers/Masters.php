@@ -1848,7 +1848,7 @@ class Masters extends Controller
 
             'name' => 'required',
             'category_id' => 'required',
-            'hsn_code' => 'required|digits:4',
+            'hsn_code' => 'required|regex:/^[0-9]{4,}$/',
 
         ]);
 
@@ -1900,10 +1900,9 @@ class Masters extends Controller
                     "min_stock" => $request->minimum_stock,
                     "uom" => $request->uom,
                     "gst" => $request->gst,
-
-
                     "active" => $request->active,
                     "bar_code" => $barcode,
+                    "warranty_days" => $request->warranty_days,
 
                     "image" => $file,
                     "cess_tax" => $request->cess_tax,
@@ -1921,10 +1920,8 @@ class Masters extends Controller
                     "price" => $request->price,
                     "min_stock" => $request->minimum_stock,
                     "uom" => $request->uom,
-
-
+                    "warranty_days" => $request->warranty_days,
                     "active" => $request->active,
-
                     "image" => $file,
                     "cess_tax" => $request->cess_tax,
                     "hsn_code" => $request->hsn_code,

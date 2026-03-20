@@ -266,10 +266,16 @@
 
                             <div class="col-md-3 mt-4 ">
                                 <label for="">HSN Code</label>
-                                <input type="" step="0.01" id="hsn_code" name="hsn_code"
-                                    class="form-control" placeholder="Enter HSN Code"
-                                    onkeydown="if(this.value.length==4) return false" required>
-
+                               <input 
+                                    type="text" 
+                                    name="hsn_code"
+                                    class="form-control"
+                                    placeholder="Enter HSN Code"
+                                    pattern="[0-9]{4,}"
+                                    title="Enter at least 4 digits"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                    required>
+                                
                             </div>
 
                             <div class="col-md-3 mt-4 ">
