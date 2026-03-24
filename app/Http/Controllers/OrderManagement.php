@@ -760,7 +760,7 @@ class OrderManagement extends Controller
         $order_mst = $customer_order ?? $outlet_order;
 
         $order_det = DB::table("order_det as a")
-            ->select("a.*", "b.name as product", "c.name as sub_category")
+            ->select("a.*", "b.name as product","b.hsn_code as hsn","b.article_no as article_no", "c.name as sub_category")
             ->join("finish_products_mst as b", "a.product_id", "b.id")
             ->join("f_product_sub_category as c", "b.f_sub_category_id", "c.id")
             ->where("a.mst_id", $id)
