@@ -1307,17 +1307,22 @@ class OrderManagement extends Controller
                 ->join("finish_products_mst as d", "a.product_id", "d.id")
                 ->join("f_product_sub_category as e", "d.f_sub_category_id", "e.id")
                 ->join("f_product_category as f", "d.f_category_id", "f.id");
-            if ($request->order_id) {
-                $work_order->whereIn("b.id", $request->order_id);
-                $selected_order = DB::table("work_order_det as a")
-                    ->select("b.id", "b.order_id")
-                    ->join("order_mst as b", "a.order_id", "b.id")
+           if ($request->order_id) {
 
-                    ->whereIn("b.id", $request->order_id)
-                    ->groupBy("b.id", "b.order_id")
+    $work_order->whereIn("b.id", $request->order_id);
 
-                    ->get();
-            }
+    $selected_order = DB::table("work_order_det as a")
+        ->select(
+            "b.id",
+            "b.order_id",
+            "c.name as order_type_name"
+        )
+        ->join("order_mst as b", "a.order_id", "b.id")
+        ->join("order_type as c", "b.order_type_id", "c.id")
+        ->whereIn("b.id", $request->order_id)
+        ->groupBy("b.id", "b.order_id", "c.name")
+        ->get();
+}
 
             // $work_order->where("a.mst_id", $work_order_mst->id);
 
@@ -1328,8 +1333,9 @@ class OrderManagement extends Controller
         if (request("type") == "customer") {
             $customer_details = DB::table("customers")->where("id", $customer_id)->first();
         } else {
-            $customer_details = DB::table("outlet")->select("outlet_name as name", "number as email")->where("id", $customer_id)->first();
+            $customer_details = DB::table("outlet")->select("outlet_name as name", "number as number", "address as address")->where("id", $customer_id)->first();
         }
+        // dd($customer_details);
 
         $f_product_sub_category =  DB::table("f_product_sub_category")->get();
 
