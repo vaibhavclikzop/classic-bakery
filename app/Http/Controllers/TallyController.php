@@ -173,9 +173,9 @@ class TallyController extends Controller
             ->get();
 
 
-        // echo "<pre>";
-        // print_r($rawMaterial);
-        // die;
+        echo "<pre>";
+        print_r($rawMaterial);
+        die;
         $data = array_merge($data, $rawMaterial->toArray());
         return view("tally-report", compact("data"));
     }

@@ -485,11 +485,13 @@ class OrderManagement extends Controller
 
             foreach ($order_det as $k => $v) {
 
-                if ($v->qty - $v->booked_qty > 0) {
+         if ($v->qty - $v->booked_qty > 0) {
+
 
 
                     $mst_id =  DB::table("work_order_mst")->where("department_id", $v->department_id)->whereDate("delivery_date", $order_mst->delivery_date)->first();
                     if (!$mst_id) {
+
                         $mst_id =   DB::table("work_order_mst")->insertGetId(array(
                             "department_id" => $v->department_id,
                             "delivery_date" => $order_mst->delivery_date,
@@ -504,19 +506,21 @@ class OrderManagement extends Controller
                     } else {
                         // $v->department_id=1;
                         // $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id->id, "delivery_date" => "2025-01-07");
-
-
+                        $exists = in_array($v->department_id, array_column($department_id, 'department_id'));
+                        if (!$exists) {
+                            $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id->id, "delivery_date" => $order_mst->delivery_date);
+                        }
                         if (empty($department_id)) {
                             $department_id[] = array("department_id" => $v->department_id, "mst_id" => $mst_id->id, "delivery_date" => $order_mst->delivery_date);
                         }
 
                         if (!empty($department_id)) {
 
-
                             $find_value = 0;
                             $mst_id = 0;
 
                             foreach ($department_id as $i) {
+
 
                                 if ($i['department_id'] == $v->department_id && $i['delivery_date'] == $order_mst->delivery_date) {
                                     $find_value = 1;
@@ -526,7 +530,7 @@ class OrderManagement extends Controller
                             }
                             if ($find_value == 1) {
 
-                                $wodt = DB::table("work_order_det")->insertGetId(array(
+                                DB::table("work_order_det")->insertGetId(array(
                                     "mst_id" => $mst_id,
                                     "product_id" => $v->product_id,
                                     "order_id" => $v->mst_id,
@@ -1196,7 +1200,7 @@ class OrderManagement extends Controller
             ->leftJoin("finish_product_stock as c", "b.id", "c.product_id")
             ->join("f_product_sub_category as e", "b.f_sub_category_id", "e.id")
             ->where("a.customer_type_id", $customers->customer_type_id)
-            ->where('active',1)
+            ->where('active', 1)
             ->whereIn("e.id", explode(', ', $order_type->f_sub_category_id))
             ->orderBy("b.name", "asc")
             ->get();

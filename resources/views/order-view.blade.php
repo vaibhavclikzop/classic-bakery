@@ -1,8 +1,16 @@
 @extends('layouts.main')
 @section('main-section')
     @push('title')
-        <title>Order View</title>
+        <title>
+            Order View</title>
     @endpush
+    <style>
+        tr,
+        td {
+            border: solid 1px;
+            padding: 5px;
+        }
+    </style>
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
@@ -18,133 +26,140 @@
             </div>
         </div>
         <div class="card-body" id="PrintOrder">
-            <div class="text-center">
-                 @if($order_mst->status !='pending')
-                <img src="/logo/{{ $setting->img }}" width="180px">
-                 @else
-                  <h3> Order Challan</h3>  
+            {{-- <div class="text-center">
+                @if ($order_mst->status != 'pending')
+                    <img src="/logo/{{ $setting->img }}" width="180px">
+                @else
+                    <h3> Order Challan</h3>
                 @endif
-            </div>
+            </div> --}}
 
-            <div style="display: flex; justify-content: space-between; border: solid 1px; padding: 8px;">
-               <div> 
-                @if($order_mst->status !='pending')
-                
-                    <h3>{{ $setting->company_name }}</h3>
-                    <p>{!! $setting->address !!}
+            <table style="width: 100%; font-size: 11px; color: black; font-weight: bold">
+                <tr>
+                    <th style="border: solid 1px;padding: 5px; text-align: center" colspan="4">Manual Order</th>
+                </tr>
+                <tr>
+                    <td style="border: solid 1px;padding: 5px;" style="border: solid 1px;padding: 5px;">Classic Bakery</td>
+                    <td style="border: solid 1px;padding: 5px;">MO NO : MO-0326-14579</td>
+                    <td style="border: solid 1px;padding: 5px;" colspan="2">Date : {{ $order_mst->delivery_date }} </td>
+                </tr>
+                <tr>
+                    <td style="border: solid 1px;padding: 5px;">{!! $setting->address !!}</td>
+                    <td style="border: solid 1px;padding: 5px;">Order ID : {{ $order_mst->order_id }}</td>
+                    <td style="border: solid 1px;padding: 5px;" colspan="2"> Order Date : {{ $order_mst->delivery_date }}</td>
+                </tr>
+                <tr>
+                    <td style="border: solid 1px;padding: 5px;">SO No. </td>
+                    <td style="border: solid 1px;padding: 5px;">SO Date.</td>
+                    <td style="border: solid 1px;padding: 5px;" colspan="2">FSSAI License NO :</td>
+                </tr>
+                <tr>
+                    <td style="border: solid 1px;padding: 5px;"> GST : {{ $setting->gst_no }}</td>
+                    <td style="border: solid 1px;padding: 5px;">PAN : </td>
+                    <td style="border: solid 1px;padding: 5px;">State : CHANDIGARH</td>
+                    <td style="border: solid 1px;padding: 5px;">State Code : 04</td>
+                </tr>
+                <tr>
+                    <td style="border: solid 1px;padding: 5px;">Party Name : {{ $order_mst->customer_name }}
                         <br>
-                        E-Mail : {{ $setting->email }} <br>
-                        Phone : {{ $setting->number }} <br>
-                        GST : {{ $setting->gst_no }}
-                        Delivery Date : {{ $setting->gst_no }} <br>
-                        Description : {{ $order_mst->description }}
+                        Address : {{ $order_mst->address }}<br>
+                        @if ($order_mst && isset($order_mst->city))
+                            {{ $order_mst->city }}, {{ $order_mst->state }}, {{ $order_mst->pincode }}<br>
+                        @endif
+                    </td>
+                    <td style="border: solid 1px;padding: 5px;" colspan="3">
 
-                    </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border: solid 1px;padding: 5px;">GSTIN : {{ $order_mst->gst }}</td>
+                    <td style="border: solid 1px;padding: 5px;">CIN. </td>
+                    <td style="border: solid 1px;padding: 5px;" colspan="2">Other References </td>
+                </tr>
+                <tr>
+                    <td style="border: solid 1px;padding: 5px;">FSSAI NO.</td>
+                    <td style="border: solid 1px;padding: 5px;" colspan="3">State @if ($order_mst && isset($order_mst->city))
+                            {{ $order_mst->state }}
+                        @endif
+                    </td>
+                </tr>
+            </table>
 
 
-               
-                @endif
-             </div>
-                <div>
-                    <div style="text-align: right;">
-                        <h6>Order ID : {{ $order_mst->order_id }}</h6>
-                        <h4>{{ $order_mst->customer_name }}</h4>
-                        <p>
-                            {{ $order_mst->address }}<br>
-                            @if ($order_mst && isset($order_mst->city))
-                                {{ $order_mst->city }}, {{ $order_mst->state }}, {{ $order_mst->pincode }}<br>
-                            @endif
-
-                            {{ $order_mst->email }}<br>
-                            {{ $order_mst->number }}<br>
-                            {{ $order_mst->gst }}<br>
-                            {{ $order_mst->delivery_date }}
-
-                        </p>
-
-                    </div>
-                </div>
-            </div>
             <div class="">
-                <hr>
-                <h6>Products</h6>
+
+
                 @php
                     $sno = 1;
                 @endphp
-                <table class="table">
+                <table class="" style="width: 100%;font-size: 11px; color: black; font-weight: bold">
                     <thead>
-                        <th>S.No</th>
-                         @if($order_mst->status !='pending')
-                        <th>Sub Category</th>
+                        <th style="border: solid 1px;padding: 5px;">S.No</th>
+                        @if ($order_mst->status != 'pending')
+                            <th style="border: solid 1px;padding: 5px;">Sub Category</th>
                         @endif
-                        <th>Product</th>
-                       
-                        <th>Order Qty</th>
-                         @if($order_mst->status !='pending')
-                        <th>Outward Qty</th>
-                        <th>Pending Qty</th>
+                        <th style="border: solid 1px;padding: 5px;">Product</th>
+
+                        <th style="border: solid 1px;padding: 5px;">Order Qty</th>
+                        @if ($order_mst->status != 'pending')
+                            <th style="border: solid 1px;padding: 5px;">Outward Qty</th>
+                            <th style="border: solid 1px;padding: 5px;">Pending Qty</th>
                         @endif
-                        <th>Price</th>
-                        <th>Total</th>
+                        <th style="border: solid 1px;padding: 5px;">Price</th>
+                        <th style="border: solid 1px;padding: 5px;">Total</th>
                     </thead>
                     <tbody>
                         @php
-                            $sub_total=0;
+                            $sub_total = 0;
                         @endphp
                         @foreach ($order_det as $item)
-                        @php
-                            $sub_total += $item->price * $item->qty;
-                        @endphp
+                            @php
+                                $sub_total += $item->price * $item->qty;
+                            @endphp
                             <tr>
-                                <td>{{ $sno++ }}</td>
-                                 @if($order_mst->status !='pending')
-                                <td>{{ $item->sub_category }}</td>
+                                <td style="border: solid 1px;padding: 5px;">{{ $sno++ }}</td>
+                                @if ($order_mst->status != 'pending')
+                                    <td style="border: solid 1px;padding: 5px;">{{ $item->sub_category }}</td>
                                 @endif
-                                <td>{{ $item->product }}</td>
-                                <td>{{ formatQtyPrice($item->qty) }}</td>
-                                 @if($order_mst->status !='pending')
-                                <td>{{ formatQtyPrice($item->booked_qty) }}</td>
-                                <td>{{ $item->qty - $item->booked_qty }}</td>
+                                <td style="border: solid 1px;padding: 5px;">{{ $item->product }}</td>
+                                <td style="border: solid 1px;padding: 5px;">{{ formatQtyPrice($item->qty) }}</td>
+                                @if ($order_mst->status != 'pending')
+                                    <td style="border: solid 1px;padding: 5px;">{{ formatQtyPrice($item->booked_qty) }}</td>
+                                    <td style="border: solid 1px;padding: 5px;">{{ $item->qty - $item->booked_qty }}</td>
                                 @endif
-                                <td>{{ formatQtyPrice($item->price) }}</td>
-                                <td>{{ formatQtyPrice($item->price * $item->qty) }}</td>
+                                <td style="border: solid 1px;padding: 5px;">{{ formatQtyPrice($item->price) }}</td>
+                                <td style="border: solid 1px;padding: 5px;">{{ formatQtyPrice($item->price * $item->qty) }}</td>
                             </tr>
                         @endforeach
 
 
-                    </tbody>
-                    <tfoot>
+                  
+               
                         <tr>
-                             @php
-                             $colspan = '6';
-                             @endphp
-                             @if($order_mst->status =='pending')
-                             @php
-                              $colspan = '3';
-                              @endphp
-                             @endif
-                            <th colspan={{$colspan}}></th>
-                            <th >Sub Total</th>
-                            <th>{{$sub_total}}</th>
+                            @php
+                                $colspan = '6';
+                            @endphp
+                            @if ($order_mst->status == 'pending')
+                                @php
+                                    $colspan = '3';
+                                @endphp
+                            @endif
+                            <th style="border: solid 1px;padding: 5px;" colspan={{ $colspan }}></th>
+                            <th style="border: solid 1px;padding: 5px;">Sub Total</th>
+                            <th style="border: solid 1px;padding: 5px;">{{ $sub_total }}</th>
                         </tr>
-                    </tfoot>
+             </tbody>
 
                 </table>
             </div>
             <div class="d-flex mt-4 justify-content-between">
-                <div>
-                    <p><b><u><i>Terms & Conditions</i></u></b></p>
-                    <ol style="list-style:number;">
+                Declaration : <br>
+                We Declare that this invoice shows the actual price of the goods described and that all particulars are true
+                and correct.
 
-
-                    </ol>
-                </div>
-                <div>
-                    <h6 class="float-end">For {{ $setting->company_name }}</h6>
-
-                    <p class="mt-5">Authorized Signatory</p>
-                </div>
-
+            </div>
+            <div style="text-align: center; margin-top: 10px">
+                This is computer generated print and does not require signature
             </div>
 
 

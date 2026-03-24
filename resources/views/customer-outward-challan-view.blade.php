@@ -33,7 +33,7 @@
         </div>
         <div class="card-body" id="PrintOrder">
             <div class="text-center">
-                <img src="/logo/{{ $setting->img }}" width="180px">
+                <img src="/logo/{{ $setting->img }}" width="45px">
             </div>
 
             <div style="display: flex; justify-content: space-between; border: solid 1px; padding: 8px;">

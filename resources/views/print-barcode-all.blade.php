@@ -29,7 +29,7 @@
             </div>
 
         </div>
-        <div class="card-body" id="PrintOrder">
+        <div class="card-body" id="PrintOrder" style="color: black">
 
 
             @foreach ($data as $product)
@@ -42,13 +42,14 @@
                         <p style="margin:0; font-weight:bold;">
                             {{ $product['name'] }}
                         </p>
-                        <p style="margin:0;">
+                       <p style="margin:0; color: black; font-weight: 900">
                             MRP : {{ $product['price'] ?? '' }} 
                         </p>
-                        <p style="margin:0;">
-                            Date Used By : {{ $product['expiry'] }} 
+                          <p style="margin:0; color: black; font-weight: 900">
+                       Date Used By : {{ date("d-m-Y", strtotime($product['expiry'])) }}
+
                         </p>
-                        <p style="margin:0;">
+                          <p style="margin:0; color: black; font-weight: 900">
                             Inclusive of all taxes.
                         </p>
                     </div>

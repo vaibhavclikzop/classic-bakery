@@ -29,7 +29,7 @@
             </div>
 
         </div>
-        <div class="card-body" id="PrintOrder">
+        <div class="card-body" id="PrintOrder" style="color: black">
 
 
             @php
@@ -37,25 +37,27 @@
 
             @endphp
             @for ($i = $qty; $i >= 1; $i--)
-                <div style="height: 2.1cm; width: 6.95cm; border:1px solid #000; margin-top:10px;
+                <div
+                    style="height: 2.1cm; width: 6.95cm; border:1px solid #000; margin-top:10px;
                     display:flex; justify-content:space-between; align-items:flex-start;
                     padding:3px; box-sizing:border-box;">
                     <div style="flex:1; font-size: 11px; line-height: 1.2; padding-right:5px; overflow:hidden;">
                         <p style="margin:0; font-weight:bold;">
                             {{ $data->name }}
                         </p>
-                        <p style="margin:0;">
+                        <p style="margin:0; color: black; font-weight: 900">
                             MRP : {{ $data->price }}
                         </p>
-                        <p style="margin:0;">
-                            Date Used By : {{ request('expiry') }}
+                        <p style="margin:0; color: black; font-weight: 900">
+                            Date Used By : {{ date('d-m-Y', strtotime(request('expiry'))) }}
+
                         </p>
-                        <p style="margin:0;">
+                        <p style="margin:0; color: black; font-weight: 900">
                             Inclusive of all taxes.
                         </p>
                     </div>
 
-                  
+
                     <div style="width:2cm; height:2cm; flex-shrink:0; text-align:center;padding-bottom:3px;">
                         <img src="data:image/png;base64,{!! DNS2D::getBarcodePNG($data->bar_code, 'QRCODE', 5, 5) !!}" alt="QR Code"
                             style="width:100%; height:100%; object-fit:contain;">
