@@ -3,226 +3,222 @@
 @section('main-section')
 
 @push('title')
-<title>Order View</title>
+<title>Daily Advance Orders</title>
 @endpush
 
 <style>
-    .order-box {
-        border: 1px solid #ddd;
-        padding: 20px;
-        margin-bottom: 20px;
-        background: #fff;
-        page-break-inside: avoid;
-        overflow: hidden;
+    .print-wrapper {
+        width: 100%;
+        font-size: 12px;
+        font-family: Arial, Helvetica, sans-serif;
     }
 
-    .order-header {
+    .top-info {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
+        font-size: 12px;
     }
 
-    .company-info h3 {
-        margin: 0;
-        font-weight: 700;
+    .order-box {
+        border: 1px solid #999;
+        padding: 8px;
+        margin-top: 10px;
     }
 
-    .company-info p {
-        font-size: 13px;
-        margin: 3px 0;
+    .dotted {
+        border-top: 1px dashed #000;
+        margin: 6px 0;
     }
 
-    .order-details {
-        text-align: right;
-        font-size: 13px;
+    .row-flex {
+        display: flex;
+        justify-content: space-between;
     }
 
-    .product-table {
-        width: 100%;
-        table-layout: fixed;
-        border-collapse: collapse;
-        word-wrap: break-word;
-        margin-top: 15px;
+    .left {
+        width: 60%;
     }
 
-    .product-table th,
-    .product-table td {
-        border: 1px solid #ddd;
-        padding: 5px;
-        font-size: 11px;
+    .right {
+        width: 40%;
+    }
+
+    .bold {
+        font-weight: bold;
+    }
+
+    .end-text {
         text-align: center;
-    }
-
-    .product-table th:first-child,
-    .product-table td:first-child {
-        width: 60px;
-    }
-
-    .cake-img {
-        width: 40px;
-        height: 40px;
-        object-fit: cover;
-        border-radius: 4px;
-        border: 1px solid #ccc;
+        font-size: 11px;
     }
 
     @media print {
 
-        body * {
-            visibility: hidden;
+        @page {
+            size: A4;
+            margin: 5mm;
         }
 
-        #PrintOrder,
-        #PrintOrder * {
-            visibility: visible;
+        html,
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .card,
+        .card-body,
+        .container,
+        .container-fluid,
+        .print-wrapper {
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
         }
 
         #PrintOrder {
-            position: absolute;
-            left: 0;
-            top: 0;
             width: 100%;
+            margin: 0;
+            padding: 0;
         }
 
-        .order-box {
-            page-break-inside: avoid;
+        .btn,
+        .card-header {
+            display: none !important;
         }
 
-        .btn {
-            display: none;
-        }
+    }
 
+    .header {
+        display: none;
+    }
+
+    .card,
+    .card-body {
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+    }
+
+    .print-wrapper {
+        padding: 0 !important;
     }
 
     @page {
         size: A4;
-        margin: 10mm;
+        margin: 5mm;
     }
 </style>
-
 
 <div class="card">
 
     <div class="card-header d-flex justify-content-between">
 
-        <div class="page-title">
-            <h4>Order View</h4>
-        </div>
+        <h4>Daily Advance Orders</h4>
 
-        <div>
-            <button onclick="window.print()" class="btn btn-primary">
-                <i class="fa fa-print"></i> Print
-            </button>
-        </div>
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fa fa-print"></i> Print
+        </button>
 
     </div>
 
-
     <div class="card-body" id="PrintOrder">
 
-        @foreach ($data as $item)
+        <div class="print-wrapper">
 
-        <div class="order-box">
+            <div class="header">
+                <h3>{{ $setting->company_name }}</h3>
+                <div>Daily Advance Orders</div>
+            </div>
+
+            <div class="top-info">
+                <div>Reporting For : {{ date('d/m/Y') }} - {{ date('d/m/Y') }}</div>
+                <div>Printed On : {{ date('d-M-Y h:i:s A') }}</div>
+            </div>
+
+            <div class="dotted"></div>
+
+            @php $sno=1; @endphp
+
+            @foreach($data as $item)
+
+            <div class="order-box">
+
+                <div class="row-flex">
+
+                    <div class="left">
+
+                        <div>
+                            <span class="bold">Sr No :</span> {{ $sno++ }}
+                            <span class="bold"> {{ $item->name }}</span>
+                        </div>
+
+                        <div>
+                            <span class="bold">Order Date :</span>
+                            {{ date('d/m/Y H:i:s',strtotime($item->order_date)) }}
+                        </div>
+
+                        @foreach($item->details as $i)
+
+                        <div>
+                            <span class="bold">Wt :</span> {{ $i->weight }}
+                        </div>
+
+                        <div>
+                            {{ $i->product }} {{ $i->flavour }} - {{ $i->food_type }} {{ $i->shape }}
+                        </div>
+
+                        <div>
+                            <span class="bold">Msg :</span> {{ $i->message }}
+                        </div>
+
+                        <div>
+                            <span class="bold">Remark :</span> {{ $i->description }}
+                        </div>
+
+                        @endforeach
+
+                    </div>
 
 
-            <div class="order-header">
+                    <div class="right">
 
-                <div class="company-info">
+                        <div>
+                            <span class="bold">Order No :</span>
+                            AO-{{ $item->id }}
+                        </div>
 
-                    <h3>{{ $setting->company_name }}</h3>
+                        <div>
+                            <span class="bold">Delivery Date:</span>
+                            {{ date('d/m/Y H:i:s',strtotime($item->delivery_date)) }}
+                        </div>
 
-                    <p>
-                        {!! $setting->address !!}<br>
-                        Email : {{ $setting->email }} <br>
-                        Phone : {{ $setting->number }} <br>
-                        GST : {{ $setting->gst_no }}
-                    </p>
+                        @foreach($item->details as $i)
+
+                        <div>
+                            <span class="bold">Qty :</span> {{ $i->qty }}
+                        </div>
+
+                        <div>
+                            <span class="bold">Name :</span> {{ $i->name }}
+                        </div>
+
+                        @endforeach
+
+                    </div>
 
                 </div>
 
-                <div class="order-details">
+                <div class="dotted"></div>
 
-                    <h4>Order ID : #{{ $item->id }}</h4>
-
-                    Shop : {{ $item->name }} <br>
-                    Order Type : {{ $item->type }} <br>
-
-                    Order Date : {{ $item->order_date }} <br>
-                    Delivery Date : {{ $item->delivery_date }} <br>
-                    Delivery Time : {{ $item->delivery_time }}
-
+                <div class="end-text">
+                    END OF Daily Advance Orders
                 </div>
 
             </div>
 
-            <hr>
-
-            <table class="product-table">
-
-                <thead>
-
-                    <tr>
-                        <th>Image</th>
-                        <th>Item</th>
-                        <th>Flavour</th>
-                        <th>Weight</th>
-                        <th>Shape</th>
-                        <th>Food Type</th>
-                        <th>Name</th>
-                        <th>Message</th>
-                        <th>Description</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    @foreach ($item->details as $i)
-
-                    <tr>
-
-                        <td>
-
-                            @php
-                            $images = explode(', ', $i->files);
-                            @endphp
-
-                            @if ($i->files)
-
-                            @foreach ($images as $k)
-
-                            <img src="/cake images/{{ $k }}" class="cake-img">
-
-                            @endforeach
-
-                            @endif
-
-                        </td>
-
-                        <td>{{ $i->product }}</td>
-                        <td>{{ $i->flavour }}</td>
-                        <td>{{ $i->weight }}</td>
-                        <td>{{ $i->shape }}</td>
-                        <td>{{ $i->food_type }}</td>
-                        <td>{{ $i->name }}</td>
-                        <td>{{ $i->message }}</td>
-                        <td>{{ $i->description }}</td>
-                        <td>{{ $i->qty }}</td>
-                        <td>₹ {{ $i->total_price }}</td>
-
-                    </tr>
-
-                    @endforeach
-
-                </tbody>
-
-            </table>
+            @endforeach
 
         </div>
-
-        @endforeach
 
     </div>
 
