@@ -475,10 +475,61 @@
         });
         $(document).ready(function() {
             // Bind keydown event on all relevant inputs
-            $('#product_id, #qty, #price').on('keydown', function(e) {
+            // $('#product_id, #qty, #price').on('keydown', function(e) {
+            //     if (e.key === 'Enter') {
+            //         e.preventDefault();
+            //         $('#addProduct').click();
+            //     }
+            // });
+
+
+            let order = [
+
+                '#product_id',
+    
+                '#qty',
+                '#discount',
+                '#addProduct'
+            ];
+
+            function focusNext(current) {
+                let index = order.indexOf(current);
+                if (index !== -1 && index + 1 < order.length) {
+                    let nextField = order[index + 1];
+
+                    // If next is Select2 → open dropdown
+                    if ($(nextField).hasClass('select2-hidden-accessible')) {
+                        $(nextField).select2('open');
+                    } else {
+                        $(nextField).focus();
+                    }
+                }
+            }
+
+            // Normal inputs
+            $(document).on('keydown', 'input', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
+                    focusNext('#' + $(this).attr('id'));
+                }
+            });
+
+
+
+            // Select2 product_id → move to description
+            $('#product_id').on('select2:select', function() {
+                focusNext('#product_id');
+            });
+
+            // When Enter on Add Button
+            $('#addProduct').on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+
                     $('#addProduct').click();
+
+                    // Return to customer_id
+                    $('#product_id').select2('open');
                 }
             });
         });

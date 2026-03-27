@@ -124,7 +124,12 @@
                                                     $qtySum += $data['qty']; // Sum all quantities for the same customer
                                                 }
                                             }
-                                            echo '<td style="border: solid 1px; padding: 5px">' . $qtySum . '</td>';
+                                            if ($qtySum==0) {
+                                                $qtySumName="";
+                                            }else{
+                                                $qtySumName=$qtySum;
+                                            }
+                                            echo '<td style="border: solid 1px; padding: 5px">' . $qtySumName . '</td>';
                                             $total += $qtySum;
                                         }
 

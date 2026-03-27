@@ -16,9 +16,40 @@ if (!function_exists('CheckUserPassword')) {
 }
 
 if (!function_exists('formatPriceQty')) {
-  function formatQtyPrice($v)
-{
-    $v = floatval($v);
-    return number_format($v, 2, '.', '');
+    function formatQtyPrice($v)
+    {
+        $v = floatval($v);
+        return number_format($v, 2, '.', '');
+    }
 }
+
+
+if (!function_exists('getInvoiceNo')) {
+    function getInvoiceNo()
+    {
+        $invoice_prefix = DB::table("company_settings")->where("id", 1)->first();
+        $out_inv_no =   DB::table("outward_customer_order_mst")->whereDate("created_at", now())->count();
+        $adv_inv_no =   DB::table("adv_order_mst")->whereDate("created_at", now())->where("is_invoice", 1)->count();
+        $inv_no = $out_inv_no + $adv_inv_no;
+        if (!$inv_no) {
+            $inv_no = 1;
+        } else {
+            $inv_no++;
+        }
+
+        do {
+            $order_no = $invoice_prefix->order_prefix . date('d-m-y') . "-" . $inv_no;
+
+            $exists = DB::table("outward_customer_order_mst")
+                ->where("order_no", $order_no)
+                ->exists()
+                || DB::table("adv_order_mst")
+                ->where("order_id", $order_no)
+                ->exists();
+
+            $inv_no++;
+        } while ($exists);
+
+        return $order_no;
+    }
 }

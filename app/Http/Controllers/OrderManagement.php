@@ -485,7 +485,7 @@ class OrderManagement extends Controller
 
             foreach ($order_det as $k => $v) {
 
-         if ($v->qty - $v->booked_qty > 0) {
+                if ($v->qty - $v->booked_qty > 0) {
 
 
 
@@ -676,26 +676,60 @@ class OrderManagement extends Controller
 
         $type = request("type", "daily");
         $order = DB::table("order_mst as a")
-            ->select("a.*", "b.name as customer", "c.name as user", "d.name as category")
+            ->select(
+                "a.order_id",
+                "a.id",
+                "a.delivery_date",
+                "b.name as customer",
+                "c.name as user",
+                "d.name as category",
+                "a.customer_id",
+                "a.status",
+                DB::raw("
+            CASE 
+                WHEN COUNT(e.id) > 0 THEN 'partial'
+                ELSE 'fresh'
+            END as order_status
+        ")
+            )
             ->join("customers as b", "a.customer_id", "b.id")
             ->join("users as c", "a.user_id", "c.id")
             ->join("order_type as d", "a.order_type_id", "d.id")
+            ->leftJoin("outward_customer_order_mst as e", "a.id", "e.order_id")
             ->where("a.status", $status)
             ->where("order_type", "customer");
 
         $order->whereDate("a.delivery_date", $date);
-        $order->where("d.type", $type);
+        $order->where("d.type", $type)
+            ->groupBy("a.id", "a.customer_id", "a.order_date", "b.name", "c.name", "d.name", "a.order_id", "a.delivery_date", "a.status", "a.customer_id");
 
 
 
 
         $outlet = DB::table("order_mst as a")
-            ->select("a.*", "b.outlet_name as customer", "c.name as user", "d.name as category")
+            ->select(
+                "a.order_id",
+                "a.id",
+                "a.delivery_date",
+                "b.outlet_name as customer",
+                "c.name as user",
+                "d.name as category",
+                "a.customer_id",
+                "a.status",
+                DB::raw("
+            CASE 
+                WHEN COUNT(e.id) > 0 THEN 'partial'
+                ELSE 'fresh'
+            END as order_status
+        ")
+            )
             ->join("outlet as b", "a.customer_id", "b.id")
             ->join("users as c", "a.user_id", "c.id")
             ->join("order_type as d", "a.order_type_id", "d.id")
+            ->leftJoin("outward_customer_order_mst as e", "a.id", "e.order_id")
             ->where("a.status", $status)
-            ->where("order_type", "outlet");
+            ->where("order_type", "outlet")
+            ->groupBy("a.id", "a.customer_id", "a.order_date", "b.outlet_name", "c.name", "d.name", "a.order_id", "a.delivery_date", "a.status", "a.customer_id");
 
         $outlet->whereDate("a.delivery_date", $date);
         $outlet->where("d.type", $type);
@@ -760,7 +794,7 @@ class OrderManagement extends Controller
         $order_mst = $customer_order ?? $outlet_order;
 
         $order_det = DB::table("order_det as a")
-            ->select("a.*", "b.name as product","b.hsn_code as hsn","b.article_no as article_no", "c.name as sub_category")
+            ->select("a.*", "b.name as product", "b.hsn_code as hsn", "b.article_no as article_no", "c.name as sub_category")
             ->join("finish_products_mst as b", "a.product_id", "b.id")
             ->join("f_product_sub_category as c", "b.f_sub_category_id", "c.id")
             ->where("a.mst_id", $id)
@@ -1307,22 +1341,22 @@ class OrderManagement extends Controller
                 ->join("finish_products_mst as d", "a.product_id", "d.id")
                 ->join("f_product_sub_category as e", "d.f_sub_category_id", "e.id")
                 ->join("f_product_category as f", "d.f_category_id", "f.id");
-           if ($request->order_id) {
+            if ($request->order_id) {
 
-    $work_order->whereIn("b.id", $request->order_id);
+                $work_order->whereIn("b.id", $request->order_id);
 
-    $selected_order = DB::table("work_order_det as a")
-        ->select(
-            "b.id",
-            "b.order_id",
-            "c.name as order_type_name"
-        )
-        ->join("order_mst as b", "a.order_id", "b.id")
-        ->join("order_type as c", "b.order_type_id", "c.id")
-        ->whereIn("b.id", $request->order_id)
-        ->groupBy("b.id", "b.order_id", "c.name")
-        ->get();
-}
+                $selected_order = DB::table("work_order_det as a")
+                    ->select(
+                        "b.id",
+                        "b.order_id",
+                        "c.name as order_type_name"
+                    )
+                    ->join("order_mst as b", "a.order_id", "b.id")
+                    ->join("order_type as c", "b.order_type_id", "c.id")
+                    ->whereIn("b.id", $request->order_id)
+                    ->groupBy("b.id", "b.order_id", "c.name")
+                    ->get();
+            }
 
             // $work_order->where("a.mst_id", $work_order_mst->id);
 
@@ -1349,7 +1383,7 @@ class OrderManagement extends Controller
         return     DB::table("order_mst as a")
             ->select("a.*", "b.name as order_type")
             ->join("order_type as b", "a.order_type_id", "b.id")
-            ->where("a.order_type", $request->type)->where("a.customer_id", $request->customer_id)->whereDate("a.delivery_date", $request->date)->where("a.status", "!=", "pending")->get();
+            ->where("a.order_type", $request->type)->where("a.customer_id", $request->customer_id)->whereDate("a.delivery_date", $request->date)->where("a.status", "!=", "pending")->orderBy("b.name","asc")->get();
     }
 
     public function CancelOrder(Request $request)
@@ -1419,7 +1453,7 @@ class OrderManagement extends Controller
         } catch (\Throwable $th) {
             return  redirect()->back()->with("error", $th->getMessage());
         }
-        return  redirect()->back()->with("success", "Save Successfully");
+        return  redirect("invoice-view/$request->id")->with("success", "Save Successfully");
     }
 
     public function convertInvoiceDelivered(Request $request)

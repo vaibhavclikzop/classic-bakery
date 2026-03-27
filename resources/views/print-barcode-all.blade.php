@@ -3,7 +3,7 @@
     @push('title')
         <title>Print Barcode</title>
     @endpush
-     <style>
+    <style>
         @media print {
             div {
                 -webkit-print-color-adjust: exact;
@@ -34,32 +34,34 @@
 
             @foreach ($data as $product)
                 @for ($i = 1; $i <= $product['qty']; $i++)
-                  
-                     <div style="height: 2.1cm; width: 6.95cm; border:1px solid #000; margin-top:10px;
+                    <div
+                        style="height: 2.1cm; width: 6.95cm; border:1px solid #000; margin-top:10px;
                     display:flex; justify-content:space-between; align-items:flex-start;
                     padding:3px; box-sizing:border-box;">
-                    <div style="flex:1; font-size: 11px; line-height: 1.2; padding-right:5px; overflow:hidden;">
-                        <p style="margin:0; font-weight:bold;">
-                            {{ $product['name'] }}
-                        </p>
-                       <p style="margin:0; color: black; font-weight: 900">
-                            MRP : {{ $product['price'] ?? '' }} 
-                        </p>
-                          <p style="margin:0; color: black; font-weight: 900">
-                       Date Used By : {{ date("d-m-Y", strtotime($product['expiry'])) }}
+                        <div style="flex:1; font-size: 11px; line-height: 1.2; padding-right:5px; overflow:hidden;">
+                            <p style="margin:0; font-weight:bold;">
+                                {{ $product['name'] }}
+                            </p>
+                            <p style="margin:0; color: black; font-weight: 900">
+                                MRP : {{ $product['price'] ?? '' }}
+                            </p>
+                            @if ($product['f_category_id'] == 1)
+                                <p style="margin:0; color: black; font-weight: 900">
+                                    Date Used By : {{ date('d-m-Y', strtotime($product['expiry'])) }}
 
-                        </p>
-                          <p style="margin:0; color: black; font-weight: 900">
-                            Inclusive of all taxes.
-                        </p>
-                    </div>
+                                </p>
+                            @endif
+                            <p style="margin:0; color: black; font-weight: 900">
+                                Inclusive of all taxes.
+                            </p>
+                        </div>
 
-                  
-                    <div style="width:2cm; height:2cm; flex-shrink:0; text-align:center;padding-bottom:3px;">
-                        <img src="data:image/png;base64,{!! DNS2D::getBarcodePNG($product['bar_code'] ?? '', 'QRCODE', 7, 7) !!}" alt="QR Code"
-                            style="width:100%; height:100%; object-fit:contain;">
+
+                        <div style="width:2cm; height:2cm; flex-shrink:0; text-align:center;padding-bottom:3px;">
+                            <img src="data:image/png;base64,{!! DNS2D::getBarcodePNG($product['bar_code'] ?? '', 'QRCODE', 7, 7) !!}" alt="QR Code"
+                                style="width:100%; height:100%; object-fit:contain;">
+                        </div>
                     </div>
-                </div>
                 @endfor
             @endforeach
 

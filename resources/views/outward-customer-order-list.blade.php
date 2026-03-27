@@ -76,7 +76,7 @@
                 @csrf
                 <button class="btn btn-dark btn-sm" type="button" id="bulkUpdate">Bulk Update</button>
                 <input type="hidden" id="updateType" name="updateType">
-                <table class="table dataTable"  id="myTable">
+                <table class="table dataTable" id="myTable">
                     <thead>
                         <tr>
                             <th>S.No</th>
@@ -104,7 +104,8 @@
                             <tr>
                                 <td>{{ $sno++ }}</td>
 
-                                <td><input type="checkbox" name="outward_ids[]" value="{{$item->id}}" class="allChecks"></td>
+                                <td><input type="checkbox" name="outward_ids[]" value="{{ $item->id }}"
+                                        class="allChecks"></td>
                                 <td>{{ $item->order_no }}</td>
                                 <td>{{ $item->customer }}</td>
                                 <td>{{ $item->invoice_date }}</td>

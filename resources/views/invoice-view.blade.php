@@ -48,7 +48,7 @@
 
 
             </div>
-            <div style="display: flex; justify-content: space-between; border: solid 1px; padding: 8px;">
+            {{-- <div style="display: flex; justify-content: space-between; border: solid 1px; padding: 8px;">
                 <div style="border: solid 1px">
                     <div>
                         <div class="text-center">
@@ -79,7 +79,7 @@
                     </div>
 
                 </div>
-            </div>
+            </div> --}}
             <div style="display: flex; justify-content: space-between; border: solid 1px;margin-top:5px">
                 <div style="padding: 5px; border:solid 1px; width: 50%">
                     GSTIN : {{ $setting->gst_no }} <br>
@@ -131,22 +131,22 @@
 
                 <table class="w-100">
                     <thead>
-                        <th style="border:  solid 1px; padding:2px">S.No</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">S.No</th>
 
-                        <th style="border:  solid 1px; padding:2px">Description of goods</th>
-                        <th style="border:  solid 1px; padding:2px">HSN Code</th>
-                        <th style="border:  solid 1px; padding:2px">UOM</th>
-                        <th style="border:  solid 1px; padding:2px">MRP</th>
-                        <th style="border:  solid 1px; padding:2px">Qty</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">Description of goods</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">HSN Code</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">UOM</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">MRP</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">Qty</th>
 
 
-                        <th style="border:  solid 1px; padding:2px">Rate</th>
-                        <th style="border:  solid 1px; padding:2px">Taxable</th>
-                        <th style="border:  solid 1px; padding:2px">GST (%)</th>
-                        <th style="border:  solid 1px; padding:2px">GST</th>
-                        <th style="border:  solid 1px; padding:2px">CESS %</th>
-                        <th style="border:  solid 1px; padding:2px">CESS</th>
-                        <th style="border:  solid 1px; padding:2px">Total</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">Rate</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">Taxable</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">GST (%)</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">GST</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">CESS %</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">CESS</th>
+                        <th style="border:  solid 1px; padding:2px; font-size:11px">Total</th>
 
                     </thead>
                     <tbody>
@@ -195,27 +195,27 @@
                                 }
                             @endphp
                             <tr>
-                                <td style="border:  solid 1px; padding:2px">{{ $sno++ }}</td>
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">{{ $sno++ }}</td>
 
-                                <td style="border:  solid 1px; padding:2px">{{ $item->product }}</td>
-                                <td style="border:  solid 1px; padding:2px">{{ $item->hsn_code }}</td>
-                                <td style="border:  solid 1px; padding:2px">{{ $item->uom }}</td>
-                                <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->mrp) }}</td>
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">{{ $item->product }}</td>
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">{{ $item->hsn_code }}</td>
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">{{ $item->uom }}</td>
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($item->mrp) }}</td>
 
-                                <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->qty) }}</td>
-                                <td style="border:  solid 1px; padding:2px">{{ $rate }}</td>
-                                <td style="border:  solid 1px; padding:2px">
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($item->qty) }}</td>
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">{{ $rate }}</td>
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">
                                     {{ $taxable }}
                                 </td>
-                                <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->gst) }} </td>
-                                <td style="border:  solid 1px; padding:2px">
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($item->gst) }} </td>
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">
                                     {{ $gst }}
                                 </td>
-                                <td style="border:  solid 1px; padding:2px">{{ formatQtyPrice($item->cess_amt) }} </td>
-                                <td style="border:  solid 1px; padding:2px">
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($item->cess_amt) }} </td>
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">
                                     {{ $cess }}
                                 </td>
-                                <td style="border:  solid 1px; padding:2px">
+                                <td style="border:  solid 1px; padding:2px; font-size:11px">
                                     {{ formatQtyPrice($gst + $taxable + $cess) }}</td>
 
                             </tr>
@@ -225,15 +225,15 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px" colspan="5">Total</th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($qty) }}</th>
-                            <th style="border:  solid 1px; padding:2px"></th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($total_taxable) }}</th>
-                            <th style="border:  solid 1px; padding:2px"></th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($total_gst) }}</th>
-                            <th style="border:  solid 1px; padding:2px"></th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($total_cess) }}</th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($gross_total) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px" colspan="5">Total</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($qty) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px"></th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($total_taxable) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px"></th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($total_gst) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px"></th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($total_cess) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($gross_total) }}</th>
                         </tr>
                     </tfoot>
 
@@ -243,70 +243,70 @@
                 <div style="padding: 5px; border:solid 1px; width: 50%">
                     <table class="w-100">
                         <tr>
-                            <th style="border:  solid 1px; padding:2px" colspan="2">In Words : </th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px" colspan="2">In Words : </th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px" colspan="2">Bank Details : </th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px" colspan="2">Bank Details : </th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Bank Name </th>
-                            <th style="border:  solid 1px; padding:2px">NA</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Bank Name </th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">NA</th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Branch Name </th>
-                            <th style="border:  solid 1px; padding:2px">NA</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Branch Name </th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">NA</th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Bank Account Number </th>
-                            <th style="border:  solid 1px; padding:2px">NA</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Bank Account Number </th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">NA</th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Bank Branch IFSC : </th>
-                            <th style="border:  solid 1px; padding:2px">NA</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Bank Branch IFSC : </th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">NA</th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Subject To </th>
-                            <th style="border:  solid 1px; padding:2px">NA</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Subject To </th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">NA</th>
                         </tr>
                     </table>
                 </div>
                 <div style="padding: 5px; border:solid 1px; width: 50%">
                     <table class="w-100" style="text-align: right">
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Total Amount Before Tax</th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($total_taxable) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Total Amount Before Tax</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($total_taxable) }}</th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Add CGST</th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($cgst_amt) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Add CGST</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($cgst_amt) }}</th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Add SGST</th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($sgst_amt) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Add SGST</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($sgst_amt) }}</th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Add IGST</th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($igst_amt) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Add IGST</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($igst_amt) }}</th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Tax Amt. GST</th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($total_gst) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Tax Amt. GST</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($total_gst) }}</th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Tax Amt. Cess</th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($total_cess) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Tax Amt. Cess</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($total_cess) }}</th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Amount After Tax</th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($gross_total) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Amount After Tax</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($gross_total) }}</th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">TCS Charges</th>
-                            <th style="border:  solid 1px; padding:2px">00</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">TCS Charges</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">00</th>
                         </tr>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px">Gross Invoice Total</th>
-                            <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($gross_total) }}</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">Gross Invoice Total</th>
+                            <th style="border:  solid 1px; padding:2px; font-size:11px">{{ formatQtyPrice($gross_total) }}</th>
                         </tr>
                     </table>
                 </div>

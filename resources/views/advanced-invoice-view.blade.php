@@ -48,7 +48,7 @@
 
 
             </div>
-            <div style="display: flex; justify-content: space-between; border: solid 1px; padding: 8px;">
+            {{-- <div style="display: flex; justify-content: space-between; border: solid 1px; padding: 8px;">
                 <div style="border: solid 1px">
                     <div>
                         <div class="text-center">
@@ -79,7 +79,7 @@
                     </div>
 
                 </div>
-            </div>
+            </div> --}}
             <div style="display: flex; justify-content: space-between; border: solid 1px;margin-top:5px">
                 <div style="padding: 5px; border:solid 1px; width: 50%">
                     GSTIN : {{ $setting->gst_no }} <br>

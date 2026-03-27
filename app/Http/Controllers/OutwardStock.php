@@ -275,31 +275,7 @@ class OutwardStock extends Controller
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-            $out_inv_no =   DB::table("outward_customer_order_mst")->whereDate("created_at", now())->count();
-            $adv_inv_no =   DB::table("adv_order_mst")->whereDate("created_at", now())->where("is_invoice", 1)->count();
-            $inv_no = $out_inv_no + $adv_inv_no;
-            if (!$inv_no) {
-                $inv_no = 1;
-            } else {
-                $inv_no++;
-            }
-
-
-            $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
-            $order_no = $invoice_prefix->order_prefix . date('d-m-y') . "-" . $inv_no;
+           $order_no= getInvoiceNo();
 
             $mst_id = DB::table('outward_customer_order_mst')->insertGetId(array(
 
@@ -508,49 +484,46 @@ class OutwardStock extends Controller
     }
     public function Invoices(Request $request)
     {
-        $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
+        $fromDt = $request->input("fromDt") ?: Carbon::now()->toDateString();
         $toDt = $request->input("toDt") ?: Carbon::now()->toDateString();
         $order_type = request("order_type");
 
         $status = request("status", "dispatch");
-        $customer = DB::table("outward_customer_order_mst as a")
-            ->select("a.*", "c.name as customer", "d.name as user", "e.name as transport", "e.contact_person", "e.number", "e.vehicle_no")
+        $query = DB::table("outward_customer_order_mst as a")
+            ->select(
+                "a.*",
+                DB::raw("CASE 
+            WHEN b.order_type = 'customer' THEN c.name 
+            ELSE o.outlet_name 
+        END as customer"),
+                "d.name as user",
+                "e.name as transport",
+                "e.contact_person",
+                "e.number",
+                "e.vehicle_no"
+            )
             ->join("order_mst as b", "a.order_id", "b.id")
-            ->join("customers as c", "b.customer_id", "c.id")
+            ->leftJoin("customers as c", "b.customer_id", "c.id")
+            ->leftJoin("outlet as o", "b.customer_id", "o.id")
             ->join("users as d", "a.user_id", "d.id")
             ->leftJoin("mode_of_transport as e", "a.mode_of_transport", "e.id")
-            ->where("a.is_invoice", 1)
-            ->where("b.order_type", "customer")
-            ->orderBy("a.id", "desc");
+            ->where("a.is_invoice", 1);
 
+        if ($order_type) {
+            $query->where("b.order_type", $order_type);
+        }
 
-        $outlet = DB::table("outward_customer_order_mst as a")
-            ->select("a.*", "c.outlet_name as customer", "d.name as user", "e.name as transport", "e.contact_person", "e.number", "e.vehicle_no")
-            ->join("order_mst as b", "a.order_id", "b.id")
-            ->join("outlet as c", "b.customer_id", "c.id")
-            ->join("users as d", "a.user_id", "d.id")
-            ->leftJoin("mode_of_transport as e", "a.mode_of_transport", "e.id")
-            ->where("a.is_invoice", 1)
-            ->where("b.order_type", "outlet")
-            ->orderBy("a.id", "desc");
         if ($fromDt) {
-            $outlet->whereDate("a.invoice_date", ">=", $fromDt);
-            $customer->whereDate("a.invoice_date", ">=", $fromDt);
-        }
-        if ($toDt) {
-            $outlet->whereDate("a.invoice_date", "<=", $toDt);
-            $customer->whereDate("a.invoice_date", "<=", $toDt);
+
+            $query->whereDate("a.invoice_date", ">=", $fromDt);
         }
 
-        if ($order_type === 'customer') {
-            $customer->where("b.order_type", "customer");
-            $data = $customer->get();
-        } elseif ($order_type === 'outlet') {
-            $outlet->where("b.order_type", "outlet");
-            $data = $outlet->get();
-        } else {
-            $data = $customer->union($outlet)->get();
+        if ($toDt) {
+            $query->whereDate("a.invoice_date", "<=", $toDt);
         }
+
+        $data = $query->orderBy("a.id", "desc")->get();
+
         $customers = DB::table("customers")->get();
         return view("invoices", compact("data"));
     }

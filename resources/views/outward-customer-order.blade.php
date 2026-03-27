@@ -3,6 +3,12 @@
     @push('title')
         <title>Create Outward Challan </title>
     @endpush
+    <style>
+        .myTable>th,td{
+            border: solid 1px;
+            padding: 0px 7px;
+        }
+    </style>
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
@@ -69,7 +75,7 @@
 
                     <div class="col-md-12">
                         <hr>
-                        <table class="table">
+                        <table class="w-100 myTable">
                             <thead>
                                 <tr>
                                     <th>
@@ -137,6 +143,8 @@
             $("#customer_id").select2();
             $("#order_id").select2();
 
+
+
             $(window).on("pageshow", function(event) {
                 if (event.originalEvent.persisted) {
                     // Browser back button used
@@ -146,152 +154,163 @@
                     $("#prod_list").val("");
                 }
             });
-        })
-
-        var customer_id = {{ request('customer_id') }}
-        var order_id = {{ request('id') }}
-        var price = "";
-        var location_id = "";
-        var product_id = "";
-        var product_list = [];
-        var sno = 1;
 
 
+            var customer_id = {{ request('customer_id') }}
+            var order_id = {{ request('id') }}
+            var price = "";
+            var location_id = "";
+            var product_id = "";
+            var product_list = [];
+            var sno = 1;
 
-        $("#customer_id").on("change", function() {
-            price = "";
-            location_id = "";
-            product_id = "";
-            product_list = [];
-            sno = 1;
 
-            $("#prodList").html("")
-            var id = customer_id
-            if ($(this).val()) {
-                id = $(this).val();
-                customer_id = id;
-            }
-            $.ajax({
-                url: "/GetCustomerOrder",
-                type: "POST",
-                data: {
-                    id: id,
-                },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                beforeSend: function() {
-                    $("#loader").show();
-                },
-                success: function(result) {
-                    var html = "";
-                    html += '<option value="">----Select Order----</option>';
-                    result.forEach(element => {
 
-                        html += '<option value="' + element.id + '">' + element.order_id +
-                            '</option>';
-                    });
-                    $("#order_id").html(html)
-                },
-                complete: function() {
-                    $("#loader").hide();
-                },
-                error: function(result) {
-                    toastr.error(result.responseJSON.message);
+
+
+
+
+
+            $("#customer_id").on("change", function() {
+                price = "";
+                location_id = "";
+                product_id = "";
+                product_list = [];
+                sno = 1;
+
+
+                $("#prodList").html("")
+                var id = customer_id
+                if ($(this).val()) {
+                    id = $(this).val();
+                    customer_id = id;
                 }
+                $.ajax({
+                    url: "/GetCustomerOrder",
+                    type: "POST",
+                    data: {
+                        id: id,
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    beforeSend: function() {
+                        $("#loader").show();
+                    },
+                    success: function(result) {
+                        var html = "";
+                        html += '<option value="">----Select Order----</option>';
+                        result.forEach(element => {
+
+                            html += '<option value="' + element.id + '">' + element
+                                .order_id +
+                                '</option>';
+                        });
+                        $("#order_id").html(html)
+                    },
+                    complete: function() {
+                        $("#loader").hide();
+                    },
+                    error: function(result) {
+                        toastr.error(result.responseJSON.message);
+                    }
+                });
+
+
             });
 
-
-        });
-
-        $("#category_id").on("change", function() {
+            $("#category_id").on("change", function() {
 
 
-            var category_id = $(this).val()
-            var customer_id = $("#customer_id").val()
-            $.ajax({
-                url: "/GetCustomerTypeProducts",
-                type: "POST",
-                data: {
-                    id: category_id,
-                    customer_id: customer_id,
-                },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                beforeSend: function() {
-                    $("#loader").show();
-                },
-                success: function(result) {
-                    var html = "";
-                    html += '<option value="">----Select Products----</option>';
-                    result.forEach(element => {
+                var category_id = $(this).val()
+                var customer_id = $("#customer_id").val()
+                $.ajax({
+                    url: "/GetCustomerTypeProducts",
+                    type: "POST",
+                    data: {
+                        id: category_id,
+                        customer_id: customer_id,
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    beforeSend: function() {
+                        $("#loader").show();
+                    },
+                    success: function(result) {
+                        var html = "";
+                        html += '<option value="">----Select Products----</option>';
+                        result.forEach(element => {
 
-                        html += '<option value="' + element.id + '" data-price="' + element
-                            .sale_price + '"  data-gst="' + element.gst + '"   >' + element
-                            .name +
-                            ' (Stock :' + element.stock + ')</option>';
-                    });
-                    $("#product_id").html(html)
-                },
-                complete: function() {
-                    $("#loader").hide();
-                },
-                error: function(result) {
-                    toastr.error(result.responseJSON.message);
-                }
+                            html += '<option value="' + element.id + '" data-price="' +
+                                element
+                                .sale_price + '"  data-gst="' + element.gst + '"   >' +
+                                element
+                                .name +
+                                ' (Stock :' + element.stock + ')</option>';
+                        });
+                        $("#product_id").html(html)
+                    },
+                    complete: function() {
+                        $("#loader").hide();
+                    },
+                    error: function(result) {
+                        toastr.error(result.responseJSON.message);
+                    }
+                });
+
             });
 
-        });
+            $("#order_id").on("change", function() {
 
-        $("#order_id").on("change", function() {
+                if ($(this).val()) {
+                    var id = $(this).val();
+                } else {
+                    var id = order_id;
+                }
+                $.ajax({
+                    url: "/GetCustomerOrderProduct",
+                    type: "POST",
+                    data: {
+                        id: id,
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    beforeSend: function() {
+                        $("#loader").show();
+                    },
+                    success: function(result) {
+                        price = "";
+                        location_id = "";
+                        product_id = "";
+                        product_list = [];
+                        sno = 1;
 
-            if ($(this).val()) {
-                var id = $(this).val();
-            } else {
-                var id = order_id;
-            }
-            $.ajax({
-                url: "/GetCustomerOrderProduct",
-                type: "POST",
-                data: {
-                    id: id,
-                },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                beforeSend: function() {
-                    $("#loader").show();
-                },
-                success: function(result) {
-                    price = "";
-                    location_id = "";
-                    product_id = "";
-                    product_list = [];
-                    sno = 1;
-
-                    $("#prodList").html("")
+                        $("#prodList").html("")
 
 
-                    cs_stock = 0;
-                    result.forEach(element => {
-                        var color = "bg-soft-success";
+                        cs_stock = 0;
+                        result.forEach(element => {
+                            var color = "";
 
-                        var product_id = element.product_id;
-                        var qty = element.qty - element.booked_qty;
-                        var stock = element.stock;
-                        if (element.booked_qty < element.qty) {
+                            var product_id = element.product_id;
+                            var qty = element.qty - element.booked_qty;
+                            var stock = element.stock;
+
+                            if (parseFloat(element.booked_qty) < parseFloat(element
+                                    .qty)) {
 
 
-                            if (qty > stock) {
-                                qty = stock
-                                color = "bg-soft-danger";
-                            }
+                                if (qty > stock) {
+                                    qty = stock
+                                    color = "text-danger";
+                                }
 
-                            if (stock > 0 && cs_stock == 0) {
-                                cs_stock = 1;
-                            }
-                            var html = `<tr class="product${element.product_id}" style="color:green">
+                                if (stock > 0 && cs_stock == 0) {
+                                    cs_stock = 1;
+                                }
+                                var html = `<tr class="product${element.product_id}" style="color:green">
                             <td class="${color}">${sno++}</td>    
                             <td colspan="" class="${color}">${element.sub_category}</td>    
                             <td colspan="" class="${color}">${element.name}</td>    
@@ -310,77 +329,78 @@
                             </td>    
                         </tr>`;
 
-                            $("#prodList").append(html)
-                            product_list.push({
-                                product_id,
-                                qty,
 
-                            });
+                                $("#prodList").append(html)
+                                product_list.push({
+                                    product_id,
+                                    qty,
+
+                                });
+                            }
+
+                        });
+
+                        $("#customer_id").val(customer_id)
+                        setTimeout(() => {
+                            $("#order_id").val(id)
+                        }, 1000);
+                        if (cs_stock == 0) {
+                            $("#btnSubmit").attr("disabled", "disabled")
+                        } else {
+                            $("#btnSubmit").removeAttr("disabled")
                         }
 
-                    });
-
-                    $("#customer_id").val(customer_id)
-                    setTimeout(() => {
-                        $("#order_id").val(id)
-                    }, 1000);
-                    if (cs_stock == 0) {
-                        $("#btnSubmit").attr("disabled", "disabled")
-                    } else {
-                        $("#btnSubmit").removeAttr("disabled")
+                    },
+                    complete: function() {
+                        $("#loader").hide();
+                    },
+                    error: function(result) {
+                        toastr.error(result.responseJSON.message);
                     }
+                });
 
-                },
-                complete: function() {
-                    $("#loader").hide();
-                },
-                error: function(result) {
-                    toastr.error(result.responseJSON.message);
-                }
             });
+            $("#product_id").on("change", function() {
 
-        });
-        $("#product_id").on("change", function() {
-
-            var stock = $(this).find(":selected").data("qty");
-            $("#stock").val(stock)
+                var stock = $(this).find(":selected").data("qty");
+                $("#stock").val(stock)
 
 
 
-        });
-        $(document).ready(function() {
-            $("#product_id").select2();
-        })
+            });
+            $(document).ready(function() {
+                $("#product_id").select2();
+            })
 
 
 
-        $("#addProduct").on("click", function() {
-            var product_id = parseInt($("#product_id").val())
-            var product_name = $("#product_id").find(":selected").text()
-            var qty = parseInt($("#qty").val())
-            var stock = parseInt($("#product_id").find(":selected").data("qty"))
+            $("#addProduct").on("click", function() {
+                var product_id = parseInt($("#product_id").val())
+                var product_name = $("#product_id").find(":selected").text()
+                var qty = parseInt($("#qty").val())
+                var stock = parseInt($("#product_id").find(":selected").data("qty"))
 
 
-            if (!product_id || isNaN(product_id)) {
-                toastr.error("Select a valid Product");
-                return;
-            }
+                if (!product_id || isNaN(product_id)) {
+                    toastr.error("Select a valid Product");
+                    return;
+                }
 
-            if (!qty || isNaN(qty) || qty <= 0) {
-                toastr.error("Enter a valid quantity");
-                return;
-            }
+                if (!qty || isNaN(qty) || qty <= 0) {
+                    toastr.error("Enter a valid quantity");
+                    return;
+                }
 
 
 
 
-            let existingProduct = product_list.find(product => product.product_id === product_id);
-            if (existingProduct) {
-                toastr.error("Product already exists");
-                return;
-            }
+                let existingProduct = product_list.find(product => product.product_id === product_id);
+                if (existingProduct) {
+                    toastr.error("Product already exists");
+                    return;
+                }
 
-            var html = `<tr class="product${product_id}">
+                var html = `<tr class="product${product_id}">
                             <td>${sno++}</td>    
                             <td colspan="3">${product_name}</td>    
                             <td>${stock}</td>    
@@ -395,73 +415,78 @@
                             </td>    
                         </tr>`;
 
-            $("#prodList").append(html)
-            product_list.push({
-                product_id,
-                qty,
+                $("#prodList").append(html)
+                product_list.push({
+                    product_id,
+                    qty,
+
+                });
 
             });
 
-        });
+
+
+            $(document).on("keyup", '.qty', function() {
+                var product_id = parseInt($(this).data("product_id"))
+
+                var qty = parseInt($(this).val());
+                var stock = parseInt($(this).data("stock"));
+
+                var actual_qty = parseInt($(this).data("actual_qty"))
+
+                if (qty > stock) {
+                    toastr.error("You don't have stock");
+                    $(this).val(stock)
+                    return;
+                }
+                if (qty < 0) {
+                    toastr.error("Qty can not be zero or less then zero");
+                    $(this).val(0)
+                    return;
+                }
+
+                var product = product_list.find(item => item.product_id === product_id);
+
+                if (product) {
+
+                    product.qty = qty;
+                    console.log("Updated Product List:", product_list);
+                } else {
+                    toastr.error("Something went wrong");
+                    return;
+                }
 
 
 
-        $(document).on("keyup", '.qty', function() {
-            var product_id = parseInt($(this).data("product_id"))
+            })
 
-            var qty = parseInt($(this).val());
-            var stock = parseInt($(this).data("stock"));
 
-            var actual_qty = parseInt($(this).data("actual_qty"))
+            $(document).on("click", ".remove", function() {
+                let id = parseInt($(this).data("id"))
 
-            if (qty > stock) {
-                toastr.error("You don't have stock");
-                $(this).val(stock)
-                return;
-            }
-            if (qty <= 0) {
-                toastr.error("Qty can not be zero or less then zero");
-                $(this).val(qty)
-                return;
-            }
+                $(`.product${id}`).remove();
+                product_list = product_list.filter(item => item.product_id !== id);
 
-            var product = product_list.find(item => item.product_id === product_id);
+            });
 
-            if (product) {
 
-                product.qty = qty;
-                console.log("Updated Product List:", product_list);
-            } else {
-                toastr.error("Something went wrong");
-                return;
-            }
+            $("#UploadForm").on("submit", function() {
 
+                if ($("#mode_of_transport").val() == false) {
+                    toastr.error("Please select mode of transport");
+                    return;
+                }
+
+                $('#prod_list').val(JSON.stringify(product_list));
+                $("#btnSubmit").attr("disabled", "disabled")
+
+            });
+            $("#customer_id").val(customer_id).trigger("change");
+            setTimeout(() => {
+                $("#order_id").val(order_id).trigger("change");
+            }, 2000);
 
 
         })
-
-
-        $(document).on("click", ".remove", function() {
-            let id = parseInt($(this).data("id"))
-
-            $(`.product${id}`).remove();
-            product_list = product_list.filter(item => item.product_id !== id);
-
-        });
-
-
-        $("#UploadForm").on("submit", function() {
-
-            if ($("#mode_of_transport").val() == false) {
-                toastr.error("Please select mode of transport");
-                return;
-            }
-
-            $('#prod_list').val(JSON.stringify(product_list));
-            $("#btnSubmit").attr("disabled", "disabled")
-
-        });
-        $("#customer_id").trigger("change");
-        $("#order_id").trigger("change");
     </script>
 @endsection

@@ -25,7 +25,7 @@
                     <div>
                         <label for="">From</label>
                         <input type="date" name="fromDt" class="form-control" onchange="this.form.submit()"
-                            value="{{ request('fromDt') ?? \Carbon\Carbon::now()->startOfMonth()->toDateString() }}">
+                            value="{{ request('fromDt') ?? \Carbon\Carbon::now()->toDateString() }}">
 
                     </div>
 

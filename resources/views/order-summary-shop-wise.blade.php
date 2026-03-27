@@ -258,9 +258,9 @@
 
                             <thead>
                                 <tr>
-                                    <th style="width:60%">Product</th>
-                                    <th style="width:20%;text-align:center;">Order Qty</th>
-                                    <th style="width:20%;text-align:center;">Actual Qty</th>
+                                    <th style="width:60%;text-align:center; border:1px solid #635e5e;"   >Product</th>
+                                    <th style="width:20%;text-align:center;  border:1px solid #635e5e;">Order Qty</th>
+                                    <th style="width:20%;text-align:center;  border:1px solid #635e5e;">Actual Qty</th>
                                 </tr>
                             </thead>
 
@@ -271,21 +271,21 @@
                                 @foreach($items as $item)
 
                                 <tr>
-                                    <td>{{ $item->product }}</td>
-                                    <td style="text-align:center;">
+                                    <td  style="  border:1px solid #635e5e;">{{ $item->product }}</td>
+                                    <td  style="text-align:center; border:1px solid #635e5e;">
                                         {{ formatQtyPrice($item->qty) }}
                                     </td>
-                                    <td></td>
+                                    <td  style="text-align:center; border:1px solid #635e5e;"></td>
                                 </tr>
 
                                 @php $total += $item->qty; @endphp
 
                                 @endforeach
 
-                                <tr class="total-row">
-                                    <td colspan="3">
-                                        Total Qty : {{ number_format($total,2) }}
-                                    </td>
+                                <tr>
+                                    <td style="text-align:right; border:1px solid #635e5e;"><b>Total</b></td>
+                                    <td style="text-align:center; border:1px solid #635e5e;"><b>{{ number_format($total,2) }}</b></td>
+                                    <td style="border:1px solid #635e5e;"></td>
                                 </tr>
 
                             </tbody>
@@ -308,6 +308,11 @@
 <script>
     $(document).ready(function() {
         $("select").select2();
+
+        $("#customer_id").on("change",function(){
+    
+            $("#date").trigger("change")
+        })
 
         $("#date").on("change click", function() {
             var customer_id = $("#customer_id").val();

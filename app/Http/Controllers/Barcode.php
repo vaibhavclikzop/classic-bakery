@@ -32,38 +32,48 @@ class Barcode extends Controller
                         "c.name as product_name",
                         "a.delivery_date",
                         "c.warranty_days as expiry",
+
                         DB::raw("SUM(b.qty) as qty"),
+                        'c.f_category_id as category_id',
                     )
                     ->join("order_det as b", "a.id", "b.mst_id")
                     ->join("finish_products_mst as c", "b.product_id", "c.id")
                     ->whereDate("a.delivery_date", "=", $delivery_date)
-                    ->where("a.status","!=","cancel");
+                    ->where("a.status", "!=", "cancel");
                 if ($product_id) {
                     $mst->where("b.product_id", "=", $product_id);
                 }
-                if ($sub_category_id) {
+                if ($category_id) {
                     $mst->where("c.f_category_id", "=", $category_id);
+                }
+                if ($sub_category_id) {
+
                     $mst->where("c.f_sub_category_id", "=", $sub_category_id);
                 }
 
-                $productNames = $mst->groupBy("c.id", "c.name", "a.delivery_date",  "c.warranty_days", "c.f_sub_category_id")
+                $productNames = $mst->groupBy("c.id", "c.name", "a.delivery_date",  "c.warranty_days", "c.f_sub_category_id", "c.f_category_id")
                     ->get();
             } else {
                 $product =  DB::table("finish_products_mst as a")->select(
                     'a.name as product_name',
                     'a.id as product_id',
-                    'a.warranty_days as expiry'
+                    'a.warranty_days as expiry',
+                    'a.f_category_id as category_id',
                 );
                 if ($product_id) {
                     $product->where("a.id", "=", $product_id);
                 }
-                if ($sub_category_id) {
+                if ($category_id) {
                     $product->where("a.f_category_id", "=", $category_id);
+                }
+                if ($sub_category_id) {
+
                     $product->where("a.f_sub_category_id", "=", $sub_category_id);
                 }
                 $productNames = $product->get();
             }
         }
+     
         return view("barcode", compact("data", "productNames", "f_product_category"));
     }
 
@@ -83,13 +93,14 @@ class Barcode extends Controller
 
         $data = collect($products)->map(function ($product) {
             $mst = DB::table("finish_products_mst")
-                ->select('price', 'bar_code', 'name')
+                ->select('price', 'bar_code', 'name',"f_category_id")
                 ->where("id", $product['id'])
                 ->first();
 
             return array_merge((array) $mst, [
                 'qty'    => $product['qty'],
                 'expiry' => $product['expiry'],
+    
             ]);
         });
         return view("print-barcode-all", compact("data"));

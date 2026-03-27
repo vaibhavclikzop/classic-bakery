@@ -74,6 +74,7 @@
 
                             <th>Order Date</th>
                             <th>Delivery Date</th>
+                            <th>Status</th>
 
 
                             <th>User</th>
@@ -99,6 +100,16 @@
 
                                 <th>{{ $item->order_date }}</th>
                                 <th>{{ $item->delivery_date }}</th>
+                               <th>
+
+                                        @if ($item->status == 'complete')
+                                            <span class="badge bg-success">Complete</span>
+                                        @elseif ($item->order_status == 'fresh')
+                                            <span class="badge bg-dark">Fresh</span>
+                                        @else
+                                            <span class="badge bg-warning">Partial</span>
+                                        @endif
+                                    </th>
 
 
                                 <th>{{ $item->user }}</th>
@@ -144,7 +155,7 @@
 
 
                                 <th>Delivery Date</th>
-
+                                <th>Status</th>
 
                                 <th>User</th>
 
@@ -168,6 +179,16 @@
 
 
                                     <th>{{ $item->delivery_date }}</th>
+                                    <th>
+
+                                        @if ($item->status == 'complete')
+                                            <span class="badge bg-success">Complete</span>
+                                        @elseif ($item->order_status == 'fresh')
+                                            <span class="badge bg-dark">Fresh</span>
+                                        @else
+                                            <span class="badge bg-warning">Partial</span>
+                                        @endif
+                                    </th>
 
 
                                     <th>{{ $item->user }}</th>
@@ -305,32 +326,35 @@
 
     <form action="{{ route('CancelOrder') }}" method="POST" class="needs-validation" novalidate>
         @csrf
-		<div class="modal fade" id="cancelOrderModal">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="page-wrapper-new p-0">
-						<div class="content p-5 px-3 text-center">
-								<span class="rounded-circle d-inline-flex p-2 bg-danger-transparent mb-2"><i class="fa fa-trash fs-24 text-danger"></i></span>
-								<h4 class="fs-20 text-gray-9 fw-bold mb-2 mt-1">Cancel Order</h4>
-								 <input type="hidden" id="deleteId" name="id">
-								<p class="text-gray-6 mb-0 fs-16">Enter password to cancel order?</p>
-								<div class="pass-group" style="position: relative;max-width: 300px; margin: 0 auto;">
-			                        <input type="password" class="pass-input form-control" value=""
-			                        name="order_pwd" required>
-			                       
-			                    </div>
-                                
+        <div class="modal fade" id="cancelOrderModal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="page-wrapper-new p-0">
+                        <div class="content p-5 px-3 text-center">
+                            <span class="rounded-circle d-inline-flex p-2 bg-danger-transparent mb-2"><i
+                                    class="fa fa-trash fs-24 text-danger"></i></span>
+                            <h4 class="fs-20 text-gray-9 fw-bold mb-2 mt-1">Cancel Order</h4>
+                            <input type="hidden" id="deleteId" name="id">
+                            <p class="text-gray-6 mb-0 fs-16">Enter password to cancel order?</p>
+                            <div class="pass-group" style="position: relative;max-width: 300px; margin: 0 auto;">
+                                <input type="password" class="pass-input form-control" value="" name="order_pwd"
+                                    required>
 
-								<div class="modal-footer-btn mt-3 d-flex justify-content-center">
-									<button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none" data-bs-dismiss="modal">Close</button>
-									<button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3">Yes Cancel</button>
-								</div>						
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		 </form>
+                            </div>
+
+
+                            <div class="modal-footer-btn mt-3 d-flex justify-content-center">
+                                <button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
+                                    data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3">Yes
+                                    Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 
     <script>
         window.addEventListener("pageshow", function(event) {

@@ -154,7 +154,7 @@
 
                         <div>
                             <span class="bold">Order Date :</span>
-                            {{ date('d/m/Y H:i:s',strtotime($item->order_date)) }}
+                            {{ date('d/m/Y',strtotime($item->order_date)) }}
                         </div>
 
                         @foreach($item->details as $i)
@@ -189,9 +189,13 @@
 
                         <div>
                             <span class="bold">Delivery Date:</span>
-                            {{ date('d/m/Y H:i:s',strtotime($item->delivery_date)) }}
+                            {{ date('d/m/Y',strtotime($item->delivery_date)) }}
                         </div>
 
+                           <div>
+                            <span class="bold">Delivery Time:</span>
+                            {{ date('h:i:A',strtotime($item->delivery_time)) }}
+                        </div>
                         @foreach($item->details as $i)
 
                         <div>

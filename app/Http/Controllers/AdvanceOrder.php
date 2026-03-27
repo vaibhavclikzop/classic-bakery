@@ -836,18 +836,7 @@ class AdvanceOrder extends Controller
         }
         try {
 
-            $out_inv_no =   DB::table("outward_customer_order_mst")->whereDate("created_at", now())->count();
-            $adv_inv_no =   DB::table("adv_order_mst")->whereDate("created_at", now())->where("is_invoice", 1)->count();
-            $inv_no = $out_inv_no + $adv_inv_no;
-            if (!$inv_no) {
-                $inv_no = 1;
-            } else {
-                $inv_no++;
-            }
-
-
-            $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
-            $invoice_id = $invoice_prefix->order_prefix . date('d-m-y') . "-" . $inv_no;
+                 $invoice_id= getInvoiceNo();
             DB::table('adv_order_mst')->where("id", $request->convertID)->update(array(
                 "is_invoice" => 1,
                 "status" => "delivered",
