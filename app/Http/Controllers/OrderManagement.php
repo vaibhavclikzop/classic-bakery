@@ -798,8 +798,10 @@ class OrderManagement extends Controller
             ->join("finish_products_mst as b", "a.product_id", "b.id")
             ->join("f_product_sub_category as c", "b.f_sub_category_id", "c.id")
             ->where("a.mst_id", $id)
-            ->orderBy("c.name", "asc")
-            ->orderBy("b.name", "asc")
+            // ->orderBy("c.name", "asc")
+            // ->orderBy("b.name", "asc")
+            ->orderByRaw("LOWER(b.name) ASC")
+
             ->get();
 
 
@@ -1383,7 +1385,7 @@ class OrderManagement extends Controller
         return     DB::table("order_mst as a")
             ->select("a.*", "b.name as order_type")
             ->join("order_type as b", "a.order_type_id", "b.id")
-            ->where("a.order_type", $request->type)->where("a.customer_id", $request->customer_id)->whereDate("a.delivery_date", $request->date)->where("a.status", "!=", "pending")->orderBy("b.name","asc")->get();
+            ->where("a.order_type", $request->type)->where("a.customer_id", $request->customer_id)->whereDate("a.delivery_date", $request->date)->where("a.status", "!=", "pending")->orderBy("b.name", "asc")->get();
     }
 
     public function CancelOrder(Request $request)

@@ -153,7 +153,7 @@
 
             <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
                 <div>
-                    <strong>{{ $setting->company_name }}</strong>
+                    <strong>{{ $customer_details->name ?? '' }}</strong>
                 </div>
 
                 <div>
@@ -167,7 +167,7 @@
 
             <hr>
 
-            <div style="display:flex;justify-content:space-between;margin-bottom:15px;">
+            {{-- <div style="display:flex;justify-content:space-between;margin-bottom:15px;">
 
                 <div style="width:60%;">
                     <b>Shop Name :</b> {{ $customer_details->name ?? '' }} <br>
@@ -180,7 +180,7 @@
                     @endforeach
                 </div>
 
-            </div>
+            </div> --}}
 
             @php
             $grouped = $work_order_det->groupBy('sub_category');

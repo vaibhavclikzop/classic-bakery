@@ -8,6 +8,7 @@
             border: solid 1px;
             padding: 0px 7px;
         }
+          
     </style>
     <div class="card">
         <div class="card-header d-flex justify-content-between">
@@ -320,7 +321,6 @@
                                 <input type="number" step="" class="form-control qty"  data-product_id="${product_id}"  value="${qty}"  data-actual_qty="${qty}" data-stock="${stock}">
                             </td>    
                            
-                
                             <td class="${color}"> 
                                 <button type="button"  class="btn btn-danger remove btn-sm"  data-id="${element.product_id}">
                                     <i class="fa fa-trash" aria-hidden="true"></i>

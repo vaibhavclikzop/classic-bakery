@@ -275,7 +275,7 @@ class OutwardStock extends Controller
 
 
 
-           $order_no= getInvoiceNo();
+            $order_no = getInvoiceNo();
 
             $mst_id = DB::table('outward_customer_order_mst')->insertGetId(array(
 
@@ -590,6 +590,8 @@ class OutwardStock extends Controller
             ->join("f_product_sub_category as c", "b.f_sub_category_id", "=", "c.id")
             ->join("unit_type as e", "b.uom", "=", "e.id")
             ->where("a.mst_id", $id)
+            ->orderByRaw("LOWER(b.name) ASC")
+
             ->get();
 
 
