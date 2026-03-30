@@ -493,6 +493,10 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('customer-wise-report', [Reports::class, 'CustomerWiseReport'])->name('customer-wise-report');
   Route::get('getSaleRegisterReportData', [Reports::class, 'getSaleRegisterReportData'])->name('getSaleRegisterReportData');
 
+  Route::get('sale-report-tax-bifurcation', [Reports::class, 'saleReportTaxBifurcation'])->name('sale-report-tax-bifurcation');
+  Route::get('getSaleReportGstBifurcation', [Reports::class, 'getSaleReportGstBifurcation'])->name('getSaleReportGstBifurcation');
+
+  
   //tally report
   Route::get('tally-report', [TallyController::class, 'tallyReport'])->name('tally-report');
   Route::get('outlet_customer', [Masters::class, 'outlet_customer'])->name('outlet_customer');

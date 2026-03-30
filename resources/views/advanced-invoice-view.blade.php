@@ -134,6 +134,7 @@
 
                         <th style="border:  solid 1px; padding:2px">Description of goods</th>
 
+                        <th style="border:  solid 1px; padding:2px">Desc. Remarks</th>
                         <th style="border:  solid 1px; padding:2px">UOM</th>
                         <th style="border:  solid 1px; padding:2px">MRP</th>
                         <th style="border:  solid 1px; padding:2px">Weight</th>
@@ -200,6 +201,7 @@
 
                                 <td style="border:  solid 1px; padding:2px">{{ $item->product }}, {{ $item->weight }} KG
                                     {{ $item->shape }} <br> {{ $item->flavour }} </td>
+                                         <td style="border:  solid 1px; padding:2px">{{ $item->message }} <br> {{$item->description}}</td>
 
                                 <td style="border:  solid 1px; padding:2px">QTY</td>
                                 <td style="border:  solid 1px; padding:2px">
@@ -230,7 +232,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px" colspan="5">Total</th>
+                            <th style="border:  solid 1px; padding:2px" colspan="6">Total</th>
                             <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($qty) }}</th>
                             <th style="border:  solid 1px; padding:2px"></th>
                             <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($total_taxable) }}</th>

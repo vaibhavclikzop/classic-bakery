@@ -745,6 +745,10 @@
                                              <li><a href="/sale-register-report"
                                                      class="{{ Request::is('sale-register-report') ? 'active' : '' }}">Sale
                                                      Register</a></li>
+
+                                                          <li><a href="/sale-report-tax-bifurcation"
+                                                     class="{{ Request::is('sale-report-tax-bifurcation') ? 'active' : '' }}">
+                                                     Sale Report Tax Bifurcation </a></li>
                                              <li><a href="/category-subcategory-report"
                                                      class="{{ Request::is('category-subcategory-report') ? 'active' : '' }}">Category
                                                      Sub Category Report</a></li>
@@ -771,6 +775,8 @@
                                              <li><a href="/fa-stock-upload-report"
                                                      class="{{ Request::is('fa-stock-upload-report') ? 'active' : '' }}">
                                                      FaStock Upload Report </a></li>
+
+                                                     
                                          </ul>
                                      </li>
                                  @endif

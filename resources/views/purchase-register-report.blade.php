@@ -44,6 +44,12 @@
                         <th>Supplier</th>
                         <th>PE NO.</th>
                         <th>PE Date</th>
+                        <th>Taxable Amount</th>
+                        <th>GST Amount</th>
+                        <th>CESS Amount</th>
+                        <th>TCS</th>
+                        <th>TDS</th>
+                        <th>Extra Charges</th>
                         <th>Invoice Amount</th>
                       
                     
@@ -59,7 +65,13 @@
                             <td>{{$item->vendor}}</td>
                             <td>{{$item->invoice_id}}</td>
                             <td>{{$item->received_material_date}}</td>
-                            <td>{{$item->total_amount+$item->delivery_charges}}</td>
+                            <td>{{number_format($item->taxable_amount,2)}}</td>
+                            <td>{{number_format($item->gst_amount,2)}}</td>
+                            <td>{{number_format($item->cess_amount,2)}}</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>{{number_format($item->delivery_charges,2)}}</td>
+                            <td>{{number_format($item->total_amount+$item->delivery_charges,2)}}</td>
                            
                         </tr>
                     @endforeach

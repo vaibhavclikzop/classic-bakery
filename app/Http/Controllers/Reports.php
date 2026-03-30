@@ -86,12 +86,40 @@ class Reports extends Controller
                 "a.invoice_id as invoice_id",
                 "a.received_material_date",
                 "c.name as vendor",
-                DB::raw("SUM((b.qty * b.price) + ((b.qty * b.price * b.gst) / 100)+ ((b.qty * b.price * b.cess_tax) / 100)) as total_amount"),
-                "a.delivery_charges"
 
+
+                DB::raw("SUM(b.qty * b.price) as taxable_amount"),
+
+
+                DB::raw("SUM((b.qty * b.price * b.gst) / 100) as gst_amount"),
+
+
+                DB::raw("SUM((b.qty * b.price * b.cess_tax) / 100) as cess_amount"),
+
+
+                DB::raw("
+            SUM(
+                (b.qty * b.price) +
+                ((b.qty * b.price * b.gst) / 100) +
+                ((b.qty * b.price * b.cess_tax) / 100)
+            ) as total_amount
+        "),
+
+
+                "a.delivery_charges",
+
+
+                DB::raw("
+            SUM(
+                (b.qty * b.price) +
+                ((b.qty * b.price * b.gst) / 100) +
+                ((b.qty * b.price * b.cess_tax) / 100)
+            ) + a.delivery_charges as grand_total
+        ")
             )
             ->join("stock_inward_det as b", "a.id", "=", "b.mst_id")
             ->join("vendor as c", "a.vendor_id", "=", "c.id");
+
 
         if ($fromDt) {
             $filterRawMaterial->whereDate("a.received_material_date", ">=", $fromDt);
@@ -105,13 +133,40 @@ class Reports extends Controller
 
 
         $filterFinishGoods = DB::table("stock_inward_mst_finish_goods as a")
-            ->select(
+                ->select(
                 "a.id as invoice_id",
                 "a.received_material_date",
                 "c.name as vendor",
-                DB::raw("SUM((b.qty * b.price) + ((b.qty * b.price * b.gst) / 100)+((b.qty * b.price * b.cess_tax) / 100)) as total_amount"),
-                "a.delivery_charges"
 
+
+                DB::raw("SUM(b.qty * b.price) as taxable_amount"),
+
+
+                DB::raw("SUM((b.qty * b.price * b.gst) / 100) as gst_amount"),
+
+
+                DB::raw("SUM((b.qty * b.price * b.cess_tax) / 100) as cess_amount"),
+
+
+                DB::raw("
+            SUM(
+                (b.qty * b.price) +
+                ((b.qty * b.price * b.gst) / 100) +
+                ((b.qty * b.price * b.cess_tax) / 100)
+            ) as total_amount
+        "),
+
+
+                "a.delivery_charges",
+
+
+                DB::raw("
+            SUM(
+                (b.qty * b.price) +
+                ((b.qty * b.price * b.gst) / 100) +
+                ((b.qty * b.price * b.cess_tax) / 100)
+            ) + a.delivery_charges as grand_total
+        ")
             )
             ->join("stock_inward_det_finish_goods as b", "a.id", "=", "b.mst_id")
             ->join("vendor as c", "a.vendor_id", "=", "c.id");
@@ -418,5 +473,196 @@ ROUND(SUM(IF(b.gst_type = 'Inner GST', ((b.outlet_price) - (b.outlet_price / (1 
         // die;
 
         return view("customer-wise-report", compact("report", "customers"));
+    }
+
+    public function saleReportTaxBifurcation(Request $request)
+    {
+        $gstRates = DB::table('gst')->orderBy("gst", "asc")->get();
+        return view("report.sale-report-tax-bifurcation", compact("gstRates"));
+    }
+
+    public function getSaleReportGstBifurcation(Request $request)
+    {
+        $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
+        $toDt   = $request->input("toDt") ?: Carbon::now()->toDateString();
+        $page   = $request->input("page", 1);
+
+        $limit  = 1000;
+        $offset = ($page - 1) * $limit;
+
+
+
+
+
+
+        // ✅ STEP 1: GET GST RATES
+        $gstRatesRaw = DB::table('gst')->orderBy("gst", "asc")->pluck('gst')->toArray();
+
+        $gstRates = array_map(function ($gst) {
+            return (int)$gst; // 5.00 → 5
+        }, $gstRatesRaw);
+
+
+        // ✅ STEP 2: BUILD DYNAMIC COLUMNS (SAFE WAY)
+        $columnsRegular = [];
+        $columnsAdvance = [];
+
+        foreach ($gstRates as $gst) {
+
+            // REGULAR (c.gst)
+            $columnsRegular[] = "SUM(CASE WHEN ROUND(c.gst) = $gst THEN b.qty*c.price ELSE 0 END) AS taxable_$gst";
+
+            $columnsRegular[] = "SUM(CASE WHEN ROUND(c.gst) = $gst THEN 
+        (b.qty*c.price) - ((b.qty*c.price)/(1+($gst/100)))
+    ELSE 0 END) AS gst_$gst";
+
+
+            // ADVANCE (b.gst)
+            $columnsAdvance[] = "SUM(CASE WHEN ROUND(b.gst) = $gst THEN b.outlet_price ELSE 0 END) AS taxable_$gst";
+
+            $columnsAdvance[] = "SUM(CASE WHEN ROUND(b.gst) = $gst THEN 
+        b.outlet_price - (b.outlet_price/(1+($gst/100)))
+    ELSE 0 END) AS gst_$gst";
+        }
+
+        $dynamicColumnsRegular = implode(",\n", $columnsRegular);
+        $dynamicColumnsAdvance = implode(",\n", $columnsAdvance);
+
+
+        // ✅ STEP 3: FINAL QUERY
+        $sql = "
+SELECT * FROM (
+
+    -- CUSTOMER REGULAR
+    SELECT
+        a.invoice_no,
+        a.order_no AS id,
+        a.invoice_date,
+        e.name,
+        a.is_invoice,
+        'Regular Order' AS order_type,
+
+        $dynamicColumnsRegular,
+
+        SUM((b.qty*c.price) - ((b.qty*c.price)/(1+(c.gst/100)))) AS total_gst,
+        SUM(b.qty*c.price) AS total_amount
+
+    FROM outward_customer_order_mst a
+    JOIN outward_customer_order_det b ON a.id = b.mst_id
+    JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
+    JOIN order_mst d ON a.order_id = d.id
+    JOIN customers e ON d.customer_id = e.id
+
+    WHERE d.order_type = 'customer'
+      AND a.invoice_date BETWEEN ? AND ?
+
+    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name, a.is_invoice
+
+    UNION ALL
+
+    -- OUTLET REGULAR
+    SELECT
+        a.invoice_no,
+        a.order_no AS id,
+        a.invoice_date,
+        e.outlet_name AS name,
+        a.is_invoice,
+        'Regular Order',
+
+        $dynamicColumnsRegular,
+
+        SUM((b.qty*c.price) - ((b.qty*c.price)/(1+(c.gst/100)))) AS total_gst,
+        SUM(b.qty*c.price) AS total_amount
+
+    FROM outward_customer_order_mst a
+    JOIN outward_customer_order_det b ON a.id = b.mst_id
+    JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
+    JOIN order_mst d ON a.order_id = d.id
+    JOIN outlet e ON d.customer_id = e.id
+
+    WHERE d.order_type = 'outlet'
+      AND a.invoice_date BETWEEN ? AND ?
+
+    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.outlet_name, a.is_invoice
+
+    UNION ALL
+
+    -- CUSTOMER ADVANCE
+    SELECT
+        a.order_id AS invoice_no,
+        a.order_id AS id,
+        a.order_date AS invoice_date,
+        c.name,
+        a.is_invoice,
+        'Advance Order',
+
+        $dynamicColumnsAdvance,
+
+        SUM(b.outlet_price - (b.outlet_price/(1+(b.gst/100)))) AS total_gst,
+        SUM(b.outlet_price) AS total_amount
+
+    FROM adv_order_mst a
+    JOIN adv_order_det b ON a.id = b.mst_id
+    JOIN customers c ON a.outlet_id = c.id
+
+    WHERE a.customer_type = 'customer'
+      AND (a.status IN ('dispatch','delivered') OR a.is_invoice=1)
+      AND a.order_date BETWEEN ? AND ?
+
+    GROUP BY a.order_date, a.id, c.name, a.order_id, a.is_invoice
+
+    UNION ALL
+
+    -- OUTLET ADVANCE
+    SELECT
+        a.order_id AS invoice_no,
+        a.order_id AS id,
+        a.order_date AS invoice_date,
+        c.outlet_name,
+        a.is_invoice,
+        'Advance Order',
+
+        $dynamicColumnsAdvance,
+
+        SUM(b.outlet_price - (b.outlet_price/(1+(b.gst/100)))) AS total_gst,
+        SUM(b.outlet_price) AS total_amount
+
+    FROM adv_order_mst a
+    JOIN adv_order_det b ON a.id = b.mst_id
+    JOIN outlet c ON a.outlet_id = c.id
+
+    WHERE a.customer_type = 'outlet'
+      AND (a.status IN ('dispatch','delivered') OR a.is_invoice=1)
+      AND a.order_date BETWEEN ? AND ?
+
+    GROUP BY a.order_date, a.id, c.outlet_name, a.order_id, a.is_invoice
+
+) AS final_data
+
+ORDER BY invoice_date DESC
+LIMIT ? OFFSET ?
+";
+
+
+        $params = [
+            $fromDt,
+            $toDt,
+            $fromDt,
+            $toDt,
+            $fromDt,
+            $toDt,
+            $fromDt,
+            $toDt
+        ];
+
+        $data = DB::select($sql, array_merge($params, [$limit, $offset]));
+
+        // echo "<pre>";
+        // print_r($data);
+        // die;
+
+        return response()->json([
+            'data' => $data
+        ]);
     }
 }
