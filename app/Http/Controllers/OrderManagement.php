@@ -450,6 +450,7 @@ class OrderManagement extends Controller
                     "gst_type" => $gst_type,
                     "cess_amt" => $finish_products_mst->cess_tax,
                     "mrp" => $finish_products_mst->price,
+                    "discount" => $value->discount,
                 ));
             }
             $company_setting = DB::table("company_settings")->where("id", 1)->increment("order_no");
@@ -794,7 +795,9 @@ class OrderManagement extends Controller
         $order_mst = $customer_order ?? $outlet_order;
 
         $order_det = DB::table("order_det as a")
-            ->select("a.*", "b.name as product", "b.hsn_code as hsn", "b.article_no as article_no", "c.name as sub_category")
+            ->select("a.*", "b.name as product", "b.hsn_code as hsn", "b.article_no as article_no", "c.name as sub_category",
+            DB::raw(" a.price-a.price/100*a.discount as price")
+            )
             ->join("finish_products_mst as b", "a.product_id", "b.id")
             ->join("f_product_sub_category as c", "b.f_sub_category_id", "c.id")
             ->where("a.mst_id", $id)
@@ -1236,7 +1239,7 @@ class OrderManagement extends Controller
             ->leftJoin("finish_product_stock as c", "b.id", "c.product_id")
             ->join("f_product_sub_category as e", "b.f_sub_category_id", "e.id")
             ->where("a.customer_type_id", $customers->customer_type_id)
-            ->where('active', 1)
+            ->where('b.active', 1)
             ->whereIn("e.id", explode(', ', $order_type->f_sub_category_id))
             ->orderBy("b.name", "asc")
             ->get();
@@ -1362,7 +1365,7 @@ class OrderManagement extends Controller
 
             // $work_order->where("a.mst_id", $work_order_mst->id);
 
-            $work_order_det = $work_order->orderBy("e.name", "asc")->get();
+            $work_order_det = $work_order->orderBy("e.name", "asc")->orderBy("d.name", "asc")->get();
         }
 
 

@@ -495,7 +495,9 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   Route::get('sale-report-tax-bifurcation', [Reports::class, 'saleReportTaxBifurcation'])->name('sale-report-tax-bifurcation');
   Route::get('getSaleReportGstBifurcation', [Reports::class, 'getSaleReportGstBifurcation'])->name('getSaleReportGstBifurcation');
+  Route::get('department-wise-treading', [Reports::class, 'departmentWiseTreadingReport'])->name('department-wise-treading');
 
+  
   
   //tally report
   Route::get('tally-report', [TallyController::class, 'tallyReport'])->name('tally-report');

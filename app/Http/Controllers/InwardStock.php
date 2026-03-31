@@ -293,12 +293,15 @@ class InwardStock extends Controller
             return redirect()->back()->with('error', "Select at least one product");
         }
 
-        // echo "<pre>";
-        // print_r($prod_list);
-        // die;
+
         $poGrouped = collect($prod_list)->groupBy('po_id');
+        // echo "<pre>";
+        // print_r(count($poGrouped));
+        // die;
         try {
             DB::beginTransaction();
+            $delivery_charges = $request->delivery_charges / count($poGrouped);
+          
 
             foreach ($poGrouped as $po_id => $products) {
                 $inv_no =   DB::table("stock_inward_mst")->whereDate("created_at", now())->count();
@@ -319,7 +322,7 @@ class InwardStock extends Controller
                     "received_material_date" => $request->received_material_date,
                     "description" => $request->description,
                     "user_id" => $request->user->id,
-                    "delivery_charges" => $request->delivery_charges,
+                    "delivery_charges" => $delivery_charges,
 
                 ));
                 $status = 0;

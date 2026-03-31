@@ -41,17 +41,7 @@
          integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
      <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<style>
-  input[type=number]::-webkit-outer-spin-button,
-            input[type=number]::-webkit-inner-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
-            }
-
-            input[type=number] {
-                -moz-appearance: textfield;
-            }
-</style>
+ 
  </head>
 
  <body>
@@ -273,7 +263,7 @@
                              </ul>
                          </li>
 
-                                                  <li class="submenu-open">
+                         <li class="submenu-open">
                              <ul>
 
                                  @if ($rolePermissions->where('permission_id', 11)->where('view', 1)->isNotEmpty())
@@ -757,7 +747,7 @@
                                                      class="{{ Request::is('sale-register-report') ? 'active' : '' }}">Sale
                                                      Register</a></li>
 
-                                                          <li><a href="/sale-report-tax-bifurcation"
+                                             <li><a href="/sale-report-tax-bifurcation"
                                                      class="{{ Request::is('sale-report-tax-bifurcation') ? 'active' : '' }}">
                                                      Sale Report Tax Bifurcation </a></li>
                                              <li><a href="/category-subcategory-report"
@@ -787,7 +777,7 @@
                                                      class="{{ Request::is('fa-stock-upload-report') ? 'active' : '' }}">
                                                      FaStock Upload Report </a></li>
 
-                                                     
+
                                          </ul>
                                      </li>
                                  @endif

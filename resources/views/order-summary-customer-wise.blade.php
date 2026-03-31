@@ -9,9 +9,27 @@
             <div class="page-title">
                 <h4>Order Summary </h4>
 
+
             </div>
             <div class="d-flex">
-                <button id="exportToExcel" data-name="order summary" class="btn btn-success float-end btn-sm">Export to Excel</button>
+                <div class="mx-2">
+                    <form action="">
+                        <select class="form-control" name="id" onchange="this.form.submit()">
+                            <option value="">Select Department</option>
+
+                            @foreach ($department as $item)
+                                <option value="{{ $item->id }}" {{ request('id') == $item->id ? 'selected' : '' }}>
+                                    {{ $item->name }}
+                                </option>
+                            @endforeach
+
+                        </select>
+
+                    </form>
+                </div>
+                <button id="exportToExcel" data-name="order summary" class="btn btn-success float-end btn-sm">Export to
+                    Excel</button>
+                    
 
 
                 <form method="get" class="mx-4 d-flex">
@@ -34,12 +52,7 @@
             </div>
         </div>
         <div class="card-body">
-            <div>
-                @foreach ($department as $item)
-                    <a class="btn btn-sm {{ request('id') == $item->id ? 'btn-success' : 'btn-dark' }} "
-                        href="/order-summary-customer-wise?id={{ $item->id }}&date={{ request('date') }}">{{ $item->name }}</a>
-                @endforeach
-            </div>
+
             <div id="PrintOrder" class="mt-5">
                 <div style="display: flex; justify-content: space-between; border: solid 1px; padding: 8px;">
                     <div>
@@ -124,10 +137,10 @@
                                                     $qtySum += $data['qty']; // Sum all quantities for the same customer
                                                 }
                                             }
-                                            if ($qtySum==0) {
-                                                $qtySumName="";
-                                            }else{
-                                                $qtySumName=$qtySum;
+                                            if ($qtySum == 0) {
+                                                $qtySumName = '';
+                                            } else {
+                                                $qtySumName = $qtySum;
                                             }
                                             echo '<td style="border: solid 1px; padding: 5px">' . $qtySumName . '</td>';
                                             $total += $qtySum;

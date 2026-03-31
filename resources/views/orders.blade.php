@@ -20,6 +20,9 @@
                     @if ($status == 'processing')
                         {{-- <a href="/order-summary-department-wise?id={{ $department->id }}" class="btn btn-primary mx-1">Order
                         Summary Department Wise</a> --}}
+                         <a href="/department-wise-treading?id={{ $department->id }}" class="btn btn-info mx-1">Department
+                            wise Treading Report
+                        </a>
                         <a href="/order-summary-customer-wise?id={{ $department->id }}" class="btn btn-info mx-1">Department
                             wise order report
                         </a>
@@ -63,7 +66,7 @@
                 <input type="hidden" name="date" value="{{ request('date') }}">
                 @csrf
                 <button class="btn btn-dark float-end">Proceed Order</button>
-                <table class="table ">
+                <table class="table dataTable">
                     <thead>
                         <tr>
                             <th><input type="checkbox" id="checks" checked> </th>
@@ -100,16 +103,16 @@
 
                                 <th>{{ $item->order_date }}</th>
                                 <th>{{ $item->delivery_date }}</th>
-                               <th>
+                                <th>
 
-                                        @if ($item->status == 'complete')
-                                            <span class="badge bg-success">Complete</span>
-                                        @elseif ($item->order_status == 'fresh')
-                                            <span class="badge bg-dark">Fresh</span>
-                                        @else
-                                            <span class="badge bg-warning">Partial</span>
-                                        @endif
-                                    </th>
+                                    @if ($item->status == 'complete')
+                                        <span class="badge bg-success">Complete</span>
+                                    @elseif ($item->order_status == 'fresh')
+                                        <span class="badge bg-dark">Fresh</span>
+                                    @else
+                                        <span class="badge bg-warning">Partial</span>
+                                    @endif
+                                </th>
 
 
                                 <th>{{ $item->user }}</th>
@@ -144,7 +147,7 @@
                 <form action="{{ route('CompleteProduction') }}" method="POST" id="formMain">
 
                     @csrf
-                    <table class="table dataTable">
+                    <table class="table dataTable table-hover">
                         <thead>
                             <tr>
                                 <th>S.no</th>
@@ -174,7 +177,8 @@
                                             class="checks">
                                     </th>
                                     <th>{{ $item->order_id }}</th>
-                                    <th>{{ $item->category }}</th>
+                                    <th style="white-space: normal;">{{ $item->category }}</th>
+
                                     <th>{{ $item->customer }}</th>
 
 

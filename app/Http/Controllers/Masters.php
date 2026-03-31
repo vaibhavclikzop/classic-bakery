@@ -749,6 +749,18 @@ class Masters extends Controller
                     "hindi" => $request->hindi
 
                 ));
+
+                 DB::table("po_det")
+                ->where("product_id", $request->id)
+                ->where("type", "raw material")
+                ->whereIn("mst_id", function ($q) {
+                    $q->select("id")
+                        ->from("po_mst")
+                        ->whereIn("status", ["pending", "generated"]);
+                })
+                ->update([
+                    "gst" => $request->gst
+                ]);
             }
         } catch (Exception $e) {
 
@@ -1387,6 +1399,18 @@ class Masters extends Controller
                     "price"      => $request->price,
                     "sale_price" => DB::raw("{$request->price} - ({$request->price}/100 * margin)")
                 ]);
+
+            DB::table("po_det")
+                ->where("product_id", $request->id)
+                ->where("type", "finished product")
+                ->whereIn("mst_id", function ($q) {
+                    $q->select("id")
+                        ->from("po_mst")
+                        ->whereIn("status", ["pending", "generated"]);
+                })
+                ->update([
+                    "gst" => $request->gst
+                ]);
         } catch (Exception $e) {
 
             return redirect()->back()->with('error', $e->getMessage());
@@ -1927,6 +1951,8 @@ class Masters extends Controller
                     "hsn_code" => $request->hsn_code,
 
                 ));
+
+
                 $mst_id = $request->id;
             }
             $prod_list = json_decode($request->prod_List);

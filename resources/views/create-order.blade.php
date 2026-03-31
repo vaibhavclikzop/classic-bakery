@@ -307,7 +307,7 @@
             var price = parseFloat($("#price").val())
             var gst = $("#product_id").find(":selected").data("gst");
             var gst_type = "Outer GST";
-
+            let discount = parseFloat($("#discount").val());
 
             if (!product_id || isNaN(product_id)) {
                 toastr.error("Select a valid Product");
@@ -372,7 +372,8 @@
                 qty,
                 price,
                 gst,
-                gst_type
+                gst_type,
+                discount
             });
             console.log(product_list);
             $("#qty").val("")
@@ -486,7 +487,7 @@
             let order = [
 
                 '#product_id',
-    
+
                 '#qty',
                 '#discount',
                 '#addProduct'

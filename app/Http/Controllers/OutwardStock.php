@@ -432,7 +432,7 @@ class OutwardStock extends Controller
                 "b.name as product",
                 "b.article_no",
                 "c.name as sub_category",
-                "d.price"
+                DB::raw(" d.price-d.price/100*d.discount as price")
             )
             ->join("outward_customer_order_mst as e", "a.mst_id", "=", "e.id") // Join 'e' first
             ->join("finish_products_mst as b", "a.product_id", "=", "b.id")
@@ -442,7 +442,8 @@ class OutwardStock extends Controller
                     ->on("e.order_id", "=", "d.mst_id");
             })
             ->where("a.mst_id", $id)
-            ->groupBy("a.qty", "b.name", "b.article_no", "c.name", "d.price", "a.product_id")
+            ->groupBy("a.qty", "b.name", "b.article_no", "c.name", "d.price", "a.product_id", "d.discount")
+            ->orderBy("b.name", "asc")
             ->get();
 
 
@@ -579,7 +580,7 @@ class OutwardStock extends Controller
                 "d.cess_amt",
                 "d.gst_type",
                 "d.gst as gst",
-                "d.price"
+                DB::raw(" d.price-d.price/100*d.discount as price")
             )
             ->join("outward_customer_order_mst as f", "a.mst_id", "=", "f.id")
             ->join("order_det as d", function ($join) {

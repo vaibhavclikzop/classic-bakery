@@ -59,7 +59,8 @@
                     <div class="col-md-3 mt-3">
                         <label>Delivery Charges</label>
                         <input type="number" step="0.01" name="delivery_charges" id="delivery_charges"
-                            class="form-control" placeholder="Enter Delivery Charges." value="0" min="0" required>
+                            class="form-control" placeholder="Enter Delivery Charges." value="0" min="0"
+                            required>
 
                     </div>
                     <div class="col-md-6 mt-3">
@@ -224,7 +225,7 @@
                                             </td>    
                                        
                                         <td style="min-width: 162px;"><input type="number" step="0.01" class="form-control price"  data-id="${product_id}"   value="${formatQtyPrice(element.price)}"></td>    
-                                        <td>${(element.price * r_qty * (1 + element.gst / 100 + element.cess_tax / 100)).toFixed(2)}</td>
+                                        <td class="line_total">${(element.price * r_qty * (1 + element.gst / 100 + element.cess_tax / 100)).toFixed(2)}</td>
  
 
                                         
@@ -321,6 +322,15 @@
                 if (product) {
 
                     product.qty = qty;
+
+
+
+                    var line_total = (qty * product.price) + ((qty * product.price) / 100 * product.gst);
+
+
+
+
+                    $(this).closest('tr').find('.line_total').text(line_total.toFixed(2));
                     console.log("Updated Product List:", product_list);
                 } else {
                     toastr.error("Something went wrong");
@@ -340,6 +350,13 @@
                 if (product) {
 
                     product.price = price;
+
+                    var line_total = (product.qty * price) + ((product.qty * price) / 100 * product.gst);
+
+
+
+
+                    $(this).closest('tr').find('.line_total').text(line_total.toFixed(2));
                     console.log("Updated Product List:", product_list);
                 } else {
                     toastr.error("Something went wrong");

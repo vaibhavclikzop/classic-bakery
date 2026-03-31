@@ -6,7 +6,7 @@
     <style>
         .myTable>th,td{
             border: solid 1px;
-            padding: 0px 7px;
+            padding: 0px 7px !important;
         }
           
     </style>
@@ -76,7 +76,7 @@
 
                     <div class="col-md-12">
                         <hr>
-                        <table class="w-100 myTable">
+                        <table class="w-100 myTable table-hover table">
                             <thead>
                                 <tr>
                                     <th>
