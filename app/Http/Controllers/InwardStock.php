@@ -295,16 +295,13 @@ class InwardStock extends Controller
 
 
         $poGrouped = collect($prod_list)->groupBy('po_id');
-        // echo "<pre>";
-        // print_r(count($poGrouped));
-        // die;
+      
         try {
             DB::beginTransaction();
-            $delivery_charges = $request->delivery_charges / count($poGrouped);
+        
           
 
-            foreach ($poGrouped as $po_id => $products) {
-                $inv_no =   DB::table("stock_inward_mst")->whereDate("created_at", now())->count();
+              $inv_no =   DB::table("stock_inward_mst")->whereDate("created_at", now())->count();
                 if (!$inv_no) {
                     $inv_no = 1;
                 } else {
@@ -315,16 +312,19 @@ class InwardStock extends Controller
 
                 $mst_id = DB::table('stock_inward_mst')->insertGetId(array(
                     "vendor_id" => $request->vendor_id,
-                    "po_id" => $po_id,
+                    "po_id" => implode(", ", $request->po_id),
                     "invoice_no" => $request->invoice_no,
                     "invoice_id" => $invoice_id,
                     "invoice_date" => $request->invoice_date,
                     "received_material_date" => $request->received_material_date,
                     "description" => $request->description,
                     "user_id" => $request->user->id,
-                    "delivery_charges" => $delivery_charges,
+                    "delivery_charges" =>  $request->delivery_charges ,
 
                 ));
+
+            foreach ($poGrouped as $po_id => $products) {
+              
                 $status = 0;
                 foreach ($products as $value) {
 
@@ -343,6 +343,7 @@ class InwardStock extends Controller
                             "cess_tax" => $check_po_det->cess_tax,
                             "sno" => 0,
                             "type" => $check_po_det->type,
+                            "po_id" => $po_id,
                         ));
 
 

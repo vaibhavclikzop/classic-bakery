@@ -801,7 +801,7 @@ class OrderManagement extends Controller
             ->join("finish_products_mst as b", "a.product_id", "b.id")
             ->join("f_product_sub_category as c", "b.f_sub_category_id", "c.id")
             ->where("a.mst_id", $id)
-            // ->orderBy("c.name", "asc")
+            ->orderBy("c.name", "asc")
             // ->orderBy("b.name", "asc")
             ->orderByRaw("LOWER(b.name) ASC")
 
@@ -1340,12 +1340,15 @@ class OrderManagement extends Controller
         if ($order_id) {
 
             $work_order =    DB::table("work_order_det as a")
-                ->select("a.*", "d.name as product", "e.name as sub_category", "f.name as category")
+                ->select( "d.name as product", "e.name as sub_category", "f.name as category",
+                DB::raw("sum(a.qty) as qty")
+                )
                 ->join("order_mst as b", "a.order_id", "b.id")
 
                 ->join("finish_products_mst as d", "a.product_id", "d.id")
                 ->join("f_product_sub_category as e", "d.f_sub_category_id", "e.id")
-                ->join("f_product_category as f", "d.f_category_id", "f.id");
+                ->join("f_product_category as f", "d.f_category_id", "f.id")
+                ->groupBy("a.product_id","d.name","e.name","f.name");
             if ($request->order_id) {
 
                 $work_order->whereIn("b.id", $request->order_id);

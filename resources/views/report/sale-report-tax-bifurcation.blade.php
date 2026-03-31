@@ -25,10 +25,22 @@
 
                     </div>
 
-                    <div>
+                    <div class="mx-2">
                         <label for="">To</label>
                         <input type="date" name="toDt" class="form-control" onchange="this.form.submit()"
                             value="{{ request('toDt') ?? \Carbon\Carbon::now()->toDateString() }}">
+
+                    </div>
+
+                    <div>
+                        <label for="">Customer Type</label>
+                        <select name="customer_type" id="" class="form-control" onchange="this.form.submit()">
+                            <option value="">Select</option>
+                            <option value="customer" {{ request('customer_type') == 'customer' ? 'selected' : '' }}>Customer
+                            </option>
+                            <option value="outlet" {{ request('customer_type') == 'outlet' ? 'selected' : '' }}>Outlet
+                            </option>
+                        </select>
 
                     </div>
                 </form>
@@ -47,7 +59,7 @@
             <div class="page-title">
                 <h4>Sale Register</h4>
             </div>
-            <table class="myTable ">
+            <table class="myTable " id="exportTable">
 
                 <tr>
                     <th>Invoice No.</th>
@@ -62,7 +74,7 @@
                 </tr>
 
 
-                <tbody id="exportTable">
+                <tbody>
                     <!-- JavaScript will populate rows grouped by Shop here -->
                 </tbody>
 
@@ -96,7 +108,8 @@
                 data: {
                     page: page,
                     fromDt: "{{ request('fromDt') ?? \Carbon\Carbon::now()->startOfMonth()->toDateString() }}",
-                    toDt: "{{ request('toDt') ?? \Carbon\Carbon::now()->toDateString() }}"
+                    toDt: "{{ request('toDt') ?? \Carbon\Carbon::now()->toDateString() }}",
+                    customer_type: "{{ request('customer_type') ??  '' }}",
                 },
                 beforeSend: function() {
 
@@ -109,7 +122,7 @@
                     }
                     var inv = 0;
                     var html = "";
-               
+
 
                     response.data.forEach(element => {
 

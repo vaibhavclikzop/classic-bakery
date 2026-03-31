@@ -746,10 +746,14 @@
                                              <li><a href="/sale-register-report"
                                                      class="{{ Request::is('sale-register-report') ? 'active' : '' }}">Sale
                                                      Register</a></li>
+                                                          <li><a href="/sale-register-user-wise"
+                                                     class="{{ Request::is('sale-register-user-wise') ? 'active' : '' }}">Sale
+                                                     Register User Wise</a></li>
 
                                              <li><a href="/sale-report-tax-bifurcation"
                                                      class="{{ Request::is('sale-report-tax-bifurcation') ? 'active' : '' }}">
                                                      Sale Report Tax Bifurcation </a></li>
+                                                     
                                              <li><a href="/category-subcategory-report"
                                                      class="{{ Request::is('category-subcategory-report') ? 'active' : '' }}">Category
                                                      Sub Category Report</a></li>

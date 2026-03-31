@@ -1,169 +1,173 @@
 @extends('layouts.main')
 
 @section('main-section')
+    @push('title')
+        <title>Production Chart Report</title>
+    @endpush
 
-@push('title')
-<title>Production Chart Report</title>
-@endpush
+    <div class="card">
 
-<div class="card">
+        <div class="card-header d-flex justify-content-between">
 
-    <div class="card-header d-flex justify-content-between">
-
-        <div>
-            <h4>Production Chart Report</h4>
-        </div>
-
-        <div class="d-flex">
-
-            <div class="mx-2">
-                <label>Date</label>
-                <input type="date"
-                    id="date"
-                    class="form-control"
-                    value="{{ date('Y-m-d') }}">
+            <div>
+                <h4>Production Chart Report</h4>
             </div>
 
-            <div class="mx-2">
+            <div class="d-flex">
 
-                <label>Category</label>
+                <div class="mx-2">
+                    <label>Date</label>
+                    <input type="date" id="date" class="form-control" value="{{ date('Y-m-d') }}">
+                </div>
 
-                <select id="category_id" class="form-control">
+                <div class="mx-2">
 
-                    <option value="">All Category</option>
+                    <label>Category</label>
 
-                    @foreach($category as $item)
+                    <select id="category_id" class="form-control">
 
-                    <option value="{{ $item->id }}">
-                        {{ $item->name }}
-                    </option>
+                        <option value="">All Category</option>
 
-                    @endforeach
+                        @foreach ($category as $item)
+                            <option value="{{ $item->id }}">
+                                {{ $item->name }}
+                            </option>
+                        @endforeach
 
-                </select>
+                    </select>
 
-            </div>
+                </div>
+                <div class="mx-2">
 
-        </div>
+                    <label>Customer Type</label>
 
-        <div>
-            <button id="exportToExcel" data-name="rm consumption report"
-                class="btn btn-success float-end btn-sm mx-2">Export
-                to Excel</button>
-            <button type="button" onclick="printcontent()" class="btn btn-primary btn-sm"><i class="fa fa-print"
-                    aria-hidden="true"></i> Print</button>
+                    <select id="customer_type" class="form-control">
 
-        </div>
+                        <option value="">Select</option>
 
-    </div>
+                       <option value="outlet">Outlet</option>
+                       <option value="customer">Customer</option>
 
-
-
-    <div class="card-body" id="PrintOrder">
-
-        <div class="text-center mb-3">
-
-            <h4>Classic Bakery</h4>
-            <h5>Production Chart Report</h5>
-
-        </div>
-
-        <div id="exportTable"></div>
-
-
-
-        <div class="text-center mt-3"
-            id="progress-container"
-            style="display:none">
-
-            <div class="progress">
-
-                <div class="progress-bar progress-bar-striped bg-info"
-                    id="progress-bar"
-                    style="width:0%">
-
-                    Loading...
+                    </select>
 
                 </div>
 
             </div>
 
+            <div>
+                <button id="exportToExcel" data-name="rm consumption report"
+                    class="btn btn-success float-end btn-sm mx-2">Export
+                    to Excel</button>
+                <button type="button" onclick="printcontent()" class="btn btn-primary btn-sm"><i class="fa fa-print"
+                        aria-hidden="true"></i> Print</button>
+
+            </div>
+
         </div>
 
 
 
-        <div class="text-center mt-3">
+        <div class="card-body" id="PrintOrder">
 
-            <button id="load-more"
-                class="btn btn-primary">
+            <div class="text-center mb-3">
 
-                Load More
+                <h4>Classic Bakery</h4>
+                <h5>Production Chart Report</h5>
 
-            </button>
+            </div>
+
+            <div id="exportTable"></div>
+
+
+
+            <div class="text-center mt-3" id="progress-container" style="display:none">
+
+                <div class="progress">
+
+                    <div class="progress-bar progress-bar-striped bg-info" id="progress-bar" style="width:0%">
+
+                        Loading...
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="text-center mt-3">
+
+                <button id="load-more" class="btn btn-primary">
+
+                    Load More
+
+                </button>
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
+
+
+    <script>
+        let page = 1;
 
 
 
-<script>
-    let page = 1;
+        function fetchData() {
 
+            $.ajax({
 
+                url: "/productionChartReportData",
 
-    function fetchData() {
+                type: "GET",
 
-        $.ajax({
+                data: {
+                    page: page,
+                    date: $("#date").val(),
+                    category_id: $("#category_id").val(),
+                    customer_type: $("#customer_type").val()
+                },
 
-            url: "/productionChartReportData",
+                beforeSend: function() {
+                    startProgressBar();
+                },
 
-            type: "GET",
+                success: function(response) {
 
-            data: {
-                page: page,
-                date: $("#date").val(),
-                category_id: $("#category_id").val()
-            },
+                    if (response.data.length === 0) {
 
-            beforeSend: function() {
-                startProgressBar();
-            },
+                        $("#load-more").hide();
+                        return;
 
-            success: function(response) {
-
-                if (response.data.length === 0) {
-
-                    $("#load-more").hide();
-                    return;
-
-                }
-
-                const grouped = {};
-
-                response.data.forEach(item => {
-
-                    if (!grouped[item.category]) {
-                        grouped[item.category] = {};
                     }
 
-                    if (!grouped[item.category][item.sub_category]) {
-                        grouped[item.category][item.sub_category] = [];
-                    }
+                    const grouped = {};
 
-                    grouped[item.category][item.sub_category].push(item);
+                    response.data.forEach(item => {
 
-                });
+                        if (!grouped[item.category]) {
+                            grouped[item.category] = {};
+                        }
+
+                        if (!grouped[item.category][item.sub_category]) {
+                            grouped[item.category][item.sub_category] = [];
+                        }
+
+                        grouped[item.category][item.sub_category].push(item);
+
+                    });
 
 
 
-                let html = "";
+                    let html = "";
 
-                Object.entries(grouped).forEach(([cat, subs]) => {
+                    Object.entries(grouped).forEach(([cat, subs]) => {
 
-                    html += `
+                        html += `
                         <h5 style="background:#d1ecf1;padding:8px;">
                         Category : ${cat}
                         </h5>
@@ -173,9 +177,9 @@
 
 
 
-                    Object.entries(subs).forEach(([sub, items]) => {
+                        Object.entries(subs).forEach(([sub, items]) => {
 
-                        html += `
+                            html += `
 
                         <div class="col-md-6 mb-3">
 
@@ -200,15 +204,15 @@
                         <tbody>
                         `;
 
-                        let subTotal = 0;
+                            let subTotal = 0;
 
-                        items.forEach(i => {
+                            items.forEach(i => {
 
-                            let qty = parseFloat(i.qty);
+                                let qty = parseFloat(i.qty);
 
-                            subTotal += qty;
+                                subTotal += qty;
 
-                            html += `
+                                html += `
 
                         <tr>
 
@@ -222,11 +226,11 @@
 
                         `;
 
-                        });
+                            });
 
 
 
-                        html += `
+                            html += `
 
                         <tr style="background:#fff3cd;font-weight:bold">
 
@@ -242,7 +246,7 @@
 
 
 
-                        html += `
+                            html += `
 
                         </tbody>
                         </table>
@@ -251,104 +255,103 @@
 
                         `;
 
+                        });
+
+
+
+                        html += `</div>`;
+
                     });
 
 
 
-                    html += `</div>`;
+                    $("#exportTable").append(html);
 
-                });
+                    page++;
+
+                },
+
+                complete: function() {
+
+                    completeProgressBar();
+
+                }
+
+            });
+
+        }
 
 
 
-                $("#exportTable").append(html);
+        $("#load-more").click(fetchData);
 
-                page++;
 
-            },
 
-            complete: function() {
+        $("#date,#category_id,#customer_type").on("change", function() {
 
-                completeProgressBar();
+            page = 1;
 
-            }
+            $("#exportTable").html("");
+
+            $("#load-more").show();
+
+            fetchData();
 
         });
 
-    }
+
+
+        $(document).ready(function() {
+
+            fetchData();
+
+        });
 
 
 
-    $("#load-more").click(fetchData);
+        let progressInterval;
 
 
 
-    $("#date,#category_id").on("change", function() {
+        function startProgressBar() {
 
-        page = 1;
+            let width = 0;
 
-        $("#exportTable").html("");
+            $("#progress-bar").css("width", "0%");
 
-        $("#load-more").show();
+            $("#progress-container").show();
 
-        fetchData();
+            progressInterval = setInterval(() => {
 
-    });
+                if (width < 90) {
 
+                    width++;
 
+                    $("#progress-bar").css("width", width + "%");
 
-    $(document).ready(function() {
+                    $("#progress-bar").text("Generating " + width + "%");
 
-        fetchData();
+                }
 
-    });
+            }, 40);
 
-
-
-    let progressInterval;
-
-
-
-    function startProgressBar() {
-
-        let width = 0;
-
-        $("#progress-bar").css("width", "0%");
-
-        $("#progress-container").show();
-
-        progressInterval = setInterval(() => {
-
-            if (width < 90) {
-
-                width++;
-
-                $("#progress-bar").css("width", width + "%");
-
-                $("#progress-bar").text("Generating " + width + "%");
-
-            }
-
-        }, 40);
-
-    }
+        }
 
 
 
-    function completeProgressBar() {
+        function completeProgressBar() {
 
-        clearInterval(progressInterval);
+            clearInterval(progressInterval);
 
-        $("#progress-bar").css("width", "100%")
-            .text("Completed");
+            $("#progress-bar").css("width", "100%")
+                .text("Completed");
 
-        setTimeout(() => {
+            setTimeout(() => {
 
-            $("#progress-container").fadeOut();
+                $("#progress-container").fadeOut();
 
-        }, 500);
+            }, 500);
 
-    }
-</script>
-
+        }
+    </script>
 @endsection

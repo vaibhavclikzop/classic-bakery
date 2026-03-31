@@ -556,6 +556,7 @@ ROUND(SUM(IF(b.gst_type = 'Inner GST', ((b.outlet_price) - (b.outlet_price / (1 
         $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
         $toDt   = $request->input("toDt") ?: Carbon::now()->toDateString();
         $page   = $request->input("page", 1);
+        $customer_type   = $request->input("customer_type");
 
         $limit  = 1000;
         $offset = ($page - 1) * $limit;
@@ -659,7 +660,9 @@ ROUND(SUM(IF(b.gst_type = 'Inner GST', ((b.outlet_price) - (b.outlet_price / (1 
         $dynamicColumnsAdvance = implode(",\n", $columnsAdvance);
 
 
-        // ✅ STEP 3: FINAL QUERY
+
+
+
         $sql = "
 SELECT * FROM (
 
@@ -671,10 +674,10 @@ SELECT * FROM (
         e.name,
         a.is_invoice,
         'Regular Order' AS order_type,
+        'customer' AS customer_type,
 
         $dynamicColumnsRegular,
 
-        -- TOTAL GST
         SUM(
             ROUND(
                 ((b.qty * c.price) * (1 - c.discount / 100)) 
@@ -684,7 +687,6 @@ SELECT * FROM (
                 ), 2)
         ) AS total_gst,
 
-        -- TOTAL AMOUNT (inclusive)
         SUM((b.qty * c.price) * (1 - c.discount / 100)) AS total_amount
 
     FROM outward_customer_order_mst a
@@ -708,7 +710,8 @@ SELECT * FROM (
         a.invoice_date,
         e.outlet_name AS name,
         a.is_invoice,
-        'Regular Order',
+        'Regular Order' AS order_type,
+        'outlet' AS customer_type,
 
         $dynamicColumnsRegular,
 
@@ -739,12 +742,13 @@ SELECT * FROM (
 
     -- ================= CUSTOMER ADVANCE =================
     SELECT
-        a.order_id,
-        a.order_id,
-        a.order_date,
+        a.order_id AS invoice_no,
+        a.order_id AS id,
+        a.order_date AS invoice_date,
         c.name,
         a.is_invoice,
-        'Advance Order',
+        'Advance Order' AS order_type,
+        'customer' AS customer_type,
 
         $dynamicColumnsAdvance,
 
@@ -766,12 +770,13 @@ SELECT * FROM (
 
     -- ================= OUTLET ADVANCE =================
     SELECT
-        a.order_id,
-        a.order_id,
-        a.order_date,
-        c.outlet_name,
+        a.order_id AS invoice_no,
+        a.order_id AS id,
+        a.order_date AS invoice_date,
+        c.outlet_name AS name,
         a.is_invoice,
-        'Advance Order',
+        'Advance Order' AS order_type,
+        'outlet' AS customer_type,
 
         $dynamicColumnsAdvance,
 
@@ -790,9 +795,9 @@ SELECT * FROM (
 
 ) AS final_data
 
-ORDER BY invoice_date DESC
-LIMIT ? OFFSET ?
+WHERE 1 = 1
 ";
+
 
         $params = [
             $fromDt,
@@ -805,7 +810,20 @@ LIMIT ? OFFSET ?
             $toDt
         ];
 
-        $data = DB::select($sql, array_merge($params, [$limit, $offset]));
+        // ✅ Apply customer_type filter safely
+        if (!empty($customer_type)) {
+            $sql .= " AND customer_type = ?";
+            $params[] = $customer_type;
+        }
+
+        // ✅ Order + Pagination
+        $sql .= " ORDER BY invoice_date DESC LIMIT ? OFFSET ?";
+        $params[] = $limit;
+        $params[] = $offset;
+
+
+        $data = DB::select($sql, $params);
+
 
         return response()->json([
             'data' => $data
@@ -1170,5 +1188,160 @@ ORDER BY p.name
 
 
 
-    
+    public function saleRegisterUserWise(Request $request)
+    {
+        $fromDate = request("fromDate");
+        $toDate   = request("toDate");
+        $customer_type   = request("customer_type");
+        $user_id   = request("user_id");
+
+        /* OUTLET */
+        $outlet  = DB::table("outward_customer_order_mst as a")
+            ->join("order_mst as c", "a.order_id", "c.id")
+            ->join("outward_customer_order_det as od", "a.id", "od.mst_id")
+            ->join("outlet", "c.customer_id", "outlet.id")
+            ->join("users as u", "a.user_id", "u.id")
+            ->join("order_det as o", function ($join) {
+                $join->on("od.product_id", "=", "o.product_id")
+                    ->on("a.order_id", "=", "o.mst_id");
+            })
+            ->where("c.order_type", "outlet")
+
+            ->whereBetween("a.invoice_date", [$fromDate, $toDate])
+            ->when($user_id, function ($q) use ($user_id) {
+                $q->where("a.user_id", $user_id);
+            })
+
+            ->when($customer_type, function ($q) use ($customer_type) {
+                $q->where("c.order_type", $customer_type);
+            })
+
+            ->groupBy("a.invoice_no", "a.invoice_date", "a.order_no", "outlet.outlet_name", "u.name", "a.created_at", "o.mrp")
+
+            ->select(
+
+                "a.order_no",
+                "a.invoice_date",
+                "outlet.outlet_name as customer_name",
+                "u.name as user",
+                "a.created_at",
+                "o.mrp"
+            )
+
+            ->selectRaw("
+                    ROUND(SUM(
+                        (od.qty * o.price) * (1 - o.discount / 100)
+                    ), 2) as grand_total
+                ");
+
+
+        //     ->orderBy("a.invoice_date", "asc")
+        //     ->get();
+        // echo "<pre>";
+        // print_r($outlet);
+
+        // die;
+
+
+        /* CUSTOMER */
+        $customer = DB::table("outward_customer_order_mst as a")
+            ->join("order_mst as c", "a.order_id", "c.id")
+            ->join("outward_customer_order_det as od", "a.id", "od.mst_id")
+            ->join("customers", "c.customer_id", "customers.id")
+            ->join("users as u", "a.user_id", "u.id")
+            ->join("order_det as o", function ($join) {
+                $join->on("od.product_id", "=", "o.product_id")
+                    ->on("a.order_id", "=", "o.mst_id");
+            })
+            ->where("c.order_type", "customer")
+
+            ->whereBetween("a.invoice_date", [$fromDate, $toDate])
+            ->when($user_id, function ($q) use ($user_id) {
+                $q->where("a.user_id", $user_id);
+            })
+
+            ->when($customer_type, function ($q) use ($customer_type) {
+                $q->where("c.order_type", $customer_type);
+            })
+
+            ->groupBy("a.invoice_no", "a.invoice_date", "a.order_no", "customers.name", "u.name", "a.created_at", "o.mrp")
+
+            ->select(
+
+                "a.order_no",
+                "a.invoice_date",
+                "customers.name as customer_name",
+                "u.name as user",
+                "a.created_at",
+                'o.mrp'
+            )
+
+            ->selectRaw("
+                    ROUND(SUM(
+                        (od.qty * o.price) * (1 - o.discount / 100)
+                    ), 2) as grand_total
+                ");
+
+        /* ADV OUTLET */
+        $advOutlet = DB::table("adv_order_mst as a")
+            ->select(
+                "a.order_id as order_no",
+                "a.order_date as invoice_date",
+                "b.name as user",
+                "c.outlet_name as customer_name",
+                "a.created_at",
+                "d.total_price as grand_total",
+                "d.mrp"
+            )
+            ->join("users as b", "a.user_id", "b.id")
+            ->join("outlet as c", "a.outlet_id", "c.id")
+            ->join("adv_order_det as d", "a.id", "d.mst_id")
+            ->where("a.customer_type", "outlet")
+            ->where("a.is_invoice", 1)
+            ->whereBetween("a.order_date", [$fromDate, $toDate])
+            ->when($user_id, function ($q) use ($user_id) {
+                $q->where("a.user_id", $user_id);
+            })
+
+            ->when($customer_type, function ($q) use ($customer_type) {
+                $q->where("a.customer_type", $customer_type);
+            });
+
+        /* ADV CUSTOMER */
+        $advCustomer = DB::table("adv_order_mst as a")
+            ->select(
+                "a.order_id as order_no",
+                "a.order_date as invoice_date",
+                "b.name as user",
+                "c.name as customer_name",
+                "a.created_at",
+                "d.total_price as grand_total",
+                "d.mrp"
+            )
+            ->join("users as b", "a.user_id", "b.id")
+            ->join("customers as c", "a.outlet_id", "c.id")
+            ->join("adv_order_det as d", "a.id", "d.mst_id")
+            ->where("a.customer_type", "customer")
+            ->where("a.is_invoice", 1)
+            ->whereBetween("a.order_date", [$fromDate, $toDate])
+            ->when($user_id, function ($q) use ($user_id) {
+                $q->where("a.user_id", $user_id);
+            })
+
+            ->when($customer_type, function ($q) use ($customer_type) {
+                $q->where("a.customer_type", $customer_type);
+            });
+
+        /* FINAL UNION */
+        $data = $outlet
+            ->unionAll($customer)
+            ->unionAll($advOutlet)
+            ->unionAll($advCustomer)
+            ->orderBy("created_at", "asc")
+            ->get();
+
+        $users = DB::table("users")->get();
+
+        return view("report.sale-register-user-wise", compact("data", "users"));
+    }
 }

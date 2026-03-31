@@ -15,7 +15,7 @@
                 @csrf
 
                 <div class="row">
-                    <div class="col-md-3 mt-3">
+                    <div class="col-md-2 mt-3">
                         <label for="">Customer Type</label>
                         <select name="order_type" id="order_type" class="form-control" required>
                             <option value="">Select</option>
@@ -37,27 +37,13 @@
                     </div>
 
 
-                    <div class="col-md-3 mt-3">
+                    <div class="col-md-2 mt-3">
                         <label for="">Order Date</label>
                         <input type="date" id="order_date" name="order_date" value="{{ date('Y-m-d') }}"
                             class="form-control">
 
 
                     </div>
-
-                    <div class="col-md-3 mt-3">
-                        <label for="">Expected Delivery Date</label>
-                        <input type="date" id="delivery_date" name="delivery_date" class="form-control">
-
-
-                    </div>
-                    <div class="col-md-12 mt-3">
-                        <label for="">Description</label>
-                        <input type="" id="description" name="description" class="form-control">
-
-
-                    </div>
-                    <hr>
                     <div class="col-md-3 mt-3">
                         @php
                             $now_days = date('l');
@@ -80,6 +66,21 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <div class="col-md-2 mt-3">
+                        <label for="">Expected Delivery Date</label>
+                        <input type="date" id="delivery_date" name="delivery_date" class="form-control">
+
+
+                    </div>
+                    <div class="col-md-12 mt-3">
+                        <label for="">Description</label>
+                        <input type="" id="description" name="description" class="form-control">
+
+
+                    </div>
+                    <hr>
+
                     <div class="col-md-3 mt-3">
                         <label for="">Product</label>
                         <select name="product_id" id="product_id" class="form-control">

@@ -134,9 +134,10 @@ class ReportController extends Controller
     {
         $date = $request->date ?? date("Y-m-d");
         $category_id = $request->category_id;
+        $customer_type = $request->customer_type;
 
         $page = $request->page ?? 1;
-        $limit = 100;
+        $limit = 1000;
         $offset = ($page - 1) * $limit;
 
         $query = DB::table("work_order_det as a")
@@ -154,6 +155,9 @@ class ReportController extends Controller
 
         if ($category_id) {
             $query->where("f.id", $category_id);
+        }
+          if ($customer_type) {
+            $query->where("b.order_type", $customer_type);
         }
 
         $data = $query
@@ -222,7 +226,8 @@ class ReportController extends Controller
 
         return response()->json(['data' => $data]);
     }
-    public function manualOrderReport(){
+    public function manualOrderReport()
+    {
         return view('report.manual-order-report');
     }
 }

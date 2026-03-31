@@ -591,6 +591,7 @@ class OutwardStock extends Controller
             ->join("f_product_sub_category as c", "b.f_sub_category_id", "=", "c.id")
             ->join("unit_type as e", "b.uom", "=", "e.id")
             ->where("a.mst_id", $id)
+            ->orderByRaw("LOWER(c.name) ASC")
             ->orderByRaw("LOWER(b.name) ASC")
 
             ->get();
