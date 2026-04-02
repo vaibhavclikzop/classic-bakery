@@ -124,7 +124,7 @@
                             <option value="dispatch">Dispatch</option>
                             <option value="complete">Out for Delivery</option>
                             <option value="delivered">Delivered</option>
-                            <option value="cancel">Cancel</option>
+                      
                         </select>
                     </div>
                     <div class="modal-footer">

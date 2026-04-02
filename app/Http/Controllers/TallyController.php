@@ -17,106 +17,229 @@ class TallyController extends Controller
         $limit = 1000;
         $offset = ($page - 1) * $limit;
 
-        $sql = "
-             SELECT
-        a.invoice_no,
-        a.order_no as id,
-        a.invoice_date,
-        e.name AS name,
-        'Regular Order' AS order_type,
-        'sales' AS invoice_type,
-        c.gst AS gst,
-        SUM(b.qty * c.price) AS sub_total,
-        SUM(b.qty * c.mrp) AS total_mrp,
-        SUM(c.cess_amt) AS cess_amt,
-        ROUND(SUM(IF(c.gst_type = 'Outer GST', b.qty * c.price * c.gst / 100, 0)), 2) AS igst,
-        ROUND(SUM(IF(c.gst_type = 'Inner GST', b.qty * c.price * c.gst / 200, 0)), 2) AS cgst,
-        ROUND(SUM(IF(c.gst_type = 'Inner GST', b.qty * c.price * c.gst / 200, 0)), 2) AS sgst
-    FROM outward_customer_order_mst a
-    JOIN outward_customer_order_det b ON a.id = b.mst_id
-    JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
-    JOIN order_mst d ON a.order_id = d.id
-    JOIN customers e ON d.customer_id = e.id
-    WHERE d.order_type = 'customer'
-      AND a.invoice_date BETWEEN ? AND ?
-    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name,c.gst
+$sql = "
+SELECT
+a.status,
+    a.invoice_no,
+    a.order_no as id,
+    a.invoice_date,
+    e.name AS name,
+    'Regular Order' AS order_type,
+    'sales' AS invoice_type,
+    c.gst AS gst,
 
-    UNION ALL
+    -- ✅ EXCLUSIVE SUB TOTAL
+    ROUND(SUM((b.qty * c.price) / (1 + (c.gst / 100))), 2) AS sub_total,
 
-    SELECT
-        a.invoice_no,
-        a.order_no as id,
-        a.invoice_date,
-        e.outlet_name AS name,
-        'Regular Order' AS order_type,
-            'sales' AS invoice_type,
-            c.gst AS gst,
-        SUM(b.qty * c.price) AS sub_total,
-        SUM(b.qty * c.mrp) AS total_mrp,
-        SUM(c.cess_amt) AS cess_amt,
-        ROUND(SUM(IF(c.gst_type = 'Outer GST', b.qty * c.price * c.gst / 100, 0)), 2) AS igst,
-        ROUND(SUM(IF(c.gst_type = 'Inner GST', b.qty * c.price * c.gst / 200, 0)), 2) AS cgst,
-        ROUND(SUM(IF(c.gst_type = 'Inner GST', b.qty * c.price * c.gst / 200, 0)), 2) AS sgst
-    FROM outward_customer_order_mst a
-    JOIN outward_customer_order_det b ON a.id = b.mst_id
-    JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
-    JOIN order_mst d ON a.order_id = d.id
-    JOIN outlet e ON d.customer_id = e.id
-    WHERE d.order_type = 'outlet'
-      AND a.invoice_date BETWEEN ? AND ?
-    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.outlet_name,c.gst
+    SUM(b.qty * c.mrp) AS total_mrp,
+    SUM(c.cess_amt) AS cess_amt,
 
-    UNION ALL
+    -- ✅ IGST
+    ROUND(SUM(
+        IF(c.gst_type = 'Outer GST',
+            (b.qty * c.price) -
+            ((b.qty * c.price) / (1 + (c.gst / 100))),
+        0)
+    ), 2) AS igst,
 
-    SELECT
-        a.id AS invoice_no,
-        a.id,
-        a.order_date AS invoice_date,
-        c.name,
-        'Advance Order' AS order_type,
-            'sales' AS invoice_type,
-        SUM(b.total_price) AS sub_total,
-        SUM(b.mrp) AS total_mrp,
-        0 AS cess_amt,
-        0 AS igst,
-        0 AS cgst,
-        0 AS sgst,
-        0 AS gst
-    FROM adv_order_mst a
-    JOIN adv_order_det b ON a.id = b.mst_id
-    JOIN customers c ON a.outlet_id = c.id
-    WHERE a.customer_type = 'customer' 
-     AND (a.status = 'dispatch' OR a.status = 'delivered')
-      AND a.order_date BETWEEN ? AND ?
-    GROUP BY a.order_date, a.id, c.name
+    -- ✅ CGST
+    ROUND(SUM(
+        IF(c.gst_type = 'Inner GST',
+            (
+                (b.qty * c.price) -
+                ((b.qty * c.price) / (1 + (c.gst / 100)))
+            ) / 2,
+        0)
+    ), 2) AS cgst,
 
-    UNION ALL
+    -- ✅ SGST
+    ROUND(SUM(
+        IF(c.gst_type = 'Inner GST',
+            (
+                (b.qty * c.price) -
+                ((b.qty * c.price) / (1 + (c.gst / 100)))
+            ) / 2,
+        0)
+    ), 2) AS sgst
 
-    SELECT
-        a.id AS invoice_no,
-        a.id,
-        a.order_date AS invoice_date,
-        c.outlet_name AS name,
-        'Advance Order' AS order_type,
-            'sales' AS invoice_type,
-        SUM(b.total_price) AS sub_total,
-        SUM(b.mrp) AS total_mrp,
-        0 AS cess_amt,
-        0 AS igst,
-        0 AS cgst,
-        0 AS sgst,
-        0 AS gst
-    FROM adv_order_mst a
-    JOIN adv_order_det b ON a.id = b.mst_id
-    JOIN outlet c ON a.outlet_id = c.id
-    WHERE a.customer_type = 'outlet'
-      AND (a.status = 'dispatch' OR a.status = 'delivered')
-      AND a.order_date BETWEEN ? AND ?
-    GROUP BY a.order_date, a.id, c.outlet_name
+FROM outward_customer_order_mst a
+JOIN outward_customer_order_det b ON a.id = b.mst_id
+JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
+JOIN order_mst d ON a.order_id = d.id
+JOIN customers e ON d.customer_id = e.id
+
+WHERE d.order_type = 'customer'
+AND a.invoice_date BETWEEN ? AND ?
+
+GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name, c.gst,a.status
+
+UNION ALL
+
+SELECT
+a.status,
+    a.invoice_no,
+    a.order_no as id,
+    a.invoice_date,
+    e.outlet_name AS name,
+    'Regular Order' AS order_type,
+    'sales' AS invoice_type,
+    c.gst AS gst,
+
+    ROUND(SUM((b.qty * c.price) / (1 + (c.gst / 100))), 2) AS sub_total,
+
+    SUM(b.qty * c.mrp) AS total_mrp,
+    SUM(c.cess_amt) AS cess_amt,
+
+    ROUND(SUM(
+        IF(c.gst_type = 'Outer GST',
+            (b.qty * c.price) -
+            ((b.qty * c.price) / (1 + (c.gst / 100))),
+        0)
+    ), 2) AS igst,
+
+    ROUND(SUM(
+        IF(c.gst_type = 'Inner GST',
+            (
+                (b.qty * c.price) -
+                ((b.qty * c.price) / (1 + (c.gst / 100)))
+            ) / 2,
+        0)
+    ), 2) AS cgst,
+
+    ROUND(SUM(
+        IF(c.gst_type = 'Inner GST',
+            (
+                (b.qty * c.price) -
+                ((b.qty * c.price) / (1 + (c.gst / 100)))
+            ) / 2,
+        0)
+    ), 2) AS sgst
+
+FROM outward_customer_order_mst a
+JOIN outward_customer_order_det b ON a.id = b.mst_id
+JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
+JOIN order_mst d ON a.order_id = d.id
+JOIN outlet e ON d.customer_id = e.id
+
+WHERE d.order_type = 'outlet'
+AND a.invoice_date BETWEEN ? AND ?
+
+GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.outlet_name, c.gst,a.status
+
+UNION ALL
+
+SELECT
+a.status,
+    a.order_id AS invoice_no,
+    a.order_id as id,
+    a.delivery_date AS invoice_date,
+    c.name,
+    'Advance Order' AS order_type,
+    'sales' AS invoice_type,
+    0 AS gst,
+
+    -- ✅ ADVANCE: ALREADY EXCLUSIVE
+    ROUND(SUM(b.total_price), 2) AS sub_total,
+
+    SUM(b.mrp) AS total_mrp,
+    0 AS cess_amt,
+
+    ROUND(SUM(
+        IF(b.gst_type = 'Outer GST',
+            (b.outlet_price) -
+            ((b.outlet_price) / (1 + (b.gst / 100))),
+        0)
+    ), 2) AS igst,
+
+    ROUND(SUM(
+        IF(b.gst_type = 'Inner GST',
+            (
+                (b.outlet_price) -
+                ((b.outlet_price) / (1 + (b.gst / 100)))
+            ) / 2,
+        0)
+    ), 2) AS cgst,
+
+    ROUND(SUM(
+        IF(b.gst_type = 'Inner GST',
+            (
+                (b.outlet_price) -
+                ((b.outlet_price) / (1 + (b.gst / 100)))
+            ) / 2,
+        0)
+    ), 2) AS sgst
+
+FROM adv_order_mst a
+JOIN adv_order_det b ON a.id = b.mst_id
+JOIN customers c ON a.outlet_id = c.id
+
+WHERE a.customer_type = 'customer'
+AND (a.status != 'pending' AND a.status != 'processing')
+AND a.delivery_date BETWEEN ? AND ?
+
+GROUP BY a.delivery_date, a.id, c.name,a.order_id,a.status
+
+UNION ALL
+
+SELECT
+a.status,
+    a.order_id AS invoice_no,
+    a.order_id as id,
+    a.delivery_date AS invoice_date,
+    c.outlet_name AS name,
+    'Advance Order' AS order_type,
+    'sales' AS invoice_type,
+    0 AS gst,
+
+    ROUND(SUM(b.total_price), 2) AS sub_total,
+
+    SUM(b.mrp) AS total_mrp,
+    0 AS cess_amt,
+
+    ROUND(SUM(
+        IF(b.gst_type = 'Outer GST',
+            (b.outlet_price) -
+            ((b.outlet_price) / (1 + (b.gst / 100))),
+        0)
+    ), 2) AS igst,
+
+    ROUND(SUM(
+        IF(b.gst_type = 'Inner GST',
+            (
+                (b.outlet_price) -
+                ((b.outlet_price) / (1 + (b.gst / 100)))
+            ) / 2,
+        0)
+    ), 2) AS cgst,
+
+    ROUND(SUM(
+        IF(b.gst_type = 'Inner GST',
+            (
+                (b.outlet_price) -
+                ((b.outlet_price) / (1 + (b.gst / 100)))
+            ) / 2,
+        0)
+    ), 2) AS sgst
+
+FROM adv_order_mst a
+JOIN adv_order_det b ON a.id = b.mst_id
+JOIN outlet c ON a.outlet_id = c.id
+
+WHERE a.customer_type = 'outlet'
+AND (a.status != 'pending' AND a.status != 'processing')
+AND a.delivery_date BETWEEN ? AND ?
+
+GROUP BY a.delivery_date, a.id, c.outlet_name,a.order_id,a.status
 ";
-        $params = [$fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt];
 
-        $data = DB::select($sql . " ORDER BY invoice_date", array_merge($params));
+$params = [$fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt];
+
+$data = DB::select(
+    $sql . " ORDER BY invoice_date",
+    array_merge($params)
+);
+
+
 
 
         //             [invoice_no] => 
@@ -141,6 +264,7 @@ class TallyController extends Controller
                 DB::raw("c.name as name"),
                 DB::raw("'Regular Order' as order_type"),
                 DB::raw("'purchase' as invoice_type"),
+                DB::raw("'complete' as status"),
 
 
                 DB::raw("SUM(b.qty * b.price) as sub_total"),
@@ -173,9 +297,9 @@ class TallyController extends Controller
             ->get();
 
 
-        echo "<pre>";
-        print_r($rawMaterial);
-        die;
+        // echo "<pre>";
+        // print_r($rawMaterial);
+        // die;
         $data = array_merge($data, $rawMaterial->toArray());
         return view("tally-report", compact("data"));
     }

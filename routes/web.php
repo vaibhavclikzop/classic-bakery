@@ -498,8 +498,8 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('department-wise-treading', [Reports::class, 'departmentWiseTreadingReport'])->name('department-wise-treading');
   Route::get('sale-register-user-wise', [Reports::class, 'saleRegisterUserWise'])->name('sale-register-user-wise');
 
-  
-  
+
+
   //tally report
   Route::get('tally-report', [TallyController::class, 'tallyReport'])->name('tally-report');
   Route::get('outlet_customer', [Masters::class, 'outlet_customer'])->name('outlet_customer');
@@ -531,6 +531,6 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   Route::get('fa-stock-upload-report', [ReportController::class, 'FaStockUploadReport'])->name('fa-stock-upload-report');
   Route::get('getFaStockReportData', [ReportController::class, 'getFaStockReportData'])->name('getFaStockReportData');
-    Route::get('manual-order-report', [ReportController::class, 'manualOrderReport'])->name('manualOrderReport');
-
+  Route::get('manual-order-report', [ReportController::class, 'manualOrderReport'])->name('manualOrderReport');
+  Route::get('purchase-register-tax-bifurcation', [ReportController::class, 'purchaseRegisterTaxBifurcation'])->name('purchase-register-tax-bifurcation');
 });

@@ -62,7 +62,7 @@
 
                         </select>
                     </div>
-                    
+
                 </form>
             </div>
 
@@ -77,6 +77,7 @@
                     <tr>
 
                         <th style="  border: solid 1px;padding: 5px;font-size: 11px;">S.No</th>
+                        <th style="  border: solid 1px;padding: 5px;font-size: 11px;">Status</th>
                         <th style="  border: solid 1px;padding: 5px;font-size: 11px;">Shop Name</th>
                         <th style="  border: solid 1px;padding: 5px;font-size: 11px;">Inv. No.</th>
                         <th style="  border: solid 1px;padding: 5px;font-size: 11px;">Invoice Date.</th>
@@ -93,10 +94,26 @@
                 <tbody>
                     @php
                         $sno = 1;
+                        $grandTotal = 0;
                     @endphp
                     @foreach ($data as $item)
+                        @php
+                            if ($item->status == 'cancel') {
+                                $grandTotal += 0;
+                            } else {
+                                $grandTotal += $item->grand_total;
+                            }
+
+                        @endphp
                         <tr>
                             <th style="  border: solid 1px;padding: 5px;font-size: 11px;">{{ $sno++ }}</th>
+                            <th style="  border: solid 1px;padding: 5px;font-size: 11px;">
+                                @if ($item->status == 'cancel')
+                                    <span class="badge bg-danger">Cancel</span>
+                                @else
+                                    <span class="badge bg-success">Complete</span>
+                                @endif
+                            </th>
                             <th
                                 style="
     border: 1px solid;
@@ -122,8 +139,18 @@
 ">
                                 {{ $item->user }}</th>
                             <th style="  border: solid 1px;padding: 5px;font-size: 11px;">
-                                {{ formatQtyPrice($item->grand_total) }} </th>
-                            <th style="  border: solid 1px;padding: 5px;font-size: 11px;">{{ formatQtyPrice($item->mrp) }}
+                                @if ($item->status == 'cancel')
+                                    0
+                                @else
+                                    {{ formatQtyPrice($item->grand_total) }}
+                                @endif
+                            </th>
+                            <th style="  border: solid 1px;padding: 5px;font-size: 11px;">
+                                @if ($item->status == 'cancel')
+                                    0
+                                @else
+                                    {{ formatQtyPrice($item->mrp) }}
+                                @endif
                             </th>
                             <th style="  border: solid 1px;padding: 5px;font-size: 11px; width:100px "></th>
                             <th style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px"></th>
@@ -132,6 +159,13 @@
                             <th style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px"></th>
                         </tr>
                     @endforeach
+                <tfoot>
+                    <tr>
+                        <th colspan="6" style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px">Total</th>
+                        <td style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px">{{ $grandTotal }}</td>
+                        <td style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px" colspan="6"></td>
+                    </tr>
+                </tfoot>
                 </tbody>
 
             </table>

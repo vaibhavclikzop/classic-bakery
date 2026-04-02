@@ -126,8 +126,9 @@ class ReportController extends Controller
     public function productionChartReport()
     {
         $category = DB::table("f_product_category")->get();
+        $order_type = DB::table("order_type")->get();
 
-        return view("report.production-chart-report", compact("category"));
+        return view("report.production-chart-report", compact("category","order_type"));
     }
 
     public function productionChartReportData(Request $request)
@@ -135,6 +136,7 @@ class ReportController extends Controller
         $date = $request->date ?? date("Y-m-d");
         $category_id = $request->category_id;
         $customer_type = $request->customer_type;
+        $order_type = $request->order_type;
 
         $page = $request->page ?? 1;
         $limit = 1000;
@@ -156,8 +158,11 @@ class ReportController extends Controller
         if ($category_id) {
             $query->where("f.id", $category_id);
         }
-          if ($customer_type) {
+        if ($customer_type) {
             $query->where("b.order_type", $customer_type);
+        }
+          if ($order_type) {
+            $query->where("b.order_type_id", $order_type);
         }
 
         $data = $query
@@ -229,5 +234,102 @@ class ReportController extends Controller
     public function manualOrderReport()
     {
         return view('report.manual-order-report');
+    }
+
+
+    public function purchaseRegisterTaxBifurcation(Request $request)
+    {   
+        $fromDt=request("fromDt");
+        $toDt=request("toDt");
+
+        $gstRatesRaw = DB::table('gst')->orderBy("gst", "asc")->pluck('gst')->toArray();
+        $gstRates = array_map(fn($gst) => (int)$gst, $gstRatesRaw);
+
+        $columnsPurchase = [];
+
+        foreach ($gstRates as $gst) {
+
+            // ✅ TAXABLE (base amount)
+            $columnsPurchase[] = "
+        SUM(
+            CASE 
+                WHEN ROUND(b.gst) = $gst 
+                THEN (b.qty * b.price)
+                ELSE 0 
+            END
+        ) AS taxable_$gst
+    ";
+
+            // ✅ GST
+            $columnsPurchase[] = "
+        SUM(
+            CASE 
+                WHEN ROUND(b.gst) = $gst 
+                THEN ROUND((b.qty * b.price * $gst) / 100, 2)
+                ELSE 0 
+            END
+        ) AS gst_$gst
+    ";
+
+            // ✅ CESS (if applicable)
+            $columnsPurchase[] = "
+        SUM(
+            CASE 
+                WHEN ROUND(b.gst) = $gst 
+                THEN ROUND((b.qty * b.price * b.cess_tax) / 100, 2)
+                ELSE 0 
+            END
+        ) AS cess_$gst
+    ";
+
+            // ✅ TOTAL (taxable + gst + cess)
+            $columnsPurchase[] = "
+        SUM(
+            CASE 
+                WHEN ROUND(b.gst) = $gst 
+                THEN 
+                    (b.qty * b.price) 
+                    + ROUND((b.qty * b.price * $gst) / 100, 2)
+                    + ROUND((b.qty * b.price * b.cess_tax) / 100, 2)
+                ELSE 0 
+            END
+        ) AS total_$gst
+    ";
+        }
+
+
+        $dynamicColumnsPurchase = implode(",\n", $columnsPurchase);
+
+        $data = DB::table("stock_inward_mst as a")
+            ->join("stock_inward_det as b", "a.id", "b.mst_id")
+            ->join("vendor as c", "a.vendor_id", "c.id")
+            ->selectRaw("
+        a.invoice_id,
+        a.invoice_date,
+        c.name as vendor,
+        a.delivery_charges,
+        $dynamicColumnsPurchase,
+
+        -- TOTAL TAXABLE
+        SUM(b.qty * b.price) as total_taxable,
+
+        -- TOTAL GST
+        SUM((b.qty * b.price * b.gst) / 100) as total_gst,
+
+        -- TOTAL CESS
+        SUM((b.qty * b.price * b.cess_tax) / 100) as total_cess,
+
+        -- GRAND TOTAL
+        SUM(
+            (b.qty * b.price)
+            + ((b.qty * b.price * b.gst) / 100)
+            + ((b.qty * b.price * b.cess_tax) / 100)
+        ) as grand_total
+    ")
+    ->whereBetween("a.received_material_date", [$fromDt, $toDt])
+            ->groupBy("a.id", "a.invoice_id", "a.invoice_date", "c.name","a.delivery_charges")
+            ->get();
+
+        return view("report.purchase-register-tax-bifurcation", compact("data", "gstRatesRaw", "gstRates"));
     }
 }

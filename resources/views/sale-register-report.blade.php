@@ -17,10 +17,21 @@
 
                     </div>
 
-                    <div>
+                    <div class="mx-2">
                         <label for="">To</label>
                         <input type="date" name="toDt" class="form-control" onchange="this.form.submit()"
                             value="{{ request('toDt') ?? \Carbon\Carbon::now()->toDateString() }}">
+
+                    </div>
+                    <div>
+                        <label for="">Customer Type</label>
+                        <select name="customer_type" id="" class="form-control" onchange="this.form.submit()">
+                            <option value="">Select</option>
+                            <option value="customer" {{ request('customer_type') == 'customer' ? 'selected' : '' }}>Customer
+                            </option>
+                            <option value="outlet" {{ request('customer_type') == 'outlet' ? 'selected' : '' }}>Outlet
+                            </option>
+                        </select>
 
                     </div>
                 </form>
@@ -77,7 +88,8 @@
                 data: {
                     page: page,
                     fromDt: "{{ request('fromDt') ?? \Carbon\Carbon::now()->startOfMonth()->toDateString() }}",
-                    toDt: "{{ request('toDt') ?? \Carbon\Carbon::now()->toDateString() }}"
+                    toDt: "{{ request('toDt') ?? \Carbon\Carbon::now()->toDateString() }}",
+                    customer_type: "{{ request('customer_type') }}"
                 },
                 beforeSend: function() {
 
@@ -113,10 +125,11 @@
                         html +=
                             `
                             
-                            <tr><td colspan="12" style="font-weight:bold; background:#d1ecf1; border: solid 1px; padding:5px;">Shop : ${shopName}</td></tr>
+                            <tr><td colspan="13" style="font-weight:bold; background:#d1ecf1; border: solid 1px; padding:5px;">Shop : ${shopName}</td></tr>
                             
                               <tr style="border: solid 1px; padding:5px; background: #f0f0f0;">
                         <th style="border: solid 1px; padding:5px">S.No</th>
+                        <th style="border: solid 1px; padding:5px">Status</th>
                         <th style="border: solid 1px; padding:5px">Order Type</th>
                         <th style="border: solid 1px; padding:5px">Invoice Number</th>
                         <th style="border: solid 1px; padding:5px">Invoice Date</th>
@@ -135,32 +148,52 @@
                         var challan = "challan";
                         items.forEach((item, index) => {
 
-                            const itemTax = parseFloat(item.igst) + parseFloat(item.cgst) +
-                                parseFloat(item.sgst) + parseFloat(item.cess_amt);
-                            const dc = parseFloat(item.total_mrp);
-
-                            subtotal += parseFloat(item.sub_total - item.igst - item.cgst - item
-                                .sgst);
-                            tax += parseFloat(itemTax);
-                            cess += parseFloat(item.cess_amt);
-                            cgst += parseFloat(item.cgst);
-                            sgst += parseFloat(item.sgst);
-                            igst += parseFloat(item.igst);
-                            dc_total += dc;
-                            total = parseFloat(item.sub_total - item.igst - item.cgst - item
-                                .sgst) + parseFloat(itemTax);
-
-                            grand_total += total;
+                            let itemTax = 0;
+                            let dc = 0;
 
                             if (item.is_invoice == 1) {
                                 challan = item.id
                             } else {
                                 inv++;
-                                challan = "challan " + inv
+                                challan = item.id
+                                // challan = "challan " + inv
+                            }
+                            let status = `<span class="badge badge-success">Complete</span>`;
+                            if (item.status == "cancel") {
+                                item.total_mrp = 0;
+                                itemTax = 0;
+                                item.cess_amt = 0;
+                                item.cgst = 0;
+                                item.sgst = 0;
+                                item.igst = 0;
+                                total = 0;
+
+                                item.sub_total = 0;
+                                status = `<span class="badge badge-danger">Cancel</span>`;
+                            } else {
+                                itemTax = parseFloat(item.igst) + parseFloat(item.cgst) +
+                                    parseFloat(item.sgst) + parseFloat(item.cess_amt);
+                                dc = parseFloat(item.total_mrp);
+
+                                subtotal += parseFloat(item.sub_total - item.igst - item.cgst -
+                                    item
+                                    .sgst);
+                                tax += parseFloat(itemTax);
+                                cess += parseFloat(item.cess_amt);
+                                cgst += parseFloat(item.cgst);
+                                sgst += parseFloat(item.sgst);
+                                igst += parseFloat(item.igst);
+                                dc_total += dc;
+                                total = parseFloat(item.sub_total - item.igst - item.cgst - item
+                                    .sgst) + parseFloat(itemTax);
+
+                                grand_total += total;
+
                             }
 
                             html += `<tr style="border: solid 1px; padding:5px">
                 <td style="border: solid 1px; padding:5px">${sno++}</td>
+                <td style="border: solid 1px; padding:5px"> ${status}</td>
                 <td style="border: solid 1px; padding:5px"> ${item.order_type}</td>
                 <td style="border: solid 1px; padding:5px">${challan}</td>
                 <td style="border: solid 1px; padding:5px">${item.invoice_date}</td>
@@ -178,7 +211,7 @@
 
                         // Shop Total Row
                         html += `<tr style="background: #e2e3e5; font-weight: bold;">
-            <td colspan="4" style="border: solid 1px; padding:5px;">Total</td>
+            <td colspan="5" style="border: solid 1px; padding:5px;">Total</td>
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(subtotal).toFixed(2))}</td>
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(dc_total).toFixed(2))}</td>
             <td style="border: solid 1px; padding:5px;">${formatQtyPrice(parseFloat(tax).toFixed(2))}</td>

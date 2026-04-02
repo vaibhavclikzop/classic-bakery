@@ -45,8 +45,26 @@
 
                         <option value="">Select</option>
 
-                       <option value="outlet">Outlet</option>
-                       <option value="customer">Customer</option>
+                        <option value="outlet">Outlet</option>
+                        <option value="customer">Customer</option>
+
+                    </select>
+
+                </div>
+
+                <div class="mx-2" style="width: 150px">
+
+                    <label>Order Type</label>
+
+                    <select id="order_type" class="form-control">
+
+                        <option value="">Select</option>
+
+                        @foreach ($order_type as $item)
+                            <option value="{{ $item->id }}">
+                                {{ $item->name }}
+                            </option>
+                        @endforeach
 
                     </select>
 
@@ -129,7 +147,9 @@
                     page: page,
                     date: $("#date").val(),
                     category_id: $("#category_id").val(),
-                    customer_type: $("#customer_type").val()
+                    customer_type: $("#customer_type").val(),
+                    order_type: $("#order_type").val(),
+
                 },
 
                 beforeSend: function() {
@@ -164,103 +184,45 @@
 
 
                     let html = "";
-
                     Object.entries(grouped).forEach(([cat, subs]) => {
 
                         html += `
-                        <h5 style="background:#d1ecf1;padding:8px;">
-                        Category : ${cat}
-                        </h5>
+    <h5 style="background:#d1ecf1;padding:8px;">
+        Category : ${cat}
+    </h5>
 
-                        <div class="row">
-                        `;
+    <div class="row">
+    `;
 
+                        let subEntries = Object.entries(subs);
+                        let half = Math.ceil(subEntries.length / 2);
 
+                        let leftSubs = subEntries.slice(0, half);
+                        let rightSubs = subEntries.slice(half);
 
-                        Object.entries(subs).forEach(([sub, items]) => {
+                        // ✅ LEFT COLUMN
+                        html += `<div class="col-md-6">`;
 
-                            html += `
+                        leftSubs.forEach(([sub, items]) => {
 
-                        <div class="col-md-6 mb-3">
-
-                        <h6 style="background:#f0f0f0;padding:6px;">
-                        Sub Category : ${sub}
-                        </h6>
-
-                        <table class="table table-bordered table-sm">
-
-                        <thead>
-
-                        <tr>
-
-                        <th>Name</th>
-                        <th>Order Qty</th>
-                        <th>Actual Qty</th>
-
-                        </tr>
-
-                        </thead>
-
-                        <tbody>
-                        `;
-
-                            let subTotal = 0;
-
-                            items.forEach(i => {
-
-                                let qty = parseFloat(i.qty);
-
-                                subTotal += qty;
-
-                                html += `
-
-                        <tr>
-
-                        <td>${i.product}</td>
-
-                        <td>${qty.toFixed(0)}</td>
-
-                        <td></td>
-
-                        </tr>
-
-                        `;
-
-                            });
-
-
-
-                            html += `
-
-                        <tr style="background:#fff3cd;font-weight:bold">
-
-                        <td>Total</td>
-
-                        <td>${subTotal.toFixed(0)}</td>
-
-                        <td></td>
-
-                        </tr>
-
-                        `;
-
-
-
-                            html += `
-
-                        </tbody>
-                        </table>
-
-                        </div>
-
-                        `;
+                            html += renderSubTable(sub, items);
 
                         });
 
+                        html += `</div>`;
 
+                        // ✅ RIGHT COLUMN
+                        html += `<div class="col-md-6">`;
+
+                        rightSubs.forEach(([sub, items]) => {
+
+                            html += renderSubTable(sub, items);
+
+                        });
 
                         html += `</div>`;
 
+                        html += `</div>`;
                     });
 
 
@@ -287,7 +249,7 @@
 
 
 
-        $("#date,#category_id,#customer_type").on("change", function() {
+        $("#date,#category_id,#customer_type, #order_type").on("change", function() {
 
             page = 1;
 
@@ -337,6 +299,53 @@
 
         }
 
+function renderSubTable(sub, items) {
+
+    let subTotal = 0;
+    let rows = '';
+
+    items.forEach(i => {
+        let qty = parseFloat(i.qty);
+        subTotal += qty;
+
+        rows += `
+        <tr>
+            <td>${i.product}</td>
+            <td>${qty.toFixed(0)}</td>
+            <td></td>
+        </tr>`;
+    });
+
+    return `
+    <div class="mb-3">
+
+        <h6 style="background:#f0f0f0;padding:6px;">
+            Sub Category : ${sub}
+        </h6>
+
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Order Qty</th>
+                    <th>Actual Qty</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                ${rows}
+
+                <tr style="background:#fff3cd;font-weight:bold">
+                    <td>Total</td>
+                    <td>${subTotal.toFixed(0)}</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    `;
+}
 
 
         function completeProgressBar() {

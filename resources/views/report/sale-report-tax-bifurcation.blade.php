@@ -62,6 +62,8 @@
             <table class="myTable " id="exportTable">
 
                 <tr>
+                    <th>S.No</th>
+                    <th>Status</th>
                     <th>Invoice No.</th>
                     <th>Invoice Date</th>
                     <th>Shop Name</th>
@@ -109,7 +111,7 @@
                     page: page,
                     fromDt: "{{ request('fromDt') ?? \Carbon\Carbon::now()->startOfMonth()->toDateString() }}",
                     toDt: "{{ request('toDt') ?? \Carbon\Carbon::now()->toDateString() }}",
-                    customer_type: "{{ request('customer_type') ??  '' }}",
+                    customer_type: "{{ request('customer_type') ?? '' }}",
                 },
                 beforeSend: function() {
 
@@ -120,14 +122,25 @@
                         $('#load-more').hide();
                         return;
                     }
+                    let sno = 1;
                     var inv = 0;
                     var html = "";
+                    let grandTotal = 0;
+
 
 
                     response.data.forEach(element => {
+                        let status = `<span class="badge bg-success">Complete</span>`;
+                        if (element.status == "cancel") {
+                            element.total_gst = 0;
+                            element.total_amount = 0;
+                            status = `<span class="badge bg-danger">Cancel</span>`;
+                        }
 
                         let row = `
         <tr>
+            <td>${sno++}</td>
+            <td>${status}</td>
             <td>${element.id}</td>
             <td>${element.invoice_date}</td>
             <td>${element.name}</td>
@@ -136,7 +149,11 @@
                         // ✅ GST LOOP INSIDE ELEMENT LOOP
                         gstRates.forEach(gst => {
 
+
                             let rate = parseInt(gst.gst);
+                            if (element.status == "cancel") {
+                                rate = 0;
+                            }
 
 
                             let taxable = element['taxable_' + rate] ?? 0;
@@ -154,8 +171,9 @@
     `;
 
                         html += row;
+                        grandTotal += parseFloat(element.total_amount);
                     });
-
+                    html += `<tr><td colspan="16">Total</td><td>${formatNumber(grandTotal)}</td></tr>`;
                     $('#exportTable').append(html);
 
                     page++;

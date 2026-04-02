@@ -199,153 +199,226 @@ class Reports extends Controller
 
         $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
         $toDt = $request->input("toDt") ?: Carbon::now()->toDateString();
+
         $page = $request->input("page", 1);
         $limit = 1000;
         $offset = ($page - 1) * $limit;
 
-        $sql = "
-             SELECT
+        $customerType = request('customer_type');
+
+        $sqlParts = [];
+
+        /* ================= CUSTOMER ================= */
+        if (!$customerType || $customerType == 'customer') {
+
+            $sqlParts[] = "
+    SELECT
         a.invoice_no,
         a.order_no as id,
         a.invoice_date,
         e.name AS name,
         a.is_invoice,
+        a.status,
         'Regular Order' AS order_type,
 
-    SUM((b.qty * c.price) * (1 - c.discount / 100)) AS sub_total,
+        SUM((b.qty * c.price) * (1 - c.discount / 100)) AS sub_total,
+        SUM(b.qty * c.mrp) AS total_mrp,
+        SUM(c.cess_amt) AS cess_amt,
 
-    SUM(b.qty * c.mrp) AS total_mrp,
+        ROUND(SUM(
+            IF(c.gst_type = 'Outer GST',
+                ((b.qty * c.price) * (1 - c.discount / 100)) -
+                (((b.qty * c.price) * (1 - c.discount / 100)) / (1 + (c.gst / 100))),
+            0)
+        ), 2) AS igst,
 
-    SUM(c.cess_amt) AS cess_amt,
+        ROUND(SUM(
+            IF(c.gst_type = 'Inner GST',
+                (
+                    ((b.qty * c.price) * (1 - c.discount / 100)) -
+                    (((b.qty * c.price) * (1 - c.discount / 100)) / (1 + (c.gst / 100)))
+                ) / 2,
+            0)
+        ), 2) AS cgst,
 
-    ROUND(SUM(
-        IF(c.gst_type = 'Outer GST',
-            ((b.qty * c.price) * (1 - c.discount / 100)) -
-            (((b.qty * c.price) * (1 - c.discount / 100)) / (1 + (c.gst / 100))),
-        0)
-    ), 2) AS igst,
+        ROUND(SUM(
+            IF(c.gst_type = 'Inner GST',
+                (
+                    ((b.qty * c.price) * (1 - c.discount / 100)) -
+                    (((b.qty * c.price) * (1 - c.discount / 100)) / (1 + (c.gst / 100)))
+                ) / 2,
+            0)
+        ), 2) AS sgst
 
-    ROUND(SUM(
-        IF(c.gst_type = 'Inner GST',
-            ((b.qty * c.price) * (1 - c.discount / 100)) -
-            (((b.qty * c.price) * (1 - c.discount / 100)) / (1 + (c.gst / 200))),
-        0)
-    ), 2) AS cgst,
-
-    ROUND(SUM(
-        IF(c.gst_type = 'Inner GST',
-            ((b.qty * c.price) * (1 - c.discount / 100)) -
-            (((b.qty * c.price) * (1 - c.discount / 100)) / (1 + (c.gst / 200))),
-        0)
-    ), 2) AS sgst
     FROM outward_customer_order_mst a
     JOIN outward_customer_order_det b ON a.id = b.mst_id
     JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
     JOIN order_mst d ON a.order_id = d.id
     JOIN customers e ON d.customer_id = e.id
+
     WHERE d.order_type = 'customer'
-      AND a.invoice_date BETWEEN ? AND ?
-    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name,a.is_invoice
+    
+    AND a.invoice_date BETWEEN ? AND ?
 
-    UNION ALL
+    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name, a.is_invoice,a.status
+    ";
 
-   SELECT
-    a.invoice_no,
-    a.order_no AS id,
-    a.invoice_date,
-    e.outlet_name AS name,
-    a.is_invoice,
-    'Regular Order' AS order_type,
-
-    SUM((b.qty * c.price) * (1 - c.discount / 100)) AS sub_total,
-
-    SUM(b.qty * c.mrp) AS total_mrp,
-
-    SUM(c.cess_amt) AS cess_amt,
-
-    ROUND(SUM(
-        IF(c.gst_type = 'Outer GST',
-            ((b.qty * c.price) * (1 - c.discount / 100)) -
-            (((b.qty * c.price) * (1 - c.discount / 100)) / (1 + (c.gst / 100))),
-        0)
-    ), 2) AS igst,
-
-    ROUND(SUM(
-        IF(c.gst_type = 'Inner GST',
-            ((b.qty * c.price) * (1 - c.discount / 100)) -
-            (((b.qty * c.price) * (1 - c.discount / 100)) / (1 + (c.gst / 200))),
-        0)
-    ), 2) AS cgst,
-
-    ROUND(SUM(
-        IF(c.gst_type = 'Inner GST',
-            ((b.qty * c.price) * (1 - c.discount / 100)) -
-            (((b.qty * c.price) * (1 - c.discount / 100)) / (1 + (c.gst / 200))),
-        0)
-    ), 2) AS sgst
-
-FROM outward_customer_order_mst a
-JOIN outward_customer_order_det b ON a.id = b.mst_id
-JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
-JOIN order_mst d ON a.order_id = d.id
-JOIN outlet e ON d.customer_id = e.id
-
-WHERE d.order_type = 'outlet'
-AND a.invoice_date BETWEEN ? AND ?
-
-GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.outlet_name, a.is_invoice
-
-
-    UNION ALL
-
+            $sqlParts[] = "
     SELECT
         a.order_id AS invoice_no,
         a.order_id as id,
-        a.order_date AS invoice_date,
+        a.delivery_date AS invoice_date,
         c.name,
         a.is_invoice,
+        a.status,
         'Advance Order' AS order_type,
+
         SUM(b.total_price) AS sub_total,
         SUM(b.mrp) AS total_mrp,
         0 AS cess_amt,
-          ROUND(SUM(IF(b.gst_type = 'Outer GST', (b.outlet_price) -((b.outlet_price)/(1+(b.gst/100))), 0)), 2) AS igst,
-        ROUND(SUM(IF(b.gst_type = 'Inner GST',  (b.outlet_price) -((b.outlet_price)/(1+(b.gst/200))), 0)), 2) AS cgst,
-        ROUND(SUM(IF(b.gst_type = 'Inner GST',  (b.outlet_price) -((b.outlet_price)/(1+(b.gst/200))), 0)), 2) AS sgst
+
+        ROUND(SUM(
+            IF(b.gst_type = 'Outer GST',
+                (b.outlet_price) - ((b.outlet_price)/(1+(b.gst/100))),
+            0)
+        ), 2) AS igst,
+
+        ROUND(SUM(
+            IF(b.gst_type = 'Inner GST',
+                ((b.outlet_price) - ((b.outlet_price)/(1+(b.gst/100)))) / 2,
+            0)
+        ), 2) AS cgst,
+
+        ROUND(SUM(
+            IF(b.gst_type = 'Inner GST',
+                ((b.outlet_price) - ((b.outlet_price)/(1+(b.gst/100)))) / 2,
+            0)
+        ), 2) AS sgst
+
     FROM adv_order_mst a
     JOIN adv_order_det b ON a.id = b.mst_id
     JOIN customers c ON a.outlet_id = c.id
-    WHERE a.customer_type = 'customer' 
-     AND (a.status = 'dispatch' OR a.status = 'delivered' or a.is_invoice=1)
-      AND a.order_date BETWEEN ? AND ?
-    GROUP BY a.order_date, a.id, c.name,a.order_id,a.is_invoice
 
-    UNION ALL
+    WHERE a.customer_type = 'customer'
+      AND (a.status!='pending' or a.status!='processing')
+    AND a.delivery_date BETWEEN ? AND ?
 
+    GROUP BY a.delivery_date, a.id, c.name, a.order_id, a.is_invoice,a.status
+    ";
+        }
+
+        /* ================= OUTLET ================= */
+        if (!$customerType || $customerType == 'outlet') {
+
+            $sqlParts[] = "
+    SELECT
+        a.invoice_no,
+        a.order_no AS id,
+        a.invoice_date,
+        e.outlet_name AS name,
+        a.is_invoice,
+        a.status,
+        'Regular Order' AS order_type,
+
+        SUM((b.qty * c.price) * (1 - c.discount / 100)) AS sub_total,
+        SUM(b.qty * c.mrp) AS total_mrp,
+        SUM(c.cess_amt) AS cess_amt,
+
+        ROUND(SUM(
+            IF(c.gst_type = 'Outer GST',
+                ((b.qty * c.price) * (1 - c.discount / 100)) -
+                (((b.qty * c.price) * (1 - c.discount / 100)) / (1 + (c.gst / 100))),
+            0)
+        ), 2) AS igst,
+
+        ROUND(SUM(
+            IF(c.gst_type = 'Inner GST',
+                (
+                    ((b.qty * c.price) * (1 - c.discount / 100)) -
+                    (((b.qty * c.price) * (1 - c.discount / 100)) / (1 + (c.gst / 100)))
+                ) / 2,
+            0)
+        ), 2) AS cgst,
+
+        ROUND(SUM(
+            IF(c.gst_type = 'Inner GST',
+                (
+                    ((b.qty * c.price) * (1 - c.discount / 100)) -
+                    (((b.qty * c.price) * (1 - c.discount / 100)) / (1 + (c.gst / 100)))
+                ) / 2,
+            0)
+        ), 2) AS sgst
+
+    FROM outward_customer_order_mst a
+    JOIN outward_customer_order_det b ON a.id = b.mst_id
+    JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
+    JOIN order_mst d ON a.order_id = d.id
+    JOIN outlet e ON d.customer_id = e.id
+
+    WHERE d.order_type = 'outlet'
+    AND a.invoice_date BETWEEN ? AND ?
+
+    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.outlet_name, a.is_invoice,a.status
+    ";
+
+            $sqlParts[] = "
     SELECT
         a.order_id AS invoice_no,
         a.order_id as id,
-        a.order_date AS invoice_date,
+        a.delivery_date AS invoice_date,
         c.outlet_name AS name,
         a.is_invoice,
+        a.status,
         'Advance Order' AS order_type,
+
         SUM(b.total_price) AS sub_total,
         SUM(b.mrp) AS total_mrp,
         0 AS cess_amt,
-         ROUND(SUM(IF(b.gst_type = 'Outer GST', (b.outlet_price) -((b.outlet_price)/(1+(b.gst/100))), 0)), 2) AS igst,
-      ROUND(SUM(IF(b.gst_type = 'Inner GST', ((b.outlet_price) - (b.outlet_price / (1 + (b.gst / 100)))) / 2, 0)), 2) AS cgst,
-ROUND(SUM(IF(b.gst_type = 'Inner GST', ((b.outlet_price) - (b.outlet_price / (1 + (b.gst / 100)))) / 2, 0)), 2) AS sgst
+
+        ROUND(SUM(
+            IF(b.gst_type = 'Outer GST',
+                (b.outlet_price) - ((b.outlet_price)/(1+(b.gst/100))),
+            0)
+        ), 2) AS igst,
+
+        ROUND(SUM(
+            IF(b.gst_type = 'Inner GST',
+                ((b.outlet_price) - ((b.outlet_price)/(1+(b.gst/100)))) / 2,
+            0)
+        ), 2) AS cgst,
+
+        ROUND(SUM(
+            IF(b.gst_type = 'Inner GST',
+                ((b.outlet_price) - ((b.outlet_price)/(1+(b.gst/100)))) / 2,
+            0)
+        ), 2) AS sgst
 
     FROM adv_order_mst a
     JOIN adv_order_det b ON a.id = b.mst_id
     JOIN outlet c ON a.outlet_id = c.id
-    WHERE a.customer_type = 'outlet'
-      AND (a.status = 'dispatch' OR a.status = 'delivered' or a.is_invoice=1)
-      AND a.order_date BETWEEN ? AND ?
-    GROUP BY a.order_date, a.id, c.outlet_name,a.order_id,a.is_invoice
-";
-        $params = [$fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt, $fromDt, $toDt];
 
-        $data = DB::select($sql . " ORDER BY invoice_date LIMIT ? OFFSET ?", array_merge($params, [$limit, $offset]));
+    WHERE a.customer_type = 'outlet'
+  AND (a.status!='pending' and a.status!='processing') 
+    AND a.delivery_date BETWEEN ? AND ?
+
+    GROUP BY a.delivery_date, a.id, c.outlet_name, a.order_id, a.is_invoice,a.status
+    ";
+        }
+
+        /* ================= FINAL ================= */
+
+        $sql = implode(" UNION ALL ", $sqlParts);
+
+        $params = [];
+        foreach ($sqlParts as $part) {
+            $params[] = $fromDt;
+            $params[] = $toDt;
+        }
+
+        $data = DB::select(
+            $sql . " ORDER BY invoice_date LIMIT ? OFFSET ?",
+            array_merge($params, [$limit, $offset])
+        );
 
         return response()->json([
             'data' => $data
@@ -673,6 +746,7 @@ SELECT * FROM (
         a.invoice_date,
         e.name,
         a.is_invoice,
+        a.status,
         'Regular Order' AS order_type,
         'customer' AS customer_type,
 
@@ -696,9 +770,10 @@ SELECT * FROM (
     JOIN customers e ON d.customer_id = e.id
 
     WHERE d.order_type = 'customer'
+    
     AND a.invoice_date BETWEEN ? AND ?
 
-    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name, a.is_invoice
+    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name, a.is_invoice,a.status
 
 
     UNION ALL
@@ -710,6 +785,7 @@ SELECT * FROM (
         a.invoice_date,
         e.outlet_name AS name,
         a.is_invoice,
+        a.status,
         'Regular Order' AS order_type,
         'outlet' AS customer_type,
 
@@ -733,9 +809,10 @@ SELECT * FROM (
     JOIN outlet e ON d.customer_id = e.id
 
     WHERE d.order_type = 'outlet'
+    
     AND a.invoice_date BETWEEN ? AND ?
 
-    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.outlet_name, a.is_invoice
+    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.outlet_name, a.is_invoice,a.status
 
 
     UNION ALL
@@ -744,9 +821,10 @@ SELECT * FROM (
     SELECT
         a.order_id AS invoice_no,
         a.order_id AS id,
-        a.order_date AS invoice_date,
+        a.delivery_date AS invoice_date,
         c.name,
         a.is_invoice,
+        a.status,
         'Advance Order' AS order_type,
         'customer' AS customer_type,
 
@@ -760,10 +838,10 @@ SELECT * FROM (
     JOIN customers c ON a.outlet_id = c.id
 
     WHERE a.customer_type = 'customer'
-      AND (a.status IN ('dispatch','delivered') OR a.is_invoice=1)
-      AND a.order_date BETWEEN ? AND ?
+      AND (a.status!='pending' and a.status!='processing') 
+      AND a.delivery_date BETWEEN ? AND ?
 
-    GROUP BY a.order_date, a.id, c.name, a.order_id, a.is_invoice
+    GROUP BY a.delivery_date, a.id, c.name, a.order_id, a.is_invoice,a.status
 
 
     UNION ALL
@@ -772,9 +850,10 @@ SELECT * FROM (
     SELECT
         a.order_id AS invoice_no,
         a.order_id AS id,
-        a.order_date AS invoice_date,
+        a.delivery_date AS invoice_date,
         c.outlet_name AS name,
         a.is_invoice,
+        a.status,
         'Advance Order' AS order_type,
         'outlet' AS customer_type,
 
@@ -788,10 +867,10 @@ SELECT * FROM (
     JOIN outlet c ON a.outlet_id = c.id
 
     WHERE a.customer_type = 'outlet'
-      AND (a.status IN ('dispatch','delivered') OR a.is_invoice=1)
-      AND a.order_date BETWEEN ? AND ?
+    AND (a.status!='pending' and a.status!='processing') 
+      AND a.delivery_date BETWEEN ? AND ?
 
-    GROUP BY a.order_date, a.id, c.outlet_name, a.order_id, a.is_invoice
+    GROUP BY a.delivery_date, a.id, c.outlet_name, a.order_id, a.is_invoice,a.status
 
 ) AS final_data
 
@@ -817,7 +896,12 @@ WHERE 1 = 1
         }
 
         // ✅ Order + Pagination
-        $sql .= " ORDER BY invoice_date DESC LIMIT ? OFFSET ?";
+        $sql .= " 
+ORDER BY 
+    CAST(SUBSTRING_INDEX(id,'-',-1) AS UNSIGNED) ASC
+LIMIT ? OFFSET ?
+";
+
         $params[] = $limit;
         $params[] = $offset;
 
@@ -1032,7 +1116,7 @@ GROUP BY
     JOIN customers c ON a.outlet_id = c.id
 
     WHERE a.customer_type = 'customer'
-      AND (a.status IN ('dispatch','delivered') OR a.is_invoice=1)
+    
       AND a.order_date BETWEEN ? AND ?
 
     GROUP BY a.order_date, a.id, c.name, a.order_id, a.is_invoice
@@ -1058,7 +1142,7 @@ GROUP BY
     JOIN outlet c ON a.outlet_id = c.id
 
     WHERE a.customer_type = 'outlet'
-      AND (a.status IN ('dispatch','delivered') OR a.is_invoice=1)
+   
       AND a.order_date BETWEEN ? AND ?
 
     GROUP BY a.order_date, a.id, c.outlet_name, a.order_id, a.is_invoice
@@ -1216,16 +1300,17 @@ ORDER BY p.name
                 $q->where("c.order_type", $customer_type);
             })
 
-            ->groupBy("a.invoice_no", "a.invoice_date", "a.order_no", "outlet.outlet_name", "u.name", "a.created_at", "o.mrp")
+            ->groupBy("a.invoice_no", "a.invoice_date", "a.order_no", "outlet.outlet_name", "u.name", "a.created_at", "a.id", "a.status")
 
             ->select(
-
+                "a.id",
+                "a.status",
                 "a.order_no",
                 "a.invoice_date",
                 "outlet.outlet_name as customer_name",
                 "u.name as user",
                 "a.created_at",
-                "o.mrp"
+                DB::raw("sum(o.mrp*o.qty) as mrp")
             )
 
             ->selectRaw("
@@ -1264,16 +1349,17 @@ ORDER BY p.name
                 $q->where("c.order_type", $customer_type);
             })
 
-            ->groupBy("a.invoice_no", "a.invoice_date", "a.order_no", "customers.name", "u.name", "a.created_at", "o.mrp")
+            ->groupBy("a.invoice_no", "a.invoice_date", "a.order_no", "customers.name", "u.name", "a.created_at", "a.id", "a.status")
 
             ->select(
-
+                "a.id",
+                "a.status",
                 "a.order_no",
                 "a.invoice_date",
                 "customers.name as customer_name",
                 "u.name as user",
                 "a.created_at",
-                'o.mrp'
+                DB::raw("sum(o.mrp*o.qty) as mrp")
             )
 
             ->selectRaw("
@@ -1285,59 +1371,70 @@ ORDER BY p.name
         /* ADV OUTLET */
         $advOutlet = DB::table("adv_order_mst as a")
             ->select(
+                "a.id",
+                "a.status",
                 "a.order_id as order_no",
-                "a.order_date as invoice_date",
-                "b.name as user",
-                "c.outlet_name as customer_name",
+                "a.delivery_date as invoice_date",
+                "c.outlet_name as user",
+                "b.name as customer_name",
                 "a.created_at",
-                "d.total_price as grand_total",
-                "d.mrp"
+                DB::raw("sum(d.mrp*d.qty) as mrp"),
+                "d.total_price as grand_total"
+
             )
             ->join("users as b", "a.user_id", "b.id")
             ->join("outlet as c", "a.outlet_id", "c.id")
             ->join("adv_order_det as d", "a.id", "d.mst_id")
             ->where("a.customer_type", "outlet")
-            ->where("a.is_invoice", 1)
-            ->whereBetween("a.order_date", [$fromDate, $toDate])
+            ->whereNotIn("a.status", ["pending", "processing"])
+
+            ->whereBetween("a.delivery_date", [$fromDate, $toDate])
             ->when($user_id, function ($q) use ($user_id) {
                 $q->where("a.user_id", $user_id);
             })
 
             ->when($customer_type, function ($q) use ($customer_type) {
                 $q->where("a.customer_type", $customer_type);
-            });
+            })
+            ->groupBy("a.order_id", "a.delivery_date", "b.name", "c.outlet_name", "a.created_at", "d.total_price", "a.id", "a.status", "d.id");
 
         /* ADV CUSTOMER */
         $advCustomer = DB::table("adv_order_mst as a")
             ->select(
+                "a.id",
+                "a.status",
                 "a.order_id as order_no",
-                "a.order_date as invoice_date",
-                "b.name as user",
-                "c.name as customer_name",
+                "a.delivery_date as invoice_date",
+                "c.name as user",
+                "b.name as customer_name",
                 "a.created_at",
+                DB::raw("sum(d.mrp*d.qty) as mrp"),
                 "d.total_price as grand_total",
-                "d.mrp"
+
             )
             ->join("users as b", "a.user_id", "b.id")
             ->join("customers as c", "a.outlet_id", "c.id")
             ->join("adv_order_det as d", "a.id", "d.mst_id")
             ->where("a.customer_type", "customer")
-            ->where("a.is_invoice", 1)
-            ->whereBetween("a.order_date", [$fromDate, $toDate])
+            ->whereNotIn("a.status", ["pending", "processing"])
+            ->whereBetween("a.delivery_date", [$fromDate, $toDate])
             ->when($user_id, function ($q) use ($user_id) {
                 $q->where("a.user_id", $user_id);
             })
 
             ->when($customer_type, function ($q) use ($customer_type) {
                 $q->where("a.customer_type", $customer_type);
-            });
+            })
+            ->groupBy("a.order_id", "a.delivery_date", "b.name", "c.name", "a.created_at", "d.total_price", "a.id", "a.status", "d.id");
 
         /* FINAL UNION */
         $data = $outlet
             ->unionAll($customer)
             ->unionAll($advOutlet)
             ->unionAll($advCustomer)
-            ->orderBy("created_at", "asc")
+            ->orderByRaw("
+    CAST(SUBSTRING_INDEX(order_no, '-', -1) AS UNSIGNED) ASC
+")
             ->get();
 
         $users = DB::table("users")->get();

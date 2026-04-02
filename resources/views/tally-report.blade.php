@@ -120,6 +120,16 @@
                 </thead>
                 <tbody>
                     @foreach ($data as $row)
+                    @if ($row->status=="cancel")
+                        @php
+                            $row->sub_total=0;
+                            $row->igst=0;
+                            $row->cgst=0;
+                            $row->sgst=0;
+                            $row->cess_amt=0;
+                        @endphp
+                        
+                    @endif
                         {{-- Main invoice row --}}
                         <tr>
                             <td style="text-transform: capitalize">{{ $row->invoice_type }}</td>

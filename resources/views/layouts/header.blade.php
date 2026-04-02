@@ -429,10 +429,10 @@
                                              <li><a href="/advance-order-list/pending"
                                                      class="{{ Request::is('advance-order-list/pending') ? 'active' : '' }}">Created
                                                      Orders</a></li>
-                                             {{-- <li><a href="/advance-order-list/processing"
+                                             <li><a href="/advance-order-list/processing"
                                                  class="{{ Request::is('advance-order-list/processing') ? 'active' : '' }}">Processing
                                                     Orders</a>
-                                            </li> --}}
+                                            </li>
                                              <li><a href="/advance-order-list/dispatch"
                                                      class="{{ Request::is('advance-order-list/dispatch') ? 'active' : '' }}">Dispatch
                                                      Orders</a></li>
@@ -743,6 +743,9 @@
                                              <li><a href="/purchase-register-report"
                                                      class="{{ Request::is('purchase-register-report') ? 'active' : '' }}">Purchase
                                                      Register</a></li>
+                                                      <li><a href="/purchase-register-tax-bifurcation"
+                                                     class="{{ Request::is('purchase-register-tax-bifurcation') ? 'active' : '' }}">Purchase
+                                                     Register Tax Bifurcation</a></li>
                                              <li><a href="/sale-register-report"
                                                      class="{{ Request::is('sale-register-report') ? 'active' : '' }}">Sale
                                                      Register</a></li>

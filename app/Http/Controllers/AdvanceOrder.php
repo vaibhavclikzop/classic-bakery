@@ -629,9 +629,11 @@ class AdvanceOrder extends Controller
 
 
         try {
-
-            $mst_id = DB::table("adv_order_mst")->where("id", $request->id)->update(array(
+            $invoice_id = getInvoiceNo();
+           DB::table("adv_order_mst")->where("id", $request->id)->update(array(
+                // "is_invoice" => 1,
                 "status" => $request->status,
+                "order_id" => $invoice_id,
 
             ));
         } catch (\Throwable $th) {
@@ -836,11 +838,11 @@ class AdvanceOrder extends Controller
         }
         try {
 
-                 $invoice_id= getInvoiceNo();
+
             DB::table('adv_order_mst')->where("id", $request->convertID)->update(array(
                 "is_invoice" => 1,
                 "status" => "delivered",
-                "order_id" => $invoice_id,
+
             ));
         } catch (\Throwable $th) {
             return  redirect()->back()->with("error", $th->getMessage());
