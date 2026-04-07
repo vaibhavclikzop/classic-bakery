@@ -374,6 +374,7 @@
                 toastr.error("Enter Password");
                 return;
             }
+            $("#SavePO").attr("disabled","disabled");
             $('#frmMain').submit()
 
         })

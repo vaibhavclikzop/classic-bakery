@@ -35,24 +35,24 @@
                             value="{{ request('toDt') ?? \Carbon\Carbon::now()->toDateString() }}">
 
                     </div>
-                     <div class="">
-                            <label for="">Customer Type</label>
-                            <select name="order_type" id="order_type"  onchange="this.form.submit()"
-                             class="form-control select2" required>
-                                <option value="">Select</option>
-                                <option value="customer" {{ request('order_type') == 'customer' ? 'selected' : '' }}>
-                                    Customer
-                                </option>
-                                <option value="outlet" {{ request('order_type') == 'outlet' ? 'selected' : '' }}>Outlet
-                                </option>
-                            </select>
+                    <div class="">
+                        <label for="">Customer Type</label>
+                        <select name="order_type" id="order_type" onchange="this.form.submit()" class="form-control select2"
+                            required>
+                            <option value="">Select</option>
+                            <option value="customer" {{ request('order_type') == 'customer' ? 'selected' : '' }}>
+                                Customer
+                            </option>
+                            <option value="outlet" {{ request('order_type') == 'outlet' ? 'selected' : '' }}>Outlet
+                            </option>
+                        </select>
 
-                        </div>
+                    </div>
                 </form>
 
             </div>
             <div>
-                
+
             </div>
         </div>
         <div class="card-body">
@@ -60,6 +60,7 @@
                 <thead>
                     <tr>
                         <th>S.No</th>
+                        <th>Order Type </th>
                         <th>Customer </th>
 
 
@@ -79,7 +80,7 @@
                         <tr>
                             <td>{{ $sno++ }}</td>
 
-
+                            <td>{{ $item->ordType }}</td>
                             <td class="wrap-text" style="width:25%">{{ $item->customer }}</td>
                             <td>{{ $item->order_no }}</td>
                             <td>{{ $item->invoice_date }}</td>
@@ -88,15 +89,21 @@
                                 <p class="mb-1">Vehicle : {{ $item->vehicle_no }}</p>
                             </td>
                             <td>
-                                <p class="mb-1">Name : {{  $item->contact_person  }}</p>
+                                <p class="mb-1">Name : {{ $item->contact_person }}</p>
                                 <p class="mb-1">Contact : {{ $item->number }}</p>
                             </td>
-                           
+
                             <td>{{ $item->user }}</td>
                             <td>
 
-                                <a class="btn btn-primary btn-sm" href="/invoice-view/{{ $item->id }}"><i
+                                @if ($item->ordType=="Advance Order")
+                                        <a class="btn btn-primary btn-sm" href="/advance-invoice-view/{{ $item->id }}"><i
                                         class="fa fa-eye" aria-hidden="true"></i></a>
+                                @else
+                                        <a class="btn btn-primary btn-sm" href="/invoice-view/{{ $item->id }}"><i
+                                        class="fa fa-eye" aria-hidden="true"></i></a>
+                                @endif
+                        
 
 
 

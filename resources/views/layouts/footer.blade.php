@@ -331,12 +331,30 @@
     }
 
     $('#exportToExcel').click(function() {
-        var name=$(this).data("name")
-   
+        var name = $(this).data("name");
+
         var table = document.getElementById('exportTable');
-        var workbook = XLSX.utils.table_to_book(table, {
-            sheet: "Report"
+
+        var ws = XLSX.utils.table_to_sheet(table, {
+            raw: true
         });
-        XLSX.writeFile(workbook, ''+name+'.xlsx');
+
+        // Loop through all cells
+        Object.keys(ws).forEach(function(cell) {
+            if (cell[0] === '!') return;
+
+            let value = ws[cell].v;
+
+            // match dd/mm/yyyy
+            if (typeof value === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+                ws[cell].t = 's'; // force STRING
+                ws[cell].z = '@'; // text format
+            }
+        });
+
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Report");
+
+        XLSX.writeFile(wb, name + '.xlsx');
     });
 </script>

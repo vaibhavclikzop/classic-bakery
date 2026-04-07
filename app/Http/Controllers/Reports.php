@@ -15,14 +15,14 @@ class Reports extends Controller
     {
         $fromDt = $request->input('fromDt', date('Y-m-d'));
 
-        // Step 1️⃣: Base query
+
         $query = DB::table("stock_inward_mst as a")
             ->join("stock_inward_det as b", "a.id", "b.mst_id")
             ->join("vendor as c", "a.vendor_id", "c.id")
             ->join("products as d", "b.product_id", "d.id")
             ->select(
                 "a.id as mst_id",
-                "a.invoice_date",
+                "a.received_material_date as invoice_date",
                 "b.product_id",
                 "c.name as vendor",
                 "d.name as product",
@@ -30,43 +30,92 @@ class Reports extends Controller
                 "b.qty"
             );
 
-        // Step 2️⃣: Filter only products that have at least one invoice on fromDt
+
         if ($fromDt) {
             $query->whereIn("b.product_id", function ($q) use ($fromDt) {
                 $q->select("b.product_id")
                     ->from("stock_inward_mst as a")
                     ->join("stock_inward_det as b", "a.id", "b.mst_id")
-                    ->whereDate("a.invoice_date", $fromDt);
+                    ->whereDate("a.received_material_date", $fromDt);
             });
         }
 
-        // Step 3️⃣: Fetch ordered data (all entries for those products)
+
         $records = $query
             ->orderBy("b.product_id")
-            ->orderByDesc("a.invoice_date")
+            ->orderByDesc("a.received_material_date")
             ->orderByDesc("a.id")
             ->get();
 
-        // Step 4️⃣: Group by product_id
+
         $grouped = $records->groupBy("product_id");
 
-        // Step 5️⃣: For each product, take last 5 purchases
+
         $latestFive = $grouped->map(function ($items) {
-            return $items
+
+            $items = $items
                 ->sortByDesc(function ($item) {
                     return $item->invoice_date . '-' . $item->mst_id;
                 })
-                ->take(5);
+                ->values();
+
+            $uniquePrices = collect();
+
+            foreach ($items as $item) {
+
+                // stop when 5 unique prices collected
+                if ($uniquePrices->count() >= 5) {
+                    break;
+                }
+
+                // check if price already exists
+                if (!$uniquePrices->pluck('price')->contains(round($item->price, 2))) {
+                    $item->price = round($item->price, 2); // normalize
+                    $uniquePrices->push($item);
+                }
+            }
+
+            return $uniquePrices;
         });
 
-        // Step 6️⃣: Filter only those products where price varied
-        $variationReport = $latestFive->filter(function ($entries) {
-            $uniquePrices = $entries->pluck("price")->unique();
-            return $uniquePrices->count() > 1;
+
+
+        $variationReport = $latestFive->map(function ($items) {
+
+            $items = $items
+                ->sortByDesc(function ($item) {
+                    return $item->invoice_date . '-' . $item->mst_id;
+                })
+                ->values();
+
+            $result = collect();
+
+            $seenPrices = [];
+
+            foreach ($items as $index => $item) {
+
+                // Always take first (latest)
+                if ($index == 0) {
+                    $result->push($item);
+                    $seenPrices[] = $item->price;
+                    continue;
+                }
+
+                // Only take if price not already seen
+                if (!in_array($item->price, $seenPrices)) {
+                    $result->push($item);
+                    $seenPrices[] = $item->price;
+                }
+            }
+
+            return $result;
         });
 
-        // Step 7️⃣: Flatten for Blade display
+
+
         $filter = $variationReport->flatten(1)->values();
+
+
 
 
 
@@ -274,7 +323,7 @@ class Reports extends Controller
         'Advance Order' AS order_type,
 
         SUM(b.total_price) AS sub_total,
-        SUM(b.mrp) AS total_mrp,
+        SUM(b.mrp*b.weight) AS total_mrp,
         0 AS cess_amt,
 
         ROUND(SUM(
@@ -372,7 +421,7 @@ class Reports extends Controller
         'Advance Order' AS order_type,
 
         SUM(b.total_price) AS sub_total,
-        SUM(b.mrp) AS total_mrp,
+  SUM(b.mrp*b.weight) AS total_mrp,
         0 AS cess_amt,
 
         ROUND(SUM(
@@ -1231,32 +1280,32 @@ LIMIT ? OFFSET ?
 
         // Step 3: Final Query
         $query = "
-SELECT
-    p.name AS product,
+        SELECT
+            p.name AS product,
 
-    $dynamicColumns
+            $dynamicColumns
 
-    SUM(b.qty) AS total_qty
+            SUM(b.qty) AS total_qty
 
-FROM order_det b
+        FROM order_det b
 
-JOIN order_mst a 
-    ON b.mst_id = a.id
+        JOIN order_mst a 
+            ON b.mst_id = a.id
 
-JOIN finish_products_mst p 
-    ON b.product_id = p.id
+        JOIN finish_products_mst p 
+            ON b.product_id = p.id
 
-WHERE 
-    p.f_category_id = 2
-    AND DATE(a.delivery_date) = ?
-    AND a.order_type IN ('outlet', 'customer')
+        WHERE 
+            p.f_category_id = 2
+            AND DATE(a.delivery_date) = ?
+            AND a.order_type IN ('outlet', 'customer')
 
-GROUP BY 
-    b.product_id, 
-    p.name
+        GROUP BY 
+            b.product_id, 
+            p.name
 
-ORDER BY p.name
-";
+        ORDER BY p.name
+        ";
 
 
         // Step 4: Execute Query
@@ -1378,7 +1427,7 @@ ORDER BY p.name
                 "c.outlet_name as user",
                 "b.name as customer_name",
                 "a.created_at",
-                DB::raw("sum(d.mrp*d.qty) as mrp"),
+                DB::raw("sum(d.mrp*d.weight) as mrp"),
                 "d.total_price as grand_total"
 
             )

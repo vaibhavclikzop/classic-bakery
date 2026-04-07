@@ -128,7 +128,7 @@ class ReportController extends Controller
         $category = DB::table("f_product_category")->get();
         $order_type = DB::table("order_type")->get();
 
-        return view("report.production-chart-report", compact("category","order_type"));
+        return view("report.production-chart-report", compact("category", "order_type"));
     }
 
     public function productionChartReportData(Request $request)
@@ -161,7 +161,7 @@ class ReportController extends Controller
         if ($customer_type) {
             $query->where("b.order_type", $customer_type);
         }
-          if ($order_type) {
+        if ($order_type) {
             $query->where("b.order_type_id", $order_type);
         }
 
@@ -238,9 +238,9 @@ class ReportController extends Controller
 
 
     public function purchaseRegisterTaxBifurcation(Request $request)
-    {   
-        $fromDt=request("fromDt");
-        $toDt=request("toDt");
+    {
+        $fromDt = request("fromDt");
+        $toDt = request("toDt");
 
         $gstRatesRaw = DB::table('gst')->orderBy("gst", "asc")->pluck('gst')->toArray();
         $gstRates = array_map(fn($gst) => (int)$gst, $gstRatesRaw);
@@ -305,7 +305,7 @@ class ReportController extends Controller
             ->join("vendor as c", "a.vendor_id", "c.id")
             ->selectRaw("
         a.invoice_id,
-        a.invoice_date,
+        a.received_material_date as invoice_date,
         c.name as vendor,
         a.delivery_charges,
         $dynamicColumnsPurchase,
@@ -326,8 +326,8 @@ class ReportController extends Controller
             + ((b.qty * b.price * b.cess_tax) / 100)
         ) as grand_total
     ")
-    ->whereBetween("a.received_material_date", [$fromDt, $toDt])
-            ->groupBy("a.id", "a.invoice_id", "a.invoice_date", "c.name","a.delivery_charges")
+            ->whereBetween("a.received_material_date", [$fromDt, $toDt])
+            ->groupBy("a.id", "a.invoice_id", "a.invoice_date", "c.name", "a.delivery_charges","a.received_material_date")
             ->get();
 
         return view("report.purchase-register-tax-bifurcation", compact("data", "gstRatesRaw", "gstRates"));

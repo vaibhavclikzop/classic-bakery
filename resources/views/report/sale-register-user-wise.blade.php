@@ -17,7 +17,7 @@
         <div class="card-header d-flex justify-content-between">
 
             <div class="page-title">
-                <h4>Sale Report User Wise</h4>
+                <h4>Sale Report Cash Sheet</h4>
             </div>
             <div>
                 <button id="exportToExcel" data-name="sale register user wise" class="btn btn-success float-end btn-sm">Export
@@ -159,13 +159,13 @@
                             <th style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px"></th>
                         </tr>
                     @endforeach
-                <tfoot>
+          
                     <tr>
                         <th colspan="6" style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px">Total</th>
                         <td style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px">{{ $grandTotal }}</td>
                         <td style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px" colspan="6"></td>
                     </tr>
-                </tfoot>
+         
                 </tbody>
 
             </table>

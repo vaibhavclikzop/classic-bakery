@@ -58,7 +58,7 @@
                 <thead>
                     <tr>
                         <th style="border: solid 1px;padding: 5px;">Invoice No.</th>
-                        <th style="border: solid 1px;padding: 5px;">Invoice Date</th>
+                        <th style="border: solid 1px;padding: 5px;">Supplier Invoice Date</th>
                         <th style="border: solid 1px;padding: 5px;">Vendor Name</th>
                         @foreach ($gstRates as $gst)
                             <th style="border: solid 1px;padding: 5px;">Taxable {{ $gst }}%</th>

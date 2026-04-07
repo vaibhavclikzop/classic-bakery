@@ -387,11 +387,13 @@ class AdvanceOrder extends Controller
 
             $gst_type = "";
 
-            if ($request->order_type == "customer") {
-                $city = DB::table("customer")->where("id", $request->outlet_id)->select("city")->first();
+            if ($request->customer_type == "customer") {
+                $city = DB::table("customers")->where("id", $request->outlet_id)->select("city")->first();
             } else {
                 $city = DB::table("company_settings")->where("outlet_id", $request->outlet_id)->select("city")->first();
             }
+
+
 
             $company_setting = DB::table("company_settings")->where("id", 1)->first();
             if ($city->city && $company_setting->city) {
@@ -405,7 +407,17 @@ class AdvanceOrder extends Controller
             }
 
 
+            $today = now();
+            // ✅ Financial Year
+            if ($today->month >= 4) {
+                $startYear = $today->year;
+                $endYear = $today->year + 1;
+            } else {
+                $startYear = $today->year - 1;
+                $endYear = $today->year;
+            }
 
+            $financialYear = $startYear . "-" . substr($endYear, -2);
 
             $mst_id = DB::table("adv_order_mst")->insertGetId(array(
                 "order_date" => $request->order_date,
@@ -416,6 +428,7 @@ class AdvanceOrder extends Controller
                 "user_id" => $request->user->id,
                 "customer_type" => $request->customer_type,
                 "order_id" => $invoice_id,
+                "financial_year" => $financialYear
             ));
 
             $uploadedFiles = [];
@@ -524,7 +537,8 @@ class AdvanceOrder extends Controller
                     ->get();
             }
 
-            return view("advance-order-print", compact("data"));
+            return view("advance-order-
+            ", compact("data"));
         }
         $fromDt = request("date", date("Y-m-d"));
         $toDt = request("toDt", date("Y-m-d", strtotime("+5days")));
@@ -630,7 +644,7 @@ class AdvanceOrder extends Controller
 
         try {
             $invoice_id = getInvoiceNo();
-           DB::table("adv_order_mst")->where("id", $request->id)->update(array(
+            DB::table("adv_order_mst")->where("id", $request->id)->update(array(
                 // "is_invoice" => 1,
                 "status" => $request->status,
                 "order_id" => $invoice_id,
@@ -838,10 +852,14 @@ class AdvanceOrder extends Controller
         }
         try {
 
+            $inv = DB::table('adv_order_mst')->where("id", $request->convertID)->first();
 
+
+            $order_id = ($inv->status == "pending") ? getInvoiceNo() : $inv->order_id;
             DB::table('adv_order_mst')->where("id", $request->convertID)->update(array(
                 "is_invoice" => 1,
                 "status" => "delivered",
+                "order_id" => $order_id,
 
             ));
         } catch (\Throwable $th) {

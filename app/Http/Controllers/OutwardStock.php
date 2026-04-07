@@ -273,7 +273,18 @@ class OutwardStock extends Controller
 
         try {
 
+            $today = now();
 
+            // ✅ Financial Year
+            if ($today->month >= 4) {
+                $startYear = $today->year;
+                $endYear = $today->year + 1;
+            } else {
+                $startYear = $today->year - 1;
+                $endYear = $today->year;
+            }
+
+            $financialYear = $startYear . "-" . substr($endYear, -2);
 
             $order_no = getInvoiceNo();
 
@@ -285,7 +296,8 @@ class OutwardStock extends Controller
                 "description" => $request->description,
                 "user_id" => $request->user->id,
                 "mode_of_transport" => $request->mode_of_transport,
-                "order_no" => $order_no
+                "order_no" => $order_no,
+                "financial_year" => $financialYear
 
             ));
             foreach ($prod_list as $k => $v) {
@@ -496,13 +508,15 @@ class OutwardStock extends Controller
                 DB::raw("CASE 
             WHEN b.order_type = 'customer' THEN c.name 
             ELSE o.outlet_name 
-        END as customer"),
+            END as customer"),
                 "d.name as user",
                 "e.name as transport",
                 "e.contact_person",
                 "e.number",
-                "e.vehicle_no"
+                "e.vehicle_no",
+                DB::raw("'Regular Order' as ordType"),
             )
+
             ->join("order_mst as b", "a.order_id", "b.id")
             ->leftJoin("customers as c", "b.customer_id", "c.id")
             ->leftJoin("outlet as o", "b.customer_id", "o.id")
@@ -510,20 +524,75 @@ class OutwardStock extends Controller
             ->leftJoin("mode_of_transport as e", "a.mode_of_transport", "e.id")
             ->where("a.is_invoice", 1);
 
+
+
+        $advOrder = DB::table("adv_order_mst as a")
+            ->select(
+                "a.order_id as order_no",
+                "a.delivery_date as invoice_date",
+                "d.name as user",
+                "a.id",
+                DB::raw("'NA' as transport"),
+                DB::raw("'NA' as contact_person"),
+                DB::raw("'NA' as number"),
+                DB::raw("'NA' as vehicle_no"),
+                DB::raw("'Advance Order' as ordType"),
+
+
+                DB::raw("CASE 
+            WHEN a.customer_type = 'customer' THEN c.name 
+            ELSE o.outlet_name 
+        END as customer")
+            )
+            ->leftJoin("customers as c", function ($join) {
+                $join->on("a.outlet_id", "=", "c.id")
+                    ->where("a.customer_type", "customer");
+            })
+            ->leftJoin("outlet as o", function ($join) {
+                $join->on("a.outlet_id", "=", "o.id")
+                    ->where("a.customer_type", "outlet");
+            })
+            ->join("users as d", "a.user_id", "d.id")
+
+            ->where("a.is_invoice", 1);
+
         if ($order_type) {
             $query->where("b.order_type", $order_type);
+            $advOrder->where("a.customer_type", $order_type);
         }
 
         if ($fromDt) {
 
             $query->whereDate("a.invoice_date", ">=", $fromDt);
+            $advOrder->whereDate("a.delivery_date",  ">=", $fromDt);
         }
 
         if ($toDt) {
             $query->whereDate("a.invoice_date", "<=", $toDt);
+            $advOrder->whereDate("a.delivery_date",  "<=", $toDt);
         }
 
-        $data = $query->orderBy("a.id", "desc")->get();
+        $regularData = $query->orderBy("a.order_no", "desc")->get();
+        $advData = $advOrder->orderBy("a.order_id", "desc")->get();
+        $data = $regularData->merge($advData)
+            ->sortByDesc(function ($item) {
+
+                // handle both fields
+                $invoice = $item->order_no ?? $item->order_id;
+
+                $parts = explode('-', $invoice);
+                return (int) end($parts); // 👈 key logic
+            })
+            ->values()
+            ->map(function ($item, $index) {
+                $item->series_no = $index + 1;
+                return $item;
+            });
+
+
+        // echo "<pre>";
+        // print_r($data);
+        // die;
 
         $customers = DB::table("customers")->get();
         return view("invoices", compact("data"));

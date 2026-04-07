@@ -751,7 +751,7 @@
                                                      Register</a></li>
                                                           <li><a href="/sale-register-user-wise"
                                                      class="{{ Request::is('sale-register-user-wise') ? 'active' : '' }}">Sale
-                                                     Register User Wise</a></li>
+                                                     Register Cash Sheet</a></li>
 
                                              <li><a href="/sale-report-tax-bifurcation"
                                                      class="{{ Request::is('sale-report-tax-bifurcation') ? 'active' : '' }}">

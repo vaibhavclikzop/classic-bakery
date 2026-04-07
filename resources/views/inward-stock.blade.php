@@ -300,7 +300,7 @@
                     return;
                 }
 
-
+                $("#Save").attr("disabled","disabled");
                 $("#formMain").submit();
             })
             $(document).on("keyup", '.qty', function() {

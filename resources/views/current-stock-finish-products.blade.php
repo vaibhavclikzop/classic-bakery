@@ -38,7 +38,7 @@
                                 <td>{{ $item->product }}</td>
                                 <td class="total_stock">{{ formatQtyPrice($item->stock) }}</td>
                                 <td style="width:10%">
-                                    <input type="number" class="add_qty form-control" min="0" steps="0.00"
+                                    <input type="number" class="add_qty form-control"  steps="0.00"
                                         data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}"
                                         name="updateStock[{{ $item->id ?? 'new' }}][{{ $item->id ?? $item->product_id }}]">
                                 </td>
@@ -81,7 +81,7 @@
                     <div class="modal-body">
                         <input type="hidden" id="id" name="id">
                         <label>Qty</label>
-                        <input type="number" step="0.01" class="form-control" name="qty" required>
+                        <input type="number" step="0.01" class="form-control" name="qty" >
 
                     </div>
                     <div class="modal-footer">

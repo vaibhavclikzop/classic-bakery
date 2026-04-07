@@ -118,192 +118,27 @@
                         <th>Narration</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach ($data as $row)
-                    @if ($row->status=="cancel")
-                        @php
-                            $row->sub_total=0;
-                            $row->igst=0;
-                            $row->cgst=0;
-                            $row->sgst=0;
-                            $row->cess_amt=0;
-                        @endphp
-                        
-                    @endif
-                        {{-- Main invoice row --}}
-                        <tr>
-                            <td style="text-transform: capitalize">{{ $row->invoice_type }}</td>
-                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ $row->id }}</td>
-                            <td>{{ $row->name }}</td>
-                            <td>Sundry Debtors</td>
-                            <td></td>
-                            <td></td>
-                            <td>-</td>
-                            <td>CHANDIGARH</td>
-                            <td>{{ number_format($row->sub_total + $row->igst + $row->cess_amt, 2) }}</td>
-                          <td>{{ round(($row->sub_total ?? 0) + ($row->igst ?? 0) + ($row->cess_amt ?? 0)) }}</td>
+              <tbody>
+                @foreach ($data as $row)
+                    <tr>
+                        <td>{{ $row->invoice_type }}</td>
+                        <td>{{ \Carbon\Carbon::parse($row->date)->format('d/m/Y') }}</td>
+                        <td></td>
+                        <td></td>
+                        <td>{{ $row->invoice_no }}</td>
+                        <td>{{ $row->ledger }}</td>
+                        <td>{{ $row->ledger_group }}</td>
+                        <td>{{ $row->hsn ?? '' }}</td>
+                        <td>{{ $row->gst ?? '' }}</td>
+                        <td></td>
+                        <td></td>
+                        <td>{{ $row->amount }}</td>
+                        <td>{{ $row->invoice_amount ?? '' }}</td>
+                        <td></td>
+                    </tr>
+                @endforeach
+            </tbody>
 
-                            <td></td>
-                        </tr>
-
-                        {{-- Advance Orders / Sales Ledger --}}
-                        <tr>
-                            <td>{{ $row->invoice_type }}</td>
-                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ $row->id }}</td>
-                            <td>{{ $row->order_type }}</td>
-                            <td>Sales Accounts</td>
-                            <td>-</td>
-                            <td>{{ $row->gst }}</td>
-                            <td></td>
-                            <td></td>
-                            <td>-{{ number_format(($row->sub_total+ $row->igst )-$row->cgst- $row->sgst-$row->igst   , 2) }}</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-
-                        {{-- GST Breakdown --}}
-
-                        <tr>
-                            <td>{{ $row->invoice_type }}</td>
-                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ $row->id }}</td>
-                            <td>OUTPUT CGST {{ $row->cgst > 0 ? '9%' : '' }}</td>
-                            <td>Duties & Taxes</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ number_format(-1 * $row->cgst, 2) }}</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>{{ $row->invoice_type }}</td>
-                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ $row->id }}</td>
-                            <td>OUTPUT SGST {{ $row->sgst > 0 ? '9%' : '' }}</td>
-                            <td>Duties & Taxes</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ number_format(-1 * $row->sgst, 2) }}</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>{{ $row->invoice_type }}</td>
-                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ $row->id }}</td>
-                            <td>OUTPUT IGST {{ $row->igst > 0 ? $row->gst . '%' : '' }}</td>
-                            <td>Duties & Taxes</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ number_format(-1 *$row->igst, 2) }}</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-
-
-                        {{-- CESS --}}
-                        <tr>
-                            <td>{{ $row->invoice_type }}</td>
-                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ $row->id }}</td>
-                            <td>CESS</td>
-                            <td>Duties & Taxes</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ number_format($row->cess_amt, 2) }}</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-
-                        {{-- Discount / Delivery Charges / TCS / TDS --}}
-                        <tr>
-                            <td>{{ $row->invoice_type }}</td>
-                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ $row->id }}</td>
-                            <td>Discount</td>
-                            <td>Indirect Incomes</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>0.00</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>{{ $row->invoice_type }}</td>
-                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ $row->id }}</td>
-                            <td>Delivery Charges</td>
-                            <td>Indirect Incomes</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>0.00</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>{{ $row->invoice_type }}</td>
-                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ $row->id }}</td>
-                            <td>TCS</td>
-                            <td>Duties & Taxes</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>0.00</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>{{ $row->invoice_type }}</td>
-                            <td>{{ \Carbon\Carbon::parse($row->invoice_date)->format('d/m/Y') }}</td>
-                            <td></td>
-                            <td></td>
-                            <td>{{ $row->id }}</td>
-                            <td>TDS</td>
-                            <td>Duties & Taxes</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>0.00</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    @endforeach
-                </tbody>
             </table>
 
 
