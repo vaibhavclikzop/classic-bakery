@@ -362,8 +362,7 @@
                                          <ul
                                              style="{{ in_array(Request::path(), $outwardRoutes) ? 'display: block;' : '' }}">
                                              <li><a href="/outward-order"
-                                                     class="{{ Request::is('outward-order') ? 'active' : '' }}">Create
-                                                     Outward</a></li>
+                                                     class="{{ Request::is('outward-order') ? 'active' : '' }}">RM Issue</a></li>
                                              <li><a href="/outward-order-list"
                                                      class="{{ Request::is('outward-order-list') ? 'active' : '' }}">Outward
                                                      Challan</a></li>

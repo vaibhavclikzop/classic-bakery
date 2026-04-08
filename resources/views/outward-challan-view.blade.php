@@ -87,7 +87,7 @@
                         <td>{{ $item->sub_category }}</td>
                         <td>{{ $item->product }}</td>
                         <td>{{ $item->article_no }}</td>
-                        <td>{{ number_format($item->qty) }}</td>
+                        <td>{{ formatQtyPrice($item->qty) }}</td>
                     </tr>
                     @endforeach
 

@@ -15,8 +15,8 @@ class Reports extends Controller
     {
         $fromDt = $request->input('fromDt', date('Y-m-d'));
 
-
-        $query = DB::table("stock_inward_mst as a")
+        /* ================= RM ================= */
+        $rm = DB::table("stock_inward_mst as a")
             ->join("stock_inward_det as b", "a.id", "b.mst_id")
             ->join("vendor as c", "a.vendor_id", "c.id")
             ->join("products as d", "b.product_id", "d.id")
@@ -24,15 +24,37 @@ class Reports extends Controller
                 "a.id as mst_id",
                 "a.received_material_date as invoice_date",
                 "b.product_id",
-                "c.name as vendor",
-                "d.name as product",
+                DB::raw("c.name COLLATE utf8mb4_unicode_ci as vendor"),
+                DB::raw("d.name COLLATE utf8mb4_unicode_ci as product"),
                 "b.price",
                 "b.qty"
-            );
+            )
+            ->where("b.type", "raw material");
 
+        /* ================= FG ================= */
+        $fg = DB::table("stock_inward_mst as a")
+            ->join("stock_inward_det as b", "a.id", "b.mst_id")
+            ->join("vendor as c", "a.vendor_id", "c.id")
+            ->join("finish_products_mst as d", "b.product_id", "d.id")
+            ->select(
+                "a.id as mst_id",
+                "a.received_material_date as invoice_date",
+                "b.product_id",
+                DB::raw("c.name COLLATE utf8mb4_unicode_ci as vendor"),
+                DB::raw("d.name COLLATE utf8mb4_unicode_ci as product"),
+                "b.price",
+                "b.qty"
+            )
+            ->where("b.type", "finished product");
 
+        /* ================= UNION ================= */
+        $query = DB::table(DB::raw("({$rm->toSql()} UNION ALL {$fg->toSql()}) as x"))
+            ->mergeBindings($rm)
+            ->mergeBindings($fg);
+
+        /* ================= FILTER ================= */
         if ($fromDt) {
-            $query->whereIn("b.product_id", function ($q) use ($fromDt) {
+            $query->whereIn("product_id", function ($q) use ($fromDt) {
                 $q->select("b.product_id")
                     ->from("stock_inward_mst as a")
                     ->join("stock_inward_det as b", "a.id", "b.mst_id")
@@ -40,43 +62,43 @@ class Reports extends Controller
             });
         }
 
-
+        /* ================= FETCH ================= */
         $records = $query
-            ->orderBy("b.product_id")
-            ->orderByDesc("a.received_material_date")
-            ->orderByDesc("a.id")
+            ->orderBy("product_id")
+            ->orderByDesc("invoice_date")
+            ->orderByDesc("mst_id")
             ->get();
 
-
+        /* ================= GROUP ================= */
         $grouped = $records->groupBy("product_id");
 
-
+        /* ================= VARIATION LOGIC ================= */
         $latestFive = $grouped->map(function ($items) {
 
             $items = $items
-                ->sortByDesc(function ($item) {
-                    return $item->invoice_date . '-' . $item->mst_id;
-                })
+                ->sortByDesc(fn($item) => $item->invoice_date . '-' . $item->mst_id)
                 ->values();
 
-            $uniquePrices = collect();
+            // Last 5 purchases
+            $lastFive = $items->take(5)->map(function ($item) {
+                $item->price = round($item->price, 2);
+                return $item;
+            });
 
-            foreach ($items as $item) {
+            // Check variation
+            $uniquePrices = $lastFive->pluck('price')->unique();
 
-                // stop when 5 unique prices collected
-                if ($uniquePrices->count() >= 5) {
-                    break;
-                }
-
-                // check if price already exists
-                if (!$uniquePrices->pluck('price')->contains(round($item->price, 2))) {
-                    $item->price = round($item->price, 2); // normalize
-                    $uniquePrices->push($item);
-                }
+            // ❌ No variation → skip
+            if ($uniquePrices->count() <= 1) {
+                return collect();
             }
 
-            return $uniquePrices;
+            // ✅ Variation exists → return all 5
+            return $lastFive;
         });
+
+ 
+
 
 
 
@@ -113,10 +135,10 @@ class Reports extends Controller
 
 
 
-        $filter = $variationReport->flatten(1)->values();
-
-
-
+        $filter = $latestFive
+            ->filter(fn($items) => $items->isNotEmpty()) // remove empty
+            ->flatten(1)
+            ->values();
 
 
 

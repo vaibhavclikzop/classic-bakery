@@ -40,12 +40,13 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .wrap-text{
-        word-wrap: break-word!important; 
-        overflow-wrap: break-word; 
-        white-space: normal!important; 
-        max-width: 200px;
-        } 
+
+        .wrap-text {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word;
+            white-space: normal !important;
+            max-width: 200px;
+        }
     </style>
 
 
@@ -79,7 +80,7 @@
 
             <form action="{{ url('finish-products') }}" method="GET" class="mb-3">
                 <div class="row g-3 align-items-end">
-                  
+
                     <div class="col-md-2">
                         <label for="perPage" class="form-label">Per Page</label>
                         <select name="perPage" id="perPage" class="form-select" onchange="this.form.submit()">
@@ -91,7 +92,7 @@
                         </select>
                     </div>
 
-                  
+
                     <div class="col-md-3">
                         <label for="f_category_id" class="form-label">Category</label>
                         <select name="f_category_id" id="f_category_id" class="form-select" onchange="this.form.submit()">
@@ -105,7 +106,7 @@
                         </select>
                     </div>
 
-                  
+
                     <div class="col-md-3">
                         <label for="f_sub_category_id" class="form-label">Sub Category</label>
                         <select name="f_sub_category_id" id="f_sub_category_id" class="form-select"
@@ -120,7 +121,7 @@
                         </select>
                     </div>
 
-                    
+
                     <div class="col-md-4">
                         <label for="search" class="form-label">Search</label>
                         <div class="input-group">
@@ -171,8 +172,9 @@
                             </td>
 
                             <td>
-                            <p class="mb-0">Price : {{ $item->price }}</p>
-                            <p class="mb-0">GST : {{ $item->gst }}</p></td>
+                                <p class="mb-0">Price : {{ $item->price }}</p>
+                                <p class="mb-0">GST : {{ $item->gst }}</p>
+                            </td>
                             <td>{{ $item->article_no }}</td>
                             <td>{{ $item->hsn_code }}</td>
                             <td>{{ $item->manual_barcode }}</td>
@@ -266,16 +268,10 @@
 
                             <div class="col-md-3 mt-4 ">
                                 <label for="">HSN Code</label>
-                               <input 
-                                    type="text" 
-                                    name="hsn_code"
-                                    class="form-control"
-                                    placeholder="Enter HSN Code"
-                                    pattern="[0-9]{4,}"
-                                    title="Enter at least 4 digits"
-                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                    required>
-                                
+                                <input type="text" name="hsn_code" class="form-control" placeholder="Enter HSN Code"
+                                    pattern="[0-9]{4,}" title="Enter at least 4 digits"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+
                             </div>
 
                             <div class="col-md-3 mt-4 ">
@@ -642,6 +638,35 @@
                             '</option>';
                     });
                     $("#sub_category_id").html(html)
+                },
+                error: function(result) {
+                    console.log(result);
+                }
+            });
+
+        });
+
+
+
+        $("#ucategory_id").on("change", function() {
+            $.ajax({
+                url: "/GetFinishSubCategory",
+                type: "POST",
+                data: {
+                    id: $(this).val(),
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(result) {
+                    var html = "";
+                    html += '<option value="">----Select Sub Category----</option>';
+                    result.forEach(element => {
+
+                        html += '<option value="' + element.id + '">' + element.name +
+                            '</option>';
+                    });
+                    $("#usub_category_id").html(html)
                 },
                 error: function(result) {
                     console.log(result);

@@ -19,10 +19,12 @@ use App\Http\Controllers\ResetSoftware;
 use App\Http\Controllers\SaleReturn;
 use App\Http\Controllers\StockReport;
 use App\Http\Controllers\Barcode;
+use App\Http\Controllers\Email\cancelInvoiceController;
 use App\Http\Controllers\expenseManagement;
 use App\Http\Controllers\posOrderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TallyController;
+use App\Mail\SendCancelInvoiceOTP;
 use Illuminate\Database\Console\Migrations\ResetCommand;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -66,7 +68,13 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('GetUserDetails', [Masters::class, 'GetUserDetails'])->name('GetUserDetails');
 
   // ajax call
+  //Email 
+  Route::post('sendCancelInvoiceOTP',[cancelInvoiceController::class,"sendCancelInvoiceOTP"])->name("sendCancelInvoiceOTP");
+  Route::post('verifyCancelOTP',[cancelInvoiceController::class,"verifyCancelOTP"])->name("verifyCancelOTP");
+  Route::post('cancelRegularInvoice',[cancelInvoiceController::class,"cancelRegularInvoice"])->name("cancelRegularInvoice");
 
+
+  
   Route::post('getLastPurchasePriceRM', [AjaxController::class, 'getLastPurchasePriceRM'])->name('getLastPurchasePriceRM');
   Route::post('getLastPurchasePriceFG', [AjaxController::class, 'getLastPurchasePriceFG'])->name('getLastPurchasePriceFG');
 

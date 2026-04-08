@@ -1,12 +1,12 @@
 @extends('layouts.main')
 @section('main-section')
     @push('title')
-        <title>Create Outward Challan </title>
+        <title>RM issue </title>
     @endpush
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
-                <h4>Create Outward Challan</h4>
+                <h4>RM issue</h4>
             </div>
 
         </div>

@@ -51,7 +51,7 @@
                         <tr>
                             <td>{{ $sno++ }}</td>
                             <td>{{ $item->vendor }}</td>
-                            <td>{{ $item->invoice_date }}</td>
+                            <td>{{date("d-m-Y",strtotime($item->invoice_date )) }}</td>
                             <td>{{ $item->product }}</td>
                             <td>{{ formatQtyPrice($item->price) }}</td>
                             <td>{{ formatQtyPrice($item->qty) }}</td>

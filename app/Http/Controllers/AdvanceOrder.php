@@ -537,8 +537,7 @@ class AdvanceOrder extends Controller
                     ->get();
             }
 
-            return view("advance-order-
-            ", compact("data"));
+            return view("advance-order-print", compact("data"));
         }
         $fromDt = request("date", date("Y-m-d"));
         $toDt = request("toDt", date("Y-m-d", strtotime("+5days")));
