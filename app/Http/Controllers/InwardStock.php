@@ -295,36 +295,68 @@ class InwardStock extends Controller
 
 
         $poGrouped = collect($prod_list)->groupBy('po_id');
-      
+
         try {
             DB::beginTransaction();
-        
-          
 
-              $inv_no =   DB::table("stock_inward_mst")->whereDate("created_at", now())->count();
-                if (!$inv_no) {
-                    $inv_no = 1;
-                } else {
-                    $inv_no++;
-                }
-                $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
-                $invoice_id = $invoice_prefix->invoice_prefix . date('d-m-y') . "-" . $inv_no;
 
-                $mst_id = DB::table('stock_inward_mst')->insertGetId(array(
-                    "vendor_id" => $request->vendor_id,
-                    "po_id" => implode(", ", $request->po_id),
-                    "invoice_no" => $request->invoice_no,
-                    "invoice_id" => $invoice_id,
-                    "invoice_date" => $request->invoice_date,
-                    "received_material_date" => $request->received_material_date,
-                    "description" => $request->description,
-                    "user_id" => $request->user->id,
-                    "delivery_charges" =>  $request->delivery_charges ,
 
-                ));
+            $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
+
+
+
+            $today = now();
+
+
+            if ($today->month >= 4) {
+                $startYear = $today->year;
+                $endYear = $today->year + 1;
+            } else {
+                $startYear = $today->year - 1;
+                $endYear = $today->year;
+            }
+
+            $financialYear = $startYear . "-" . substr($endYear, -2);
+
+            $regularExistsInFY = DB::table("stock_inward_mst")
+                ->where("financial_year", "=", $financialYear)
+                ->exists();
+
+            if ($regularExistsInFY) {
+                $maxRegular = DB::table("stock_inward_mst")
+                    ->where("financial_year", "=", $financialYear)
+                    ->count("id");
+                $nextNumber = $maxRegular + 1;
+            } else {
+                $nextNumber = 1;
+            }
+
+            $invoice_id = $invoice_prefix->invoice_prefix . date('d-m-y') . "-" . $nextNumber;
+
+            $exists = DB::table('stock_inward_mst')
+                ->where('invoice_id', $invoice_id)
+                ->exists();
+
+            if ($exists) {
+                return back()->with('error', 'Invoice already exists');
+            }
+
+            $mst_id = DB::table('stock_inward_mst')->insertGetId(array(
+                "vendor_id" => $request->vendor_id,
+                "po_id" => implode(", ", $request->po_id),
+                "invoice_no" => $request->invoice_no,
+                "invoice_id" => $invoice_id,
+                "invoice_date" => $request->invoice_date,
+                "received_material_date" => $request->received_material_date,
+                "description" => $request->description,
+                "user_id" => $request->user->id,
+                "delivery_charges" =>  $request->delivery_charges,
+                "financial_year"=>$financialYear,
+
+            ));
 
             foreach ($poGrouped as $po_id => $products) {
-              
+
                 $status = 0;
                 foreach ($products as $value) {
 

@@ -57,6 +57,7 @@
             <table class="myTable " id="exportTable">
                 <thead>
                     <tr>
+                        <th style="border: solid 1px;padding: 5px;">Status.</th>
                         <th style="border: solid 1px;padding: 5px;">Invoice No.</th>
                         <th style="border: solid 1px;padding: 5px;">Supplier Invoice Date</th>
                         <th style="border: solid 1px;padding: 5px;">Vendor Name</th>
@@ -73,6 +74,14 @@
                 <tbody>
                     @foreach ($data as $item)
                         <tr>
+                            <td style="border: solid 1px;padding: 5px;">
+
+                                   @if ($item->status == 'cancel')
+                                    <span class="badge bg-danger">Cancel</span>
+                                @else
+                                    <span class="badge bg-success">Complete</span>
+                                @endif
+                            </td>
                             <td style="border: solid 1px;padding: 5px;">{{ $item->invoice_id }}</td>
                             <td style="border: solid 1px;padding: 5px;">{{ $item->invoice_date }}</td>
                             <td style="border: solid 1px;padding: 5px;">{{ $item->vendor }}</td>

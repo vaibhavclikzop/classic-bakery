@@ -308,6 +308,7 @@ class ReportController extends Controller
         a.received_material_date as invoice_date,
         c.name as vendor,
         a.delivery_charges,
+        a.status,
         $dynamicColumnsPurchase,
 
         -- TOTAL TAXABLE
@@ -327,7 +328,7 @@ class ReportController extends Controller
         ) as grand_total
     ")
             ->whereBetween("a.received_material_date", [$fromDt, $toDt])
-            ->groupBy("a.id", "a.invoice_id", "a.invoice_date", "c.name", "a.delivery_charges","a.received_material_date")
+            ->groupBy("a.id", "a.invoice_id", "a.invoice_date", "c.name", "a.delivery_charges","a.received_material_date","a.status")
             ->get();
 
         return view("report.purchase-register-tax-bifurcation", compact("data", "gstRatesRaw", "gstRates"));

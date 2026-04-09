@@ -273,7 +273,7 @@
 
             });
 
-            $("#Save").on("click", function() {
+            $("#Save").off("click").on("click", function() {
                 $('#prod_list').val(JSON.stringify(product_list));
                 if (!$("#vendor_id").val()) {
                     toastr.error("Select Vendor");
@@ -300,7 +300,8 @@
                     return;
                 }
 
-                $("#Save").attr("disabled","disabled");
+                $("#Save").attr("disabled", "disabled");
+
                 $("#formMain").submit();
             })
             $(document).on("keyup", '.qty', function() {

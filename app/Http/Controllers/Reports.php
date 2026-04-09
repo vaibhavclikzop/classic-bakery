@@ -29,7 +29,8 @@ class Reports extends Controller
                 "b.price",
                 "b.qty"
             )
-            ->where("b.type", "raw material");
+            ->where("b.type", "raw material")
+            ->where("a.status", "complete");
 
         /* ================= FG ================= */
         $fg = DB::table("stock_inward_mst as a")
@@ -45,7 +46,7 @@ class Reports extends Controller
                 "b.price",
                 "b.qty"
             )
-            ->where("b.type", "finished product");
+            ->where("b.type", "finished product")->where("a.status", "complete");
 
         /* ================= UNION ================= */
         $query = DB::table(DB::raw("({$rm->toSql()} UNION ALL {$fg->toSql()}) as x"))
@@ -79,25 +80,28 @@ class Reports extends Controller
                 ->sortByDesc(fn($item) => $item->invoice_date . '-' . $item->mst_id)
                 ->values();
 
-            // Last 5 purchases
-            $lastFive = $items->take(5)->map(function ($item) {
-                $item->price = round($item->price, 2);
-                return $item;
-            });
-
-            // Check variation
-            $uniquePrices = $lastFive->pluck('price')->unique();
-
-            // ❌ No variation → skip
-            if ($uniquePrices->count() <= 1) {
+            // 👉 Need at least 2 records to compare
+            if ($items->count() < 2) {
                 return collect();
             }
 
-            // ✅ Variation exists → return all 5
-            return $lastFive;
+            // 👉 Get latest 2 prices
+            $latestPrice1 = round($items[0]->price, 2); // latest
+            $latestPrice2 = round($items[1]->price, 2); // second latest
+
+            // ❌ If no variation → skip
+            if ($latestPrice1 == $latestPrice2) {
+                return collect();
+            }
+
+            // ✅ Variation found → return last 5 purchases
+            return $items->take(5)->map(function ($item) {
+                $item->price = round($item->price, 2);
+                return $item;
+            });
         });
 
- 
+
 
 
 
@@ -157,6 +161,7 @@ class Reports extends Controller
                 "a.invoice_id as invoice_id",
                 "a.received_material_date",
                 "c.name as vendor",
+                "a.status as status",
 
 
                 DB::raw("SUM(b.qty * b.price) as taxable_amount"),
@@ -199,59 +204,12 @@ class Reports extends Controller
         if ($toDt) {
             $filterRawMaterial->whereDate("a.received_material_date", "<=", $toDt);
         }
-        $rawMaterial = $filterRawMaterial->groupBy("a.invoice_id", "a.received_material_date", "c.name", "a.delivery_charges")->get();
+        $rawMaterial = $filterRawMaterial->groupBy("a.invoice_id", "a.received_material_date", "c.name", "a.delivery_charges", "a.status")->get();
 
 
 
-        $filterFinishGoods = DB::table("stock_inward_mst_finish_goods as a")
-            ->select(
-                "a.id as invoice_id",
-                "a.received_material_date",
-                "c.name as vendor",
 
-
-                DB::raw("SUM(b.qty * b.price) as taxable_amount"),
-
-
-                DB::raw("SUM((b.qty * b.price * b.gst) / 100) as gst_amount"),
-
-
-                DB::raw("SUM((b.qty * b.price * b.cess_tax) / 100) as cess_amount"),
-
-
-                DB::raw("
-            SUM(
-                (b.qty * b.price) +
-                ((b.qty * b.price * b.gst) / 100) +
-                ((b.qty * b.price * b.cess_tax) / 100)
-            ) as total_amount
-        "),
-
-
-                "a.delivery_charges",
-
-
-                DB::raw("
-            SUM(
-                (b.qty * b.price) +
-                ((b.qty * b.price * b.gst) / 100) +
-                ((b.qty * b.price * b.cess_tax) / 100)
-            ) + a.delivery_charges as grand_total
-        ")
-            )
-            ->join("stock_inward_det_finish_goods as b", "a.id", "=", "b.mst_id")
-            ->join("vendor as c", "a.vendor_id", "=", "c.id");
-
-        if ($fromDt) {
-            $filterFinishGoods->whereDate("a.received_material_date", ">=", $fromDt);
-        }
-
-        if ($toDt) {
-            $filterFinishGoods->whereDate("a.received_material_date", "<=", $toDt);
-        }
-
-        $finishGoods = $filterFinishGoods->groupBy("a.id", "a.received_material_date", "c.name", "a.delivery_charges")->get();
-        $data = $rawMaterial->merge($finishGoods);
+        $data = $rawMaterial;
         $data = $data->sortBy('received_material_date')->values();
 
         return view("purchase-register-report", compact("data"));

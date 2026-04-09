@@ -604,7 +604,6 @@ LIMIT ? OFFSET ?
         $columnsPurchase = [];
         foreach ($gstRates as $gst) {
 
-            // ✅ TAXABLE (no change)
             $columnsPurchase[] = "
         SUM(
             CASE 
@@ -615,45 +614,36 @@ LIMIT ? OFFSET ?
         ) AS taxable_$gst
     ";
 
-            // ✅ GST (ROUND AFTER SUM)
             $columnsPurchase[] = "
-        ROUND(
-            SUM(
-                CASE 
-                    WHEN ROUND(b.gst) = $gst 
-                    THEN (b.qty * b.price * $gst) / 100
-                    ELSE 0 
-                END
-            ), 2
+        SUM(
+            CASE 
+                WHEN ROUND(b.gst) = $gst 
+                THEN (b.qty * b.price * $gst) / 100
+                ELSE 0 
+            END
         ) AS gst_$gst
     ";
 
-            // ✅ CESS (ROUND AFTER SUM)
             $columnsPurchase[] = "
-        ROUND(
-            SUM(
-                CASE 
-                    WHEN ROUND(b.gst) = $gst 
-                    THEN (b.qty * b.price * b.cess_tax) / 100
-                    ELSE 0 
-                END
-            ), 2
+        SUM(
+            CASE 
+                WHEN ROUND(b.gst) = $gst 
+                THEN (b.qty * b.price * b.cess_tax) / 100
+                ELSE 0 
+            END
         ) AS cess_$gst
     ";
 
-            // ✅ TOTAL (ROUND AFTER SUM)
             $columnsPurchase[] = "
-        ROUND(
-            SUM(
-                CASE 
-                    WHEN ROUND(b.gst) = $gst 
-                    THEN 
-                        (b.qty * b.price) 
-                        + ((b.qty * b.price * $gst) / 100)
-                        + ((b.qty * b.price * b.cess_tax) / 100)
-                    ELSE 0 
-                END
-            ), 2
+        SUM(
+            CASE 
+                WHEN ROUND(b.gst) = $gst 
+                THEN 
+                    (b.qty * b.price) 
+                    + ((b.qty * b.price * $gst) / 100)
+                    + ((b.qty * b.price * b.cess_tax) / 100)
+                ELSE 0 
+            END
         ) AS total_$gst
     ";
         }
@@ -670,32 +660,37 @@ LIMIT ? OFFSET ?
         a.received_material_date as invoice_date,
         c.name as vendor,
         a.delivery_charges,
+        a.status,
         'IGST' AS gst_type,
      
         $dynamicColumnsPurchase,
 
         -- TOTAL TAXABLE
-        SUM(b.qty * b.price) as total_taxable,
+        round(SUM(b.qty * b.price),4) as total_taxable,
 
         -- TOTAL GST
-        SUM((b.qty * b.price * b.gst) / 100) as total_gst,
+        round(SUM((b.qty * b.price * b.gst) / 100),4) as total_gst,
 
         -- TOTAL CESS
-        SUM((b.qty * b.price * b.cess_tax) / 100) as total_cess,
+        round(SUM((b.qty * b.price * b.cess_tax) / 100),4   ) as total_cess,
 
         -- GRAND TOTAL
-        SUM(
+        round(SUM(
             (b.qty * b.price)
             + ((b.qty * b.price * b.gst) / 100)
             + ((b.qty * b.price * b.cess_tax) / 100)
-        ) as grand_total
+        ) ,4)as grand_total
 
          
     ")
             ->whereBetween("a.received_material_date", [$fromDt, $toDt])
-            ->groupBy("a.id", "a.invoice_id", "a.invoice_date", "c.name", "a.delivery_charges", "a.received_material_date")
+            ->groupBy("a.id", "a.invoice_id", "a.invoice_date", "c.name", "a.delivery_charges", "a.received_material_date","a.status")
             ->get();
 
+
+        // echo "<pre>";
+        // print_r($purchase);
+        // die;
         $tallyData = [];
 
         /* ================= SALES CONVERT ================= */
@@ -788,13 +783,17 @@ LIMIT ? OFFSET ?
             $total = $row->grand_total + $row->delivery_charges;
 
             /* -------- MAIN ROW -------- */
+            if ($row->status == 'cancel') {
+                $total = 0;
+            }
+
             $tallyData[] = (object)[
                 "invoice_type" => "Purchase",
                 "date" => $row->invoice_date,
                 "invoice_no" => $row->invoice_id,
                 "ledger" => $row->vendor,
                 "ledger_group" => "Sundry Creditors",
-                "amount" => number_format($total, 2, '.', ''),
+                "amount" => number_format($total, 4, '.', ''),
                 "invoice_amount" => round($total),
                 "gst_type" => $row->gst_type
             ];
@@ -817,7 +816,7 @@ LIMIT ? OFFSET ?
                         "ledger" => "NET PURCHASE @ $gst%",
                         "ledger_group" => "Purchase Accounts",
                         "gst" => $gst,
-                        "amount" => number_format(-$taxable, 2, '.', ''),
+                        "amount" => number_format(-$taxable, 4, '.', ''),
                     ];
                 }
 
@@ -834,7 +833,7 @@ LIMIT ? OFFSET ?
                         "ledger" => "INPUT IGST $gst%",
                         "ledger_group" => "Duties & Taxes",
                         "gst" => $gst,
-                        "amount" => number_format(-$gstAmt, 2, '.', ''),
+                        "amount" => number_format(-$gstAmt, 4, '.', ''),
                     ];
                     // } 
 

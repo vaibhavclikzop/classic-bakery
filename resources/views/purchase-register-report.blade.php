@@ -41,6 +41,7 @@
                 <thead>
                     <tr>
                         <th>S.No</th>
+                        <th>Status</th>
                         <th>Supplier</th>
                         <th>PE NO.</th>
                         <th>PE Date</th>
@@ -62,6 +63,13 @@
                     @foreach ($data as $item)
                         <tr>
                             <td>{{$sno++}}</td>
+                             <td>
+                                @if ($item->status == 'cancel')
+                                    <span class="badge bg-danger">Cancel</span>
+                                @else
+                                    <span class="badge bg-success">Complete</span>
+                                @endif
+                            </td>
                             <td>{{$item->vendor}}</td>
                             <td>{{$item->invoice_id}}</td>
                             <td>{{$item->received_material_date}}</td>
