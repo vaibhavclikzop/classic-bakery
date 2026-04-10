@@ -1,166 +1,151 @@
 @extends('layouts.main')
 @section('main-section')
+    @push('title')
+        <title>Purchase Invoice</title>
+    @endpush
+
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
-                <h4>Purchase Order View</h4>
+                <h4>Purchase Invoice View</h4>
             </div>
-            <div class="">
-
-                <button type="button" onclick="printcontent()" class="btn btn-primary"><i class="fa fa-print"
-                        aria-hidden="true"></i> Print</button>
-            </div>
+            <button onclick="printcontent()" class="btn btn-primary">
+                <i class="fa fa-print"></i> Print
+            </button>
         </div>
+
         <div class="card-body" id="PrintOrder">
+
+
             <div class="text-center">
-                <img src="/logo/{{ $setting->img }}" width="180px">
+                <span><b>Purchase Invoice</b></span>
             </div>
 
-            <div style="display: flex; justify-content: space-between; border: solid 1px; padding: 8px;">
-                <div>
-                    <h3>{{ $setting->company_name }}</h3>
-                    <p>{!! $setting->address !!}
-                        <br>
-                        E-Mail : {{ $setting->email }} <br>
-                        Phone : {{ $setting->number }} <br>
-                        GST : {{ $setting->gst_no }}
+            <div class="text-center mt-2">
+                <h4>{{ $setting->company_name }}</h4>
+                <p>{{ $setting->address }}</p>
+            </div>
 
-                    </p>
-
-
+            <div style="display:flex;border:1px solid;margin-top:5px">
+                <div style="width:50%;border:1px solid;padding:5px">
+                    GSTIN : {{ $setting->gst_no }} <br>
+                    Email : {{ $setting->email }} <br>
+                    Contact : {{ $setting->number }}
                 </div>
 
+                <div style="width:50%;border:1px solid;padding:5px">
+                   Return Date : {{ $po_mst->return_date }} <br>
+                   Invoice No : {{ $po_mst->invoice_no }} <br>
 
-                <div>
-                    <div style="text-align: right;">
-                        <h4>{{ $po_mst->company }}</h4>
-                        <p>
-                            {{ $po_mst->vendor }} <br>
-                            {{ $po_mst->address }}, {{ $po_mst->state }}, {{ $po_mst->city }}, ,
-                            {{ $po_mst->pincode }} <br>
-                            {{ $po_mst->number }} <br>
-                            {{ $po_mst->email }} <br>
-                            {{ $po_mst->gst }} <br>
-
-
-                            {{ $po_mst->return_date }} <br>
-
-                        </p>
-
-                    </div>
                 </div>
             </div>
-            <div class="">
-                <hr>
-                <h6>Products</h6>
-                @php
-                    $sno = 1;
-                @endphp
-                <table class="table">
-                    <thead>
-                        <th>S.No</th>
 
-                        <th>Product</th>
-                        <th>Qty</th>
-                        <th>Price</th>
 
-                        <th>GST</th>
-                        <th>Cess</th>
-                        <th>Total</th>
+            <div style="display:flex;border:1px solid;margin-top:5px">
+                <div style="width:50%;border:1px solid;padding:5px">
+                    <b>Bill From</b><br>
+                    Company: {{ $setting->company_name }}<br>
+                    GSTIN : {{ $setting->gst_no}} <br>
+                    Contact : {{ $setting->number}} <br>
+                    Address: {{ $setting->address }} <br>
+                </div>
 
-                    </thead>
-                    <tbody>
+                <div style="width:50%;border:1px solid;padding:5px">
+                    <b>Vendor Details</b><br>
+                    Vendor : {{ $po_mst->vendor }} <br>
+                    Number: {{ $po_mst->number ?? 'NA' }}<br>
+                    Address:{{ $po_mst->address }}, {{ $po_mst->city }}, {{ $po_mst->state }}
+                </div>
+            </div>
+
+            <table class="w-100 mt-2">
+                <thead>
+                    <tr>
+                        <th style="border:1px solid;font-size:11px">S.No</th>
+                        <th style="border:1px solid;font-size:11px">Description of goods</th>
+                        <th style="border:1px solid;font-size:11px">HSN Code</th>
+                        <th style="border:1px solid;font-size:11px">UOM</th>
+
+                        <th style="border:1px solid;font-size:11px">Qty</th>
+                        <th style="border:1px solid;font-size:11px">Rate</th>
+                        <th style="border:1px solid;font-size:11px">GST</th>
+                        <th style="border:1px solid;font-size:11px">CESS</th>
+                        <th style="border:1px solid;font-size:11px">Total</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @php
+                        $sno = 1;
+                        $sub_total = 0;
+                        $total_gst = 0;
+                        $total_cess = 0;
+                    @endphp
+
+                    @foreach ($po_det as $item)
+                        <tr>
+                            <td style="border:1px solid;font-size:11px">{{ $sno++ }}</td>
+                            <td style="border:1px solid;font-size:11px">{{ $item->product }}</td>
+                            <td style="border:1px solid;font-size:11px">{{ $item->hsn_code }}</td>
+                            <td style="border:1px solid;font-size:11px">{{ $item->uom }}</td>
+                            <td style="border:1px solid;font-size:11px">{{ $item->qty }}</td>
+                            <td style="border:1px solid;font-size:11px">{{ formatQtyPrice($item->price) }}</td>
+                            <td style="border:1px solid;font-size:11px">{{ $item->gst }}</td>
+                            <td style="border:1px solid;font-size:11px">{{ $item->cess_tax }}</td>
+                            <td style="border:1px solid;font-size:11px">{{ formatQtyPrice($item->total) }}</td>
+                        </tr>
+
                         @php
-                            $sub_total = 0;
-                            $total_gst = 0;
-                            $total_cess = 0;
+                            $sub_total += $item->sub_total;
+                            $total_gst += $item->gst_amount;
+                            $total_cess += $item->cess_amount;
                         @endphp
+                    @endforeach
+                </tbody>
 
-                        @foreach ($po_det as $item)
-                            <tr>
-                                <td>{{ $sno++ }}</td>
-
-                                <td>{{ $item->product }}</td>
-                                <td>{{ $item->qty }}</td>
-                                <td>{{ formatQtyPrice($item->price) }}</td>
-                                <td>{{ $item->gst }}</td>
-                                <td>{{ $item->cess_tax }}</td>
-                                <td>{{ formatQtyPrice($item->total) }}</td>
-
-
-
-                            </tr>
-                            @php
-                                $sub_total += $item->sub_total;
-                                $total_gst += $item->gst_amount;
-                                $total_cess += $item->cess_amount;
-                            @endphp
-                        @endforeach
-
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="5">
-
-                            </th>
-                            <th>Subtotal</th>
-                            <th>{{ $sub_total }}</th>
-                        </tr>
-                        <tr>
-                            <th colspan="5">
-
-                            </th>
-                            <th>GST</th>
-                            <th>{{ $total_gst }}</th>
-                        </tr>
-                        <tr>
-                            <th colspan="5">
-
-                            </th>
-                            <th>Cess </th>
-                            <th>{{ $total_cess }}</th>
-                        </tr>
-                        <tr>
-                            <th colspan="5">
-
-                            </th>
-                            <th>Delivery Charges </th>
-                            <th>{{ formatQtyPrice($stock_inward_mst->delivery_charges) }}</th>
-                        </tr>
-                        <tr>
-                            <th colspan="5">
-
-                            </th>
-                            <th>Grand Total</th>
-                            <th>{{ formatQtyPrice($total_gst + $sub_total + $total_cess + $stock_inward_mst->delivery_charges) }}
-                            </th>
-                        </tr>
-
-                    </tfoot>
+                <tfoot>
+                    <tr>
+                        <th colspan="7" style="border:1px solid"></th>
+                        <th style="border:1px solid">Subtotal</th>
+                        <th style="border:1px solid">{{ formatQtyPrice($sub_total) }}</th>
+                    </tr>
+                    <tr>
+                        <th colspan="7" style="border:1px solid"></th>
+                        <th style="border:1px solid">GST</th>
+                        <th style="border:1px solid">{{ formatQtyPrice($total_gst) }}</th>
+                    </tr>
+                    <tr>
+                        <th colspan="7" style="border:1px solid"></th>
+                        <th style="border:1px solid">Cess</th>
+                        <th style="border:1px solid">{{ formatQtyPrice($total_cess) }}</th>
+                    </tr>
+                    <tr>
+                        <th colspan="7" style="border:1px solid"></th>
+                        <th style="border:1px solid">Delivery</th>
+                        <th style="border:1px solid">{{ formatQtyPrice($stock_inward_mst->delivery_charges) }}</th>
+                    </tr>
+                    <tr>
+                        <th colspan="7" style="border:1px solid"></th>
+                        <th style="border:1px solid">Grand Total</th>
+                        <th style="border:1px solid">
+                            {{ formatQtyPrice($sub_total + $total_gst + $total_cess + $stock_inward_mst->delivery_charges) }}
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
 
 
-                </table>
-            </div>
-            <div class="d-flex mt-4 justify-content-between">
+            <div class="d-flex justify-content-between mt-3">
                 <div>
-                    <p><b><u><i>Terms & Conditions</i></u></b></p>
-                    <ol style="list-style:number;">
-
-
-                    </ol>
-                </div>
-                <div>
-                    <h6 class="float-end">For {{ $setting->company_name }}</h6>
-
-                    <p class="mt-5">Authorized Signatory</p>
+                    <b>Terms & Conditions</b>
                 </div>
 
+                <div>
+                    <b>For {{ $setting->company_name }}</b><br><br>
+                    Authorized Signatory
+                </div>
             </div>
-
-
-
 
         </div>
-
     </div>
 @endsection

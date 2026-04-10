@@ -160,6 +160,8 @@ class PurchaseReturn extends Controller
                 "a.id",
                 "a.qty",
                 DB::raw("b.name COLLATE utf8mb4_unicode_ci as product"),
+                "b.hsn_code",
+                "u.name as uom",
                 "sid.price",
                 "sid.gst",
                 "sid.cess_tax",
@@ -171,6 +173,7 @@ class PurchaseReturn extends Controller
             + ((a.qty * sid.price) * sid.cess_tax / 100) as total")
             )
             ->join("products as b", "a.product_id", "b.id")
+            ->leftJoin("unit_type as u", "b.uom", "u.id")
             ->join("purchase_return_mst as prm", "a.mst_id", "prm.id")
             ->join("stock_inward_det as sid", function ($join) {
                 $join->on("sid.product_id", "=", "a.product_id")
@@ -186,9 +189,12 @@ class PurchaseReturn extends Controller
                 "a.id",
                 "a.qty",
                 DB::raw("b.name COLLATE utf8mb4_unicode_ci as product"),
+                "b.hsn_code",
+                "u.name as uom",
                 "sid.price",
                 "sid.gst",
                 "sid.cess_tax",
+
                 DB::raw("(a.qty * sid.price) as sub_total"),
                 DB::raw("((a.qty * sid.price) * sid.gst / 100) as gst_amount"),
                 DB::raw("((a.qty * sid.price) * sid.cess_tax / 100) as cess_amount"),
@@ -197,6 +203,7 @@ class PurchaseReturn extends Controller
             + ((a.qty * sid.price) * sid.cess_tax / 100) as total")
             )
             ->join("finish_products_mst as b", "a.product_id", "b.id")
+            ->leftJoin("unit_type as u", "b.uom", "u.id")
             ->join("purchase_return_mst as prm", "a.mst_id", "prm.id")
             ->join("stock_inward_det as sid", function ($join) {
                 $join->on("sid.product_id", "=", "a.product_id")
@@ -208,7 +215,6 @@ class PurchaseReturn extends Controller
 
 
         $po_det = $rm->union($fg)->get();
-
 
         return view("purchase-return-challan-view", compact("po_mst", "po_det", "stock_inward_mst"));
     }
