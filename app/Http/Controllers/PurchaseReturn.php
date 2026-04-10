@@ -125,7 +125,7 @@ class PurchaseReturn extends Controller
     public function PurchaseReturnChallanView(Request $request, $id)
     {
         $po_mst =   DB::table("purchase_return_mst as a")
-            ->select("a.*", "b.name as vendor", "c.name as company", "d.name as user", "e.invoice_no", "b.address", "b.state", "b.city", "b.pincode", "b.number", "b.email", "b.gst")
+            ->select("a.*","a.id as debit_note_no", "b.name as vendor", "c.name as company", "d.name as user", "e.invoice_no", "b.address", "b.state", "b.city", "b.pincode", "b.number", "b.email", "b.gst")
             ->join("vendor as b", "a.vendor_id", "b.id")
             ->leftJoin("company as c", "b.company_id", "c.id")
             ->join("users as d", "a.user_id", "d.id")
