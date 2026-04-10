@@ -1,13 +1,13 @@
 @extends('layouts.main')
 @section('main-section')
     @push('title')
-        <title>Purchase Invoice</title>
+        <title>Purchase Order View</title>
     @endpush
 
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
-                <h4>Purchase Invoice View</h4>
+                <h4>Purchase Order View</h4>
             </div>
             <button onclick="printcontent()" class="btn btn-primary">
                 <i class="fa fa-print"></i> Print
@@ -18,7 +18,7 @@
 
 
             <div class="text-center">
-                <span><b>Purchase Invoice</b></span>
+                <span><b></b></span>
             </div>
 
             <div class="text-center mt-2">
@@ -34,9 +34,9 @@
                 </div>
 
                 <div style="width:50%;border:1px solid;padding:5px">
-                Debit Note No : {{ $po_mst->debit_note_no }} <br>   
-                   Return Date : {{ $po_mst->return_date }} <br>
-                   Invoice No : {{ $po_mst->invoice_no }} <br>
+                    Debit Note No : {{ $po_mst->debit_note_no }} <br>
+                    Return Date : {{ $po_mst->return_date }} <br>
+                    Invoice No : {{ $po_mst->invoice_no }} <br>
                 </div>
             </div>
 
@@ -45,8 +45,8 @@
                 <div style="width:50%;border:1px solid;padding:5px">
                     <b>Bill From</b><br>
                     Company: {{ $setting->company_name }}<br>
-                    GSTIN : {{ $setting->gst_no}} <br>
-                    Contact : {{ $setting->number}} <br>
+                    GSTIN : {{ $setting->gst_no }} <br>
+                    Contact : {{ $setting->number }} <br>
                     Address: {{ $setting->address }} <br>
                 </div>
 
