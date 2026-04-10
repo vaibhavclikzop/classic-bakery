@@ -44,7 +44,7 @@
 
             <div style="display:flex;border:1px solid;margin-top:5px">
                 <div style="width:50%;border:1px solid;padding:5px">
-                    <b>Bill From</b><br>
+                    <b>From</b><br>
                     Company: {{ $setting->company_name }}<br>
                     GSTIN : {{ $setting->gst_no }} <br>
                     Contact : {{ $setting->number }} <br>

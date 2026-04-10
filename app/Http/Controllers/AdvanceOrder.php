@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
 use Milon\Barcode\DNS1D;
@@ -793,44 +794,100 @@ class AdvanceOrder extends Controller
             ->where("a.customer_type_id", $customer_type_id->customer_type_id)->get();
     }
 
+    // public function Cancel_Order(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+
+    //         'id' => 'required',
+    //         'order_pwd' => 'required',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         $messages = $validator->errors();
+    //         $count = 0;
+    //         foreach ($messages->all() as $error) {
+    //             if ($count == 0)
+    //                 return redirect()->back()->with('error', $error);
+
+    //             $count++;
+    //         }
+    //     }
+
+
+    //     try {
+
+    //         $company_setting = DB::table("company_settings")->where("id", $request->user->id)->select('order_pwd')->first();
+    //         if ($request->order_pwd !== $company_setting->order_pwd) {
+    //             return  redirect()->back()->with("error", 'Incorrect password.');
+    //         }
+
+    //         DB::table('adv_order_mst')->where("id", $request->id)->update(array(
+    //             "status" => "cancel",
+
+    //         ));
+    //     } catch (\Throwable $th) {
+    //         return  redirect()->back()->with("error", $th->getMessage());
+    //     }
+
+    //     return  redirect()->back()->with("success", "Cancel Successfully");
+    // }
     public function Cancel_Order(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-
-            'id' => 'required',
-            'order_pwd' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            $messages = $validator->errors();
-            $count = 0;
-            foreach ($messages->all() as $error) {
-                if ($count == 0)
-                    return redirect()->back()->with('error', $error);
-
-                $count++;
-            }
+        if (!session()->has('order_cancel_verified')) {
+            return redirect()->back()->with('error', 'Please verify OTP first');
         }
 
+        DB::table('adv_order_mst')
+            ->where("id", $request->id)
+            ->update([
+                "status" => "cancel"
+            ]);
 
-        try {
+        session()->forget('order_cancel_verified');
 
-            $company_setting = DB::table("company_settings")->where("id", $request->user->id)->select('order_pwd')->first();
-            if ($request->order_pwd !== $company_setting->order_pwd) {
-                return  redirect()->back()->with("error", 'Incorrect password.');
-            }
-
-            DB::table('adv_order_mst')->where("id", $request->id)->update(array(
-                "status" => "cancel",
-
-            ));
-        } catch (\Throwable $th) {
-            return  redirect()->back()->with("error", $th->getMessage());
-        }
-
-        return  redirect()->back()->with("success", "Cancel Successfully");
+        return redirect()->back()->with("success", "Order Cancelled Successfully");
     }
 
+    public function verifyCancelOrderOTP(Request $request)
+    {
+        if ($request->otp == session('order_cancel_otp')) {
+
+            session(['order_cancel_verified' => true]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'OTP Verified'
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid OTP'
+        ]);
+    }
+
+    public function sendCancelOrderOTP(Request $request)
+    {
+        $otp = rand(100000, 999999);
+
+        session([
+            'order_cancel_otp' => $otp,
+            'order_cancel_verified' => false
+        ]);
+
+        // Company Email
+        $company = DB::table('company_settings')->where('id', 1)->first();
+
+        Mail::raw("Your OTP for cancel order is: $otp", function ($message) use ($company) {
+            $message->to($company->email)
+                ->subject('Order Cancel OTP');
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'OTP sent to company email'
+        ]);
+    }
     public function advConvertToInvoice(Request $request)
     {
         $validator = Validator::make($request->all(), [

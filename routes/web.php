@@ -480,6 +480,9 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('GetAdvProduct', [AdvanceOrder::class, 'GetAdvProduct'])->name('GetAdvProduct');
   Route::post('Cancel_order', [AdvanceOrder::class, 'Cancel_Order'])->name('Cancel_order');
 
+Route::post('/sendCancelOrderOTP', [AdvanceOrder::class, 'sendCancelOrderOTP']);
+
+Route::post('/verifyCancelOrderOTP', [AdvanceOrder::class, 'verifyCancelOrderOTP']);
   Route::post('advConvertToInvoice', [AdvanceOrder::class, 'advConvertToInvoice'])->name('advConvertToInvoice');
 
 

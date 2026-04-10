@@ -124,7 +124,7 @@
                             <option value="dispatch">Dispatch</option>
                             <option value="complete">Out for Delivery</option>
                             <option value="delivered">Delivered</option>
-                      
+
                         </select>
                     </div>
                     <div class="modal-footer">
@@ -139,7 +139,7 @@
 
     </form>
 
-    <form action="{{ route('Cancel_order') }}" method="POST" class="needs-validation" novalidate>
+    {{-- <form action="{{ route('Cancel_order') }}" method="POST" class="needs-validation" novalidate>
         @csrf
         <div class="modal fade" id="cancelOrderModal">
             <div class="modal-dialog modal-dialog-centered">
@@ -156,7 +156,7 @@
                                     required>
 
                             </div>
-                            {{-- <i class="fa toggle-password fa-eye "></i> --}}
+                            <i class="fa toggle-password fa-eye "></i>
 
                             <div class="modal-footer-btn mt-3 d-flex justify-content-center">
                                 <button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
@@ -169,9 +169,55 @@
                 </div>
             </div>
         </div>
+    </form> --}}
+
+    <form action="{{ route('Cancel_order') }}" method="POST" id="cancelOrderForm">
+        @csrf
+
+        <div class="modal fade" id="cancelOrderModal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="page-wrapper-new p-0">
+                        <div class="content p-5 px-3 text-center">
+
+                            <span class="rounded-circle d-inline-flex p-2 bg-danger-transparent mb-2">
+                                <i class="fa fa-trash fs-24 text-danger"></i>
+                            </span>
+
+                            <h4 class="fs-20 fw-bold mb-2">Cancel Order</h4>
+
+                            <input type="hidden" id="deleteId" name="id">
+
+                            <p class="mb-2">OTP will be sent to company email</p>
+
+                            <div id="btnSection">
+                                <button type="button" class="btn btn-dark w-100" id="sendOtpBtn">
+                                    Send OTP
+                                </button>
+                            </div>
+
+                            <div class="mt-3 d-none" id="otpSection">
+                                <input type="text" id="otp" class="form-control" placeholder="Enter OTP">
+                            </div>
+
+                            <div class="mt-3 d-none" id="verifySection">
+                                <button type="button" class="btn btn-primary w-100" id="verifyOtpBtn">
+                                    Verify & Cancel
+                                </button>
+                            </div>
+
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </form>
-
-
     <form action="{{ route('advConvertToInvoice') }}" method="POST" class="needs-validation" novalidate>
         @csrf
         <div class="modal fade" id="convertModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
@@ -226,6 +272,55 @@
         $(document).on("click", ".convertToInvoice", function() {
             $("#convertID").val($(this).val())
             $("#convertModal").modal("show")
+        });
+        $(document).on("click", ".cancel_status", function() {
+            $("#deleteId").val($(this).val());
+            $("#cancelOrderModal").modal("show");
+        });
+
+        $("#sendOtpBtn").click(function() {
+
+            $.ajax({
+                url: '/sendCancelOrderOTP',
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(res) {
+
+                    if (res.status) {
+                        $("#otpSection").removeClass("d-none");
+                        $("#verifySection").removeClass("d-none");
+                        $("#btnSection").addClass("d-none");
+
+                        toastr.success(res.message);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                }
+            });
+        });
+
+        $("#verifyOtpBtn").click(function() {
+
+            let otp = $("#otp").val();
+
+            $.ajax({
+                url: '/verifyCancelOrderOTP',
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    otp: otp
+                },
+                success: function(res) {
+
+                    if (res.status) {
+                        $("#cancelOrderForm").submit();
+                    } else {
+                        toastr.error(res.message);
+                    }
+                }
+            });
         });
     </script>
 @endsection
