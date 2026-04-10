@@ -34,9 +34,9 @@
                 </div>
 
                 <div style="width:50%;border:1px solid;padding:5px">
+                
                    Return Date : {{ $po_mst->return_date }} <br>
                    Invoice No : {{ $po_mst->invoice_no }} <br>
-
                 </div>
             </div>
 
