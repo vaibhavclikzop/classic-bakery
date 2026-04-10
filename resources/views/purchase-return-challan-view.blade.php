@@ -1,13 +1,13 @@
 @extends('layouts.main')
 @section('main-section')
     @push('title')
-        <title>Purchase Order View</title>
+        <title>Purchase Debit Note View</title>
     @endpush
 
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
-                <h4>Purchase Order View</h4>
+                <h4>Purchase Debit Note View</h4>
             </div>
             <button onclick="printcontent()" class="btn btn-primary">
                 <i class="fa fa-print"></i> Print
@@ -35,8 +35,8 @@
 
                 <div style="width:50%;border:1px solid;padding:5px">
                     Debit Note No : {{ $po_mst->debit_note_no }} <br>
-                    Return Date : {{ $po_mst->return_date }} <br>
-                    Invoice No : {{ $po_mst->invoice_no }} <br>
+                    Invoice Date : {{ $po_mst->return_date }} <br>
+                   Against Invoice No : {{ $po_mst->invoice_no }} <br>
                 </div>
             </div>
 
@@ -92,7 +92,7 @@
                             <td style="border:1px solid;font-size:11px">{{ formatQtyPrice($item->price) }}</td>
                             <td style="border:1px solid;font-size:11px">{{ $item->gst }}</td>
                             <td style="border:1px solid;font-size:11px">{{ $item->cess_tax }}</td>
-                            <td style="border:1px solid;font-size:11px">{{ formatQtyPrice($item->total) }}</td>
+                            <td style="border:1px solid;font-size:11px">{{ formatQtyPrice($item->price * $item->qty) }}</td>
                         </tr>
 
                         @php
@@ -119,11 +119,11 @@
                         <th style="border:1px solid">Cess</th>
                         <th style="border:1px solid">{{ formatQtyPrice($total_cess) }}</th>
                     </tr>
-                    <tr>
+                    {{-- <tr>
                         <th colspan="7" style="border:1px solid"></th>
                         <th style="border:1px solid">Delivery</th>
                         <th style="border:1px solid">{{ formatQtyPrice($stock_inward_mst->delivery_charges) }}</th>
-                    </tr>
+                    </tr> --}}
                     <tr>
                         <th colspan="7" style="border:1px solid"></th>
                         <th style="border:1px solid">Grand Total</th>
