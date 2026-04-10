@@ -631,28 +631,6 @@ class Reports extends Controller
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public function getSaleReportGstBifurcation(Request $request)
     {
         $fromDt = $request->input("fromDt") ?: Carbon::now()->startOfMonth()->toDateString();
@@ -766,10 +744,10 @@ class Reports extends Controller
 
 
         $sql = "
-SELECT * FROM (
+        SELECT * FROM (
 
-    -- ================= CUSTOMER REGULAR =================
-    SELECT
+            -- ================= CUSTOMER REGULAR =================
+            SELECT
         a.invoice_no,
         a.order_no AS id,
         a.invoice_date,
@@ -792,41 +770,41 @@ SELECT * FROM (
 
         SUM((b.qty * c.price) * (1 - c.discount / 100)) AS total_amount
 
-    FROM outward_customer_order_mst a
-    JOIN outward_customer_order_det b ON a.id = b.mst_id
-    JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
-    JOIN order_mst d ON a.order_id = d.id
-    JOIN customers e ON d.customer_id = e.id
+            FROM outward_customer_order_mst a
+            JOIN outward_customer_order_det b ON a.id = b.mst_id
+            JOIN order_det c ON b.product_id = c.product_id AND a.order_id = c.mst_id
+            JOIN order_mst d ON a.order_id = d.id
+            JOIN customers e ON d.customer_id = e.id
 
-    WHERE d.order_type = 'customer'
-    
-    AND a.invoice_date BETWEEN ? AND ?
+            WHERE d.order_type = 'customer'
+            
+            AND a.invoice_date BETWEEN ? AND ?
 
-    GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name, a.is_invoice,a.status
+            GROUP BY a.invoice_no, a.invoice_date, a.order_no, e.name, a.is_invoice,a.status
 
 
-    UNION ALL
+            UNION ALL
 
-    -- ================= OUTLET REGULAR =================
-    SELECT
-        a.invoice_no,
-        a.order_no AS id,
-        a.invoice_date,
-        e.outlet_name AS name,
-        a.is_invoice,
-        a.status,
-        'Regular Order' AS order_type,
-        'outlet' AS customer_type,
+            -- ================= OUTLET REGULAR =================
+            SELECT
+                a.invoice_no,
+                a.order_no AS id,
+                a.invoice_date,
+                e.outlet_name AS name,
+                a.is_invoice,
+                a.status,
+                'Regular Order' AS order_type,
+                'outlet' AS customer_type,
 
-        $dynamicColumnsRegular,
+                $dynamicColumnsRegular,
 
-        SUM(
-            ROUND(
-                ((b.qty * c.price) * (1 - c.discount / 100)) 
-                - (
-                    ((b.qty * c.price) * (1 - c.discount / 100)) 
-                    / (1 + (c.gst / 100))
-                ), 2)
+                SUM(
+                    ROUND(
+                        ((b.qty * c.price) * (1 - c.discount / 100)) 
+                        - (
+                            ((b.qty * c.price) * (1 - c.discount / 100)) 
+                            / (1 + (c.gst / 100))
+                        ), 2)
         ) AS total_gst,
 
         SUM((b.qty * c.price) * (1 - c.discount / 100)) AS total_amount

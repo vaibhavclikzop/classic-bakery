@@ -147,7 +147,7 @@
     `;
 
                         // ✅ GST LOOP INSIDE ELEMENT LOOP
-                        gstRates.forEach(gst => {
+                       /* gstRates.forEach(gst => {
 
 
                             let rate = parseInt(gst.gst);
@@ -158,6 +158,25 @@
 
                             let taxable = element['taxable_' + rate] ?? 0;
                             let gstAmt = element['gst_' + rate] ?? 0;
+
+                            row += `<td>${formatNumber(taxable)}</td>`;
+                            row += `<td>${formatNumber(gstAmt)}</td>`;
+                        }); */
+                        
+
+                        
+                        gstRates.forEach(gst => {
+
+                            let rate = parseInt(gst.gst);
+
+                            let taxable = element['taxable_' + rate] ?? 0;
+                            let gstAmt = element['gst_' + rate] ?? 0;
+
+                          
+                            if (element.status == "cancel") {
+                                taxable = 0;
+                                gstAmt = 0;
+                            }
 
                             row += `<td>${formatNumber(taxable)}</td>`;
                             row += `<td>${formatNumber(gstAmt)}</td>`;
