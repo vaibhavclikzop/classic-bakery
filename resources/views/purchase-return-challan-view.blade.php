@@ -18,7 +18,7 @@
 
 
             <div class="text-center">
-                <span><b></b></span>
+                <span><b>Debit Note</b></span>
             </div>
 
             <div class="text-center mt-2">
