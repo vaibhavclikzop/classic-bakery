@@ -1,13 +1,13 @@
 @extends('layouts.main')
 @section('main-section')
     @push('title')
-        <title>Purchase Debit Note View</title>
+        <title>Debit Note View</title>
     @endpush
 
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
-                <h4>Purchase Debit Note View</h4>
+                <h4>Debit Note View</h4>
             </div>
             <button onclick="printcontent()" class="btn btn-primary">
                 <i class="fa fa-print"></i> Print
@@ -30,7 +30,8 @@
                 <div style="width:50%;border:1px solid;padding:5px">
                     GSTIN : {{ $setting->gst_no }} <br>
                     Email : {{ $setting->email }} <br>
-                    Contact : {{ $setting->number }}
+                    Contact : {{ $setting->number }} <br>
+                    Created Date : {{ date('d-m-Y', strtotime($po_mst->created_at)) }} <br>
                 </div>
 
                 <div style="width:50%;border:1px solid;padding:5px">
