@@ -72,6 +72,7 @@ class PurchaseReturn extends Controller
             'vendor_id' => 'required',
             'inward_id' => 'required',
 
+
         ]);
         if ($validator->fails()) {
             $messages = $validator->errors();
@@ -131,28 +132,84 @@ class PurchaseReturn extends Controller
             ->join("stock_inward_mst as e", "a.inward_id", "e.id")
             ->where("a.id", $id)
             ->first();
+        $stock_inward_mst = DB::table("stock_inward_mst")
+            ->where("id", $po_mst->inward_id)
+            ->first();
 
+        // $rm = DB::table("purchase_return_det as a")
+        //     ->select(
+        //         "a.id","a.qty",
+        //         DB::raw("CAST(b.name AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci) as product")
+        //     )
+        //     ->join("products as b", "a.product_id", "b.id")
+        //     ->where("a.type", "raw material")
+        //     ->where("a.mst_id", $id);
+
+        // $fg = DB::table("purchase_return_det as a")
+        //     ->select(
+        //         "a.id","a.qty",
+        //         DB::raw("CAST(b.name AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci) as product")
+        //     )
+        //     ->join("finish_products_mst as b", "a.product_id", "b.id")
+        //     ->where("a.type", "finished product")
+        //     ->where("a.mst_id", $id);
+
+        // $po_det = $rm->union($fg)->get();
         $rm = DB::table("purchase_return_det as a")
             ->select(
-                "a.id","a.qty",
-                DB::raw("CAST(b.name AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci) as product")
+                "a.id",
+                "a.qty",
+                DB::raw("b.name COLLATE utf8mb4_unicode_ci as product"),
+                "sid.price",
+                "sid.gst",
+                "sid.cess_tax",
+                DB::raw("(a.qty * sid.price) as sub_total"),
+                DB::raw("((a.qty * sid.price) * sid.gst / 100) as gst_amount"),
+                DB::raw("((a.qty * sid.price) * sid.cess_tax / 100) as cess_amount"),
+                DB::raw("(a.qty * sid.price) 
+            + ((a.qty * sid.price) * sid.gst / 100) 
+            + ((a.qty * sid.price) * sid.cess_tax / 100) as total")
             )
             ->join("products as b", "a.product_id", "b.id")
+            ->join("purchase_return_mst as prm", "a.mst_id", "prm.id")
+            ->join("stock_inward_det as sid", function ($join) {
+                $join->on("sid.product_id", "=", "a.product_id")
+                    ->on("sid.type", "=", "a.type");
+            })
+            ->whereColumn("sid.mst_id", "prm.inward_id")
             ->where("a.type", "raw material")
             ->where("a.mst_id", $id);
 
+
         $fg = DB::table("purchase_return_det as a")
             ->select(
-                "a.id","a.qty",
-                DB::raw("CAST(b.name AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci) as product")
+                "a.id",
+                "a.qty",
+                DB::raw("b.name COLLATE utf8mb4_unicode_ci as product"),
+                "sid.price",
+                "sid.gst",
+                "sid.cess_tax",
+                DB::raw("(a.qty * sid.price) as sub_total"),
+                DB::raw("((a.qty * sid.price) * sid.gst / 100) as gst_amount"),
+                DB::raw("((a.qty * sid.price) * sid.cess_tax / 100) as cess_amount"),
+                DB::raw("(a.qty * sid.price) 
+            + ((a.qty * sid.price) * sid.gst / 100) 
+            + ((a.qty * sid.price) * sid.cess_tax / 100) as total")
             )
             ->join("finish_products_mst as b", "a.product_id", "b.id")
+            ->join("purchase_return_mst as prm", "a.mst_id", "prm.id")
+            ->join("stock_inward_det as sid", function ($join) {
+                $join->on("sid.product_id", "=", "a.product_id")
+                    ->on("sid.type", "=", "a.type");
+            })
+            ->whereColumn("sid.mst_id", "prm.inward_id")
             ->where("a.type", "finished product")
             ->where("a.mst_id", $id);
+
 
         $po_det = $rm->union($fg)->get();
 
 
-        return view("purchase-return-challan-view", compact("po_mst", "po_det"));
+        return view("purchase-return-challan-view", compact("po_mst", "po_det", "stock_inward_mst"));
     }
 }
