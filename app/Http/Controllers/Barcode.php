@@ -73,7 +73,7 @@ class Barcode extends Controller
                 $productNames = $product->get();
             }
         }
-     
+
         return view("barcode", compact("data", "productNames", "f_product_category"));
     }
 
@@ -93,14 +93,14 @@ class Barcode extends Controller
 
         $data = collect($products)->map(function ($product) {
             $mst = DB::table("finish_products_mst")
-                ->select('price', 'bar_code', 'name',"f_category_id")
+                ->select('price', 'bar_code', 'name', "f_category_id")
                 ->where("id", $product['id'])
                 ->first();
 
             return array_merge((array) $mst, [
                 'qty'    => $product['qty'],
                 'expiry' => $product['expiry'],
-    
+
             ]);
         });
         return view("print-barcode-all", compact("data"));

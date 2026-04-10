@@ -42,7 +42,7 @@
                     display:flex; justify-content:space-between; align-items:flex-start;
                     padding:3px; box-sizing:border-box;">
                     <div style="flex:1; font-size: 11px; line-height: 1.2; padding-right:5px; overflow:hidden;">
-                        <p style="margin:0; font-weight:bold;">
+                        <p style="margin:0; color: black; font-weight:bold;">
                             {{ $data->name }}
                         </p>
                         <p style="margin:0; color: black; font-weight: 900">
@@ -52,7 +52,7 @@
                             Date Used By : {{ date('d-m-Y', strtotime(request('expiry'))) }}
 
                         </p>
-                        <p style="margin:0; color: black; font-weight: 900">
+                        <p style="margin:0; color: black; font-weight: 500">
                             Inclusive of all taxes.
                         </p>
                     </div>
