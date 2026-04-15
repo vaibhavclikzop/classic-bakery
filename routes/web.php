@@ -80,6 +80,11 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('deleteOutletCSDuplicate',[sendOTPController::class,"deleteOutletCSDuplicate"])->name("deleteOutletCSDuplicate");
 
 
+  Route::post('cancelPurchaseInvoiceOTP',[sendOTPController::class,"cancelPurchaseInvoiceOTP"])->name("cancelPurchaseInvoiceOTP");
+
+    Route::post('cancelPurchaseInvoice',[sendOTPController::class,"cancelPurchaseInvoice"])->name("cancelPurchaseInvoice");
+
+
   
   Route::post('getLastPurchasePriceRM', [AjaxController::class, 'getLastPurchasePriceRM'])->name('getLastPurchasePriceRM');
   Route::post('getLastPurchasePriceFG', [AjaxController::class, 'getLastPurchasePriceFG'])->name('getLastPurchasePriceFG');

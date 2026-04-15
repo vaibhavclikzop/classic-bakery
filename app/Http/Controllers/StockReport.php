@@ -77,8 +77,8 @@ class StockReport extends Controller
 
     public function InwardReport(Request $request)
     {
-        $fromDt = request("fromDt");
-        $toDt = request("toDt");
+        $fromDt = request("fromDt",date("Y-m-d"));
+        $toDt = request("toDt",date("Y-m-d"));
 
         $filter =   DB::table("stock_inward_mst as a")
             ->select("a.*", "b.name as vendor", "c.name as po_name", "e.name as user")

@@ -65,7 +65,7 @@ class sendOTPController extends Controller
         try {
             $otp = rand(100000, 999999);
             session(['otp' => $otp]);
-             Mail::to("singh.dashmeet007@gmail.com")->send(new sendOTPs($otp, "Update Outlet Stock"));
+            Mail::to("singh.dashmeet007@gmail.com")->send(new sendOTPs($otp, "Update Outlet Stock"));
             //Mail::to("vaibhav@clikzopinnovations.com")->send(new sendOTPs($otp, "Delete Duplicate Product"));
             return response()->json(['status' => true, 'message' => 'OTP sent']);
         } catch (\Throwable $th) {
@@ -106,6 +106,56 @@ class sendOTPController extends Controller
             return redirect()->back()->with('success', "Save Successfully");
         } catch (\Throwable $th) {
 
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+
+    public function cancelPurchaseInvoiceOTP(Request $request)
+    {
+        try {
+            $otp = rand(100000, 999999);
+            session(['otp' => $otp]);
+            // Mail::to("singh.dashmeet007@gmail.com")->send(new sendOTPs($otp, "Cancel Purchase Invoice"));
+            Mail::to("vaibhav@clikzopinnovations.com")->send(new sendOTPs($otp, "Cancel Purchase Invoice"));
+            return response()->json(['status' => true, 'message' => 'OTP sent']);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()]);
+        }
+    }
+
+    public function cancelPurchaseInvoice(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+
+
+        ]);
+
+        if ($validator->fails()) {
+
+            return redirect()->back()->with('error', $validator->errors()->first());
+        }
+        DB::beginTransaction();
+        try {
+
+
+            $SID = DB::table("stock_inward_det")->where("mst_id", $request->id)->get();
+            foreach ($SID as $key => $value) {
+                if ($value->type == "raw material") {
+                    DB::table("current_stock")->where("product_id", $value->product_id)->decrement("stock", $value->qty);
+                } else {
+                    DB::table("finish_product_stock")->where("product_id", $value->product_id)->decrement("stock", $value->qty);
+                }
+            }
+
+            DB::table("stock_inward_mst")->where("id", $request->id)->update(array(
+                "status" => "cancel"
+            ));
+            DB::commit();
+    
+            return redirect()->back()->with('success', "Save Successfully");
+        } catch (\Throwable $th) {
+            DB::rollBack();
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
