@@ -62,13 +62,14 @@
 
     </div>
 
+    <form class="row g-3 needs-validation" novalidate method="POST" action="{{ route('SavePurchaseReturn') }}"
+        id="frmMain">
+        @csrf
+
+        <div class="modal fade" id="exampleModal">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered ">
 
 
-    <div class="modal fade" id="exampleModal">
-        <div class="modal-dialog modal-lg">
-            <form class="row g-3 needs-validation" novalidate method="POST" action="{{ route('SavePurchaseReturn') }}"
-                id="frmMain">
-                @csrf
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel"><span id="modal_name"> Add Category</span></h5>
@@ -146,9 +147,10 @@
                         <button type="button" class="btn btn-primary" id="btnSave">Save changes</button>
                     </div>
                 </div>
-            </form>
+
+            </div>
         </div>
-    </div>
+    </form>
 
     <script>
         $(document).on("click", ".edit", function() {

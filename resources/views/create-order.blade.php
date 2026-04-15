@@ -120,8 +120,14 @@
                                     <th>S.No</th>
                                     <th>Product </th>
 
+                                    <th>MRP</th>
                                     <th>Qty</th>
-                                    <th>Price</th>
+                                    <th>Price </th>
+                                    <th>Discount </th>
+                                    <th>Rate </th>
+                                    <th>Taxable Amt.</th>
+                                    <th>GST</th>
+                                    <th>Total</th>
 
                                     <th>Action</th>
 
@@ -129,6 +135,12 @@
                             </thead>
                             <tbody id="prodList">
 
+                            </tbody>
+                            <tbody id="prodFooter">
+                                <tr>
+                                    <th colspan="9" style="text-align: right">Total</th>
+                                    <th id="footerTotal" colspan="2"></th>
+                                </tr>
                             </tbody>
 
                         </table>
@@ -146,7 +158,8 @@
     </div>
 
 
-    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -276,7 +289,8 @@
 
                         html += '<option value="' + element.id + '" data-price="' + element
                             .sale_price +
-                            '"  data-gst="' + element.gst + '"   >' + element.name +
+                            '"  data-gst="' + element.gst + '" data-mrp="' + element.mrp +
+                            '"   >' + element.name +
                             '</option>';
                     });
                     $("#product_id").html(html)
@@ -309,6 +323,10 @@
             var gst = $("#product_id").find(":selected").data("gst");
             var gst_type = "Outer GST";
             let discount = parseFloat($("#discount").val());
+            let rate = parseFloat(price - (price / 100 * discount)).toFixed(2);
+            let gst_amount = parseFloat(rate - (rate / (1 + gst / 100))).toFixed(2);
+            let taxable = parseFloat(rate - gst_amount).toFixed(2);
+            let mrp = $("#product_id").find(":selected").data("mrp");
 
             if (!product_id || isNaN(product_id)) {
                 toastr.error("Select a valid Product");
@@ -352,9 +370,15 @@
             var html = `<tr class="product${product_id}">
                             <td>${sno++}</td>    
                             <td>${product_name}</td>    
+                            <td>${mrp}</td>    
                             <td>${qty}</td>    
                             <td>${price}</td>    
-                        
+                            <td>${discount} </td>    
+                            <td>${rate}</td>
+                            <td>${taxable}</td>    
+
+                            <td>${gst} % <br> ${gst_amount} ₹ </td>    
+                              <td>${rate*qty}</td>    
                           
                             <td> 
                                   <button type="button" class="btn btn-primary edit btn-sm" data-id="${product_id}" data-price="${price}" data-qty="${qty}">
@@ -368,19 +392,21 @@
                         </tr>`;
 
             $("#prodList").append(html)
+            let total = parseFloat(rate * qty).toFixed(2);
             product_list.push({
                 product_id,
                 qty,
                 price,
                 gst,
                 gst_type,
-                discount
+                discount,
+                total,
             });
-            console.log(product_list);
+
             $("#qty").val("")
             $("#price").val("")
             $("#product_id").val(null).trigger("change");
-
+            footerUpdate();
 
         });
         $(document).on("click", ".remove", function() {
@@ -388,6 +414,7 @@
 
             $(`.product${id}`).remove();
             product_list = product_list.filter(item => item.product_id !== id);
+            footerUpdate();
 
         });
         $("#UploadForm").on("submit", function(e) {
@@ -441,24 +468,9 @@
             let row = $(`.product${id}`);
             const product_name = row.find("td").eq(1).text();
 
-            // const total = (newPrice * newQty) + ((newPrice * newQty * parseFloat(gst)) / 100);
+            row.find("td").eq(0).text(row.index() + 1); // Sr No
+            row.find("td").eq(3).text(newQty);
 
-            row.html(`
-                    <td>${row.index() + 1}</td>
-                    <td>${product_name}</td>
-                    <td>${newQty}</td>
-                    <td>${newPrice}</td>
-               
-        
-                    <td>
-                        <button type="button" class="btn btn-primary edit btn-sm" data-id="${id}" data-price="${newPrice}" data-qty="${newQty}">
-                            <i class="fa fa-pencil" aria-hidden="true"></i>
-                        </button>
-                        <button type="button" class="btn btn-danger remove btn-sm" data-id="${id}">
-                            <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                    </td>
-                `);
 
             // Update in the array
             product_list = product_list.map(item => {
@@ -466,7 +478,8 @@
                     return {
                         ...item,
                         qty: newQty,
-                        price: newPrice
+                        price: newPrice,
+                        total: newQty * newPrice
                     };
                 }
                 return item;
@@ -474,7 +487,19 @@
 
             console.log(product_list);
             $('#editProductModal').modal('hide');
+            footerUpdate();
         });
+
+        function footerUpdate() {
+            let total = 0;
+
+            product_list.forEach(element => {
+                total += parseFloat(element.total) || 0;
+            });
+
+            $("#footerTotal").text(total.toFixed(2));
+        }
+
         $(document).ready(function() {
             // Bind keydown event on all relevant inputs
             // $('#product_id, #qty, #price').on('keydown', function(e) {

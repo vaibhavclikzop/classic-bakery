@@ -485,11 +485,44 @@ class StockReport extends Controller
     {
         $outlet_id = request("outlet_id", 0);
         $outlet =   DB::table("outlet")->get();
-        $current_stock =  DB::table("outlet_current_stock as a")
-            ->select("a.*", "b.name as product")
-            ->join("finish_products_mst as b", "a.product_id", "b.id")
-            ->where("a.outlet_id", $outlet_id)->get();
-        return view("outlet-current-stock", compact("outlet", "current_stock"));
+        if (request("duplicate") == 1) {
+            $duplicateIds = DB::table("outlet_current_stock")
+                ->select("product_id")
+                ->where("outlet_id", $outlet_id)
+                ->groupBy("product_id")
+                ->havingRaw("COUNT(*) > 1");
+
+
+            $current_stock = DB::table("outlet_current_stock as a")
+                ->join("finish_products_mst as b", "a.product_id", "b.id")
+                ->where("a.outlet_id", $outlet_id)
+                ->whereIn("a.product_id", $duplicateIds)
+                ->select(
+                    "a.id",
+                    "a.product_id",
+                    "b.name as product",
+                    "a.stock",
+                    DB::raw("'NA' as updated_at")
+                )
+                ->orderBy("a.product_id")
+                ->get();
+        } else {
+
+
+
+            $current_stock =  DB::table("outlet_current_stock as a")
+                ->select("a.*", "b.name as product")
+                ->join("finish_products_mst as b", "a.product_id", "b.id")
+                ->where("a.outlet_id", $outlet_id)->get();
+        }
+        $totalDuplicates = DB::table("outlet_current_stock")
+            ->where("outlet_id", $outlet_id)
+            ->select(DB::raw("COUNT(*) - COUNT(DISTINCT product_id) as total_duplicates"))
+            ->value("total_duplicates");
+
+
+
+        return view("outlet-current-stock", compact("outlet", "current_stock", "totalDuplicates"));
     }
 
     public function FGAuditSetting(Request $request)
@@ -874,8 +907,9 @@ class StockReport extends Controller
     }
 
 
-    public function updateFGStock(Request $request) {
-           $validator = Validator::make($request->all(), [
+    public function updateFGStock(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'updateStock' => 'required',
 
 

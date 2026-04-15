@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Email;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendCancelInvoiceOTP;
+use App\Mail\sendOTPs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -67,6 +68,41 @@ class cancelInvoiceController extends Controller
             DB::table('outward_customer_order_mst')->where("id", $request->id)->update(array(
                 "status" => "cancel",
             ));
+            return redirect()->back()->with('success', "Save Successfully");
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+
+    public function sendDeleteDepartmentOTP(Request $request)
+    {
+
+
+        try {
+            $otp = rand(100000, 999999);
+            session(['otp' => $otp]);
+            Mail::to("singh.dashmeet007@gmail.com")->send(new sendOTPs($otp, "Delete Department"));
+            return response()->json(['status' => true, 'message' => 'OTP sent']);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()]);
+        }
+    }
+
+    public function deleteDepartment(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+
+
+        ]);
+
+        if ($validator->fails()) {
+
+            return redirect()->back()->with('error', $validator->errors()->first());
+        }
+
+        try {
+            DB::table('department')->where("id", $request->id)->delete();
             return redirect()->back()->with('success', "Save Successfully");
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());

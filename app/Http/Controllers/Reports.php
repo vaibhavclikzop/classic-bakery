@@ -71,7 +71,9 @@ class Reports extends Controller
             ->get();
 
         /* ================= GROUP ================= */
-        $grouped = $records->groupBy("product_id");
+$grouped = $records->groupBy(function ($item) {
+    return trim($item->product);
+});
 
         /* ================= VARIATION LOGIC ================= */
         $latestFive = $grouped->map(function ($items) {
@@ -145,7 +147,9 @@ class Reports extends Controller
             ->values();
 
 
-
+    // echo "<pre>";
+    // print_r($filter);
+    // die;
 
         return view("purchase-variation-report", compact("filter"));
     }
@@ -251,7 +255,7 @@ class Reports extends Controller
         'Regular Order' AS order_type,
 
         SUM((b.qty * c.price) * (1 - c.discount / 100)) AS sub_total,
-        SUM(b.qty * c.mrp) AS total_mrp,
+        SUM(b.qty * b.mrp) AS total_mrp,
         SUM(c.cess_amt) AS cess_amt,
 
         ROUND(SUM(
@@ -350,7 +354,7 @@ class Reports extends Controller
         'Regular Order' AS order_type,
 
         SUM((b.qty * c.price) * (1 - c.discount / 100)) AS sub_total,
-        SUM(b.qty * c.mrp) AS total_mrp,
+        SUM(b.qty * b.mrp) AS total_mrp,
         SUM(c.cess_amt) AS cess_amt,
 
         ROUND(SUM(
@@ -1317,7 +1321,7 @@ LIMIT ? OFFSET ?
                 "outlet.outlet_name as customer_name",
                 "u.name as user",
                 "a.created_at",
-                DB::raw("sum(o.mrp*o.qty) as mrp")
+                DB::raw("sum(od.mrp*o.qty) as mrp")
             )
 
             ->selectRaw("
@@ -1366,7 +1370,7 @@ LIMIT ? OFFSET ?
                 "customers.name as customer_name",
                 "u.name as user",
                 "a.created_at",
-                DB::raw("sum(o.mrp*o.qty) as mrp")
+                DB::raw("sum(od.mrp*o.qty) as mrp")
             )
 
             ->selectRaw("

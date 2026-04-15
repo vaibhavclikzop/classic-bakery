@@ -127,15 +127,16 @@
                             </th>
 
 
-                            <th style="  border: solid 1px;padding: 5px;font-size: 11px;">{{ $item->order_no }}</th>
-                            <th style="  border: solid 1px;padding: 5px;font-size: 11px;">{{ $item->invoice_date }}</th>
+                            <th style="  border: solid 1px;padding: 5px;font-size: 11px;width: 170px">{{ $item->order_no }}</th>
+                            <th style="  border: solid 1px;padding: 5px;font-size: 11px; width: 100px">
+                                {{ date('d-m-Y', strtotime($item->invoice_date)) }}</th>
                             <th
                                 style="    border: 1px solid;
     padding: 5px;
     font-size: 11px;
     white-space: normal;
     word-break: break-word;
-    width:80px
+    width:120px
 ">
                                 {{ $item->user }}</th>
                             <th style="  border: solid 1px;padding: 5px;font-size: 11px;">
@@ -159,13 +160,13 @@
                             <th style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px"></th>
                         </tr>
                     @endforeach
-          
+
                     <tr>
                         <th colspan="6" style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px">Total</th>
                         <td style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px">{{ $grandTotal }}</td>
                         <td style="  border: solid 1px;padding: 5px;font-size: 11px;; width:100px" colspan="6"></td>
                     </tr>
-         
+
                 </tbody>
 
             </table>

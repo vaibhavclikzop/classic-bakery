@@ -169,8 +169,7 @@ class ReportController extends Controller
             ->groupBy("f.name", "e.name", "d.name")
             ->orderBy("f.name")
             ->orderBy("e.name")
-            ->limit($limit)
-            ->offset($offset)
+       
             ->get();
 
         return response()->json([

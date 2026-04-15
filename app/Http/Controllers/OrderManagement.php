@@ -1234,7 +1234,7 @@ class OrderManagement extends Controller
         $order_type = DB::table("order_type")->where("id", $request->order_type_id)->first();
 
         $customer_type_product =  DB::table("customer_type_product as a")
-            ->select("a.*", "b.name as name", "b.id as id", "b.gst",   DB::raw("CASE WHEN c.stock IS NOT NULL THEN c.stock ELSE 0 END as stock"))
+            ->select("a.*", "b.name as name", "b.id as id", "b.gst",   DB::raw("CASE WHEN c.stock IS NOT NULL THEN c.stock ELSE 0 END as stock"),"b.price as mrp")
             ->join("finish_products_mst as b", "a.finish_product_id", "b.id")
             ->leftJoin("finish_product_stock as c", "b.id", "c.product_id")
             ->join("f_product_sub_category as e", "b.f_sub_category_id", "e.id")

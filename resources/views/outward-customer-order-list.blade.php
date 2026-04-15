@@ -132,8 +132,7 @@
                                         <button class="btn btn-dark btn-sm delivered" type="button"
                                             value="{{ $item->id }}">Delivered</button>
 
-                                        <button class="btn btn-danger btn-sm btnCancelInvoice" value="{{ $item->id }}"
-                                            type="button">Cancel</button>
+                               
                                     @endif
                                     @if ($item->is_invoice == 0)
                                         <button class="btn btn-success btn-sm convertInvoice" type="button"

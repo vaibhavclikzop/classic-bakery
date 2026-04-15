@@ -303,10 +303,13 @@ class OutwardStock extends Controller
             foreach ($prod_list as $k => $v) {
 
                 if ($v->qty > 0) {
+
+                   $finish_products_mst= DB::table("finish_products_mst")->where("id",$v->product_id)->first();
                     DB::table('outward_customer_order_det')->insertGetId(array(
                         "mst_id" => $mst_id,
                         "product_id" => $v->product_id,
                         "qty" => $v->qty,
+                        "mrp"=>$finish_products_mst->price
                     ));
                     DB::table('order_det')->where("product_id", $v->product_id)->where("mst_id", $request->order_id)
                         ->increment("booked_qty", $v->qty);
@@ -491,7 +494,8 @@ class OutwardStock extends Controller
         }
 
         DB::table("outward_customer_order_mst")->where("id", $request->id)->update(array(
-            "status" => "delivered"
+            "status" => "delivered",
+            "is_invoice" => 1
         ));
         return  redirect()->back()->with("success", "Save Successfully");
     }
@@ -514,6 +518,7 @@ class OutwardStock extends Controller
                 "e.contact_person",
                 "e.number",
                 "e.vehicle_no",
+                "a.status",
                 DB::raw("'Regular Order' as ordType"),
             )
 
@@ -532,6 +537,7 @@ class OutwardStock extends Controller
                 "a.delivery_date as invoice_date",
                 "d.name as user",
                 "a.id",
+                "a.status",
                 DB::raw("'NA' as transport"),
                 DB::raw("'NA' as contact_person"),
                 DB::raw("'NA' as number"),
@@ -645,7 +651,7 @@ class OutwardStock extends Controller
                 "d.price",
                 "b.*",
                 "e.name as uom",
-                "d.mrp",
+                "a.mrp as mrp",
                 "d.cess_amt",
                 "d.gst_type",
                 "d.gst as gst",

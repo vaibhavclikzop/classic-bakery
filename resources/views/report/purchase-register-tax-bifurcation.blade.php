@@ -16,7 +16,7 @@
                     <div>
                         <label for="">From</label>
                         <input type="date" name="fromDt" class="form-control" onchange="this.form.submit()"
-                            value="{{ request('fromDt')}}">
+                            value="{{ request('fromDt') }}">
 
                     </div>
 
@@ -58,9 +58,9 @@
                 <thead>
                     <tr>
                         <th style="border: solid 1px;padding: 5px;">Status.</th>
-                        <th style="border: solid 1px;padding: 5px;">Invoice No.</th>
-                        <th style="border: solid 1px;padding: 5px;">Supplier Invoice Date</th>
-                        <th style="border: solid 1px;padding: 5px;">Vendor Name</th>
+                        <th style="border: solid 1px;padding: 5px; min-width: 150px;">Invoice No.</th>
+                        <th style="border: solid 1px;padding: 5px;min-width: 100px;">Supplier Invoice Date</th>
+                        <th style="border: solid 1px;padding: 5px;min-width: 170px;">Vendor Name</th>
                         @foreach ($gstRates as $gst)
                             <th style="border: solid 1px;padding: 5px;">Taxable {{ $gst }}%</th>
                             <th style="border: solid 1px;padding: 5px;">GST {{ $gst }}%</th>
@@ -76,7 +76,14 @@
                         <tr>
                             <td style="border: solid 1px;padding: 5px;">
 
-                                   @if ($item->status == 'cancel')
+                                @if ($item->status == 'cancel')
+                                @php
+                                    $item->{'taxable_' . $gst}=0;
+                                    $item->{'gst_' . $gst} =0;
+                                    $item->total_gst=0;
+                                    $item->delivery_charges=0;
+                                    $item->grand_total=0;
+                                @endphp
                                     <span class="badge bg-danger">Cancel</span>
                                 @else
                                     <span class="badge bg-success">Complete</span>
@@ -103,7 +110,7 @@
                             </td>
 
                             {{-- TOTAL AMOUNT --}}
-                             <td style="border: solid 1px;padding: 5px;">
+                            <td style="border: solid 1px;padding: 5px;">
                                 {{ number_format($item->delivery_charges ?? 0, 2) }}
                             </td>
                             <td style="border: solid 1px;padding: 5px;">

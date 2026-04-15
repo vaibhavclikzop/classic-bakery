@@ -114,7 +114,7 @@
 
 
 
-            <div class="text-center mt-3">
+            {{-- <div class="text-center mt-3">
 
                 <button id="load-more" class="btn btn-primary">
 
@@ -122,7 +122,7 @@
 
                 </button>
 
-            </div>
+            </div> --}}
 
         </div>
 
@@ -187,12 +187,12 @@
                     Object.entries(grouped).forEach(([cat, subs]) => {
 
                         html += `
-    <h5 style="background:#d1ecf1;padding:8px;">
-        Category : ${cat}
-    </h5>
+                        <h5 style="background:#d1ecf1;padding:8px;">
+                            Category : ${cat}
+                        </h5>
 
-    <div class="row">
-    `;
+                        <div class="" style="display:flex;">
+                        `;
 
                         let subEntries = Object.entries(subs);
                         let half = Math.ceil(subEntries.length / 2);
@@ -201,7 +201,7 @@
                         let rightSubs = subEntries.slice(half);
 
                         // ✅ LEFT COLUMN
-                        html += `<div class="col-md-6">`;
+                        html += `<div class="">`;
 
                         leftSubs.forEach(([sub, items]) => {
 
@@ -212,7 +212,7 @@
                         html += `</div>`;
 
                         // ✅ RIGHT COLUMN
-                        html += `<div class="col-md-6">`;
+                        html += `<div class="mx-2">`;
 
                         rightSubs.forEach(([sub, items]) => {
 
@@ -299,24 +299,24 @@
 
         }
 
-function renderSubTable(sub, items) {
+        function renderSubTable(sub, items) {
 
-    let subTotal = 0;
-    let rows = '';
+            let subTotal = 0;
+            let rows = '';
 
-    items.forEach(i => {
-        let qty = parseFloat(i.qty);
-        subTotal += qty;
+            items.forEach(i => {
+                let qty = parseFloat(i.qty);
+                subTotal += qty;
 
-        rows += `
+                rows += `
         <tr>
             <td>${i.product}</td>
             <td>${qty.toFixed(0)}</td>
             <td></td>
         </tr>`;
-    });
+            });
 
-    return `
+            return `
     <div class="mb-3">
 
         <h6 style="background:#f0f0f0;padding:6px;">
@@ -345,7 +345,7 @@ function renderSubTable(sub, items) {
 
     </div>
     `;
-}
+        }
 
 
         function completeProgressBar() {

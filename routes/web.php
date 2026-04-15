@@ -20,6 +20,7 @@ use App\Http\Controllers\SaleReturn;
 use App\Http\Controllers\StockReport;
 use App\Http\Controllers\Barcode;
 use App\Http\Controllers\Email\cancelInvoiceController;
+use App\Http\Controllers\Email\sendOTPController;
 use App\Http\Controllers\expenseManagement;
 use App\Http\Controllers\posOrderController;
 use App\Http\Controllers\ReportController;
@@ -72,6 +73,11 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('sendCancelInvoiceOTP',[cancelInvoiceController::class,"sendCancelInvoiceOTP"])->name("sendCancelInvoiceOTP");
   Route::post('verifyCancelOTP',[cancelInvoiceController::class,"verifyCancelOTP"])->name("verifyCancelOTP");
   Route::post('cancelRegularInvoice',[cancelInvoiceController::class,"cancelRegularInvoice"])->name("cancelRegularInvoice");
+
+  Route::post('sendStockUpdateOTP',[sendOTPController::class,"sendStockUpdateOTP"])->name("sendStockUpdateOTP");
+  Route::post('updateOutletStock',[sendOTPController::class,"updateOutletStock"])->name("updateOutletStock");
+  Route::post('sendDeleteDuplicateOTP',[sendOTPController::class,"sendDeleteDuplicateOTP"])->name("sendDeleteDuplicateOTP");
+  Route::post('deleteOutletCSDuplicate',[sendOTPController::class,"deleteOutletCSDuplicate"])->name("deleteOutletCSDuplicate");
 
 
   
@@ -185,7 +191,11 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('SaveFinishProduct', [Masters::class, 'SaveFinishProduct'])->name('SaveFinishProduct');
   Route::get('department', [Masters::class, 'Department'])->name('department');
   Route::post('SaveDepartment', [Masters::class, 'SaveDepartment'])->name('SaveDepartment');
+  Route::post('sendDeleteDepartmentOTP', [cancelInvoiceController::class, 'sendDeleteDepartmentOTP'])->name('sendDeleteDepartmentOTP');
+  Route::post('deleteDepartment', [cancelInvoiceController::class, 'deleteDepartment'])->name('deleteDepartment');
 
+
+  
 
   Route::get('department-product/{id}', [Masters::class, 'DepartmentProduct'])->name('department-product');
 

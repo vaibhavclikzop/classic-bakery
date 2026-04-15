@@ -750,17 +750,17 @@ class Masters extends Controller
 
                 ));
 
-                 DB::table("po_det")
-                ->where("product_id", $request->id)
-                ->where("type", "raw material")
-                ->whereIn("mst_id", function ($q) {
-                    $q->select("id")
-                        ->from("po_mst")
-                        ->whereIn("status", ["pending", "generated"]);
-                })
-                ->update([
-                    "gst" => $request->gst
-                ]);
+                DB::table("po_det")
+                    ->where("product_id", $request->id)
+                    ->where("type", "raw material")
+                    ->whereIn("mst_id", function ($q) {
+                        $q->select("id")
+                            ->from("po_mst")
+                            ->whereIn("status", ["pending", "generated"]);
+                    })
+                    ->update([
+                        "gst" => $request->gst
+                    ]);
             }
         } catch (Exception $e) {
 
@@ -1976,9 +1976,21 @@ class Masters extends Controller
 
     public function Department(Request $request)
     {
-        $department =  DB::table("department")->get();
+        $department =  DB::table("department as a")
+            ->select(
+                "a.id",
+                "a.name",
+                "a.contact_person",
+                "a.number",
+                DB::raw("count(b.id) as total_products")
+            )
+            ->leftJoin("finish_products_mst as b", "a.id", "b.department_id")
+            ->groupBy("a.id", "a.name", "a.contact_person", "a.number")
+            ->get();
         return view("department", compact("department"));
     }
+
+
 
     public function SaveDepartment(Request $request)
     {
@@ -2204,6 +2216,7 @@ class Masters extends Controller
                     "name" => $request->name,
                     "days" => $request->days,
                     "type" => $request->type,
+                    "show_pos" => $request->show_pos,
                     "week_days" => implode(", ", $request->week_days),
                     "f_sub_category_id" => implode(", ", $request->f_sub_category_id),
 
@@ -2214,6 +2227,7 @@ class Masters extends Controller
                     "name" => $request->name,
                     "days" => $request->days,
                     "type" => $request->type,
+                    "show_pos" => $request->show_pos,
                     "week_days" => implode(", ", $request->week_days),
                     "f_sub_category_id" => implode(", ", $request->f_sub_category_id),
 

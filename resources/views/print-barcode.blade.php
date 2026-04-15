@@ -5,6 +5,10 @@
     @endpush
     <style>
         @media print {
+            @page {
+                margin: 1mm;
+            }
+
             div {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
@@ -15,6 +19,8 @@
                 margin: 0 !important;
                 line-height: 1.1 !important;
             }
+
+
         }
     </style>
     <div class="card">
@@ -24,7 +30,7 @@
             </div>
 
             <div>
-                <button type="button" onclick="printcontent()" class="btn btn-primary"><i class="fa fa-print"
+                <button type="button" onclick="printPageContent()" class="btn btn-primary"><i class="fa fa-print"
                         aria-hidden="true"></i> Print</button>
             </div>
 
@@ -38,7 +44,7 @@
             @endphp
             @for ($i = $qty; $i >= 1; $i--)
                 <div
-                    style="height: 2.1cm; width: 6.95cm; border:1px solid #000; margin-top:10px;
+                    style="height: 2.1cm; width: 6.95cm;   margin-top:10px;
                     display:flex; justify-content:space-between; align-items:flex-start;
                     padding:3px; box-sizing:border-box;">
                     <div style="flex:1; font-size: 11px; line-height: 1.2; padding-right:5px; overflow:hidden;">
@@ -70,4 +76,45 @@
         </div>
 
     </div>
+    <script>
+        function printPageContent() {
+            $(".buttons").hide();
+
+            var printContents = document.getElementById('PrintOrder').innerHTML;
+            var originalContents = document.body.innerHTML;
+
+            document.body.innerHTML = `
+        <html>
+            <head>
+                <style>
+                    @page {
+                        margin-left: 2mm;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 0;
+                    }
+                    div {
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                    }
+                    p {
+                        font-size: 10px !important;
+                        margin: 0 !important;
+                        line-height: 1.1 !important;
+                    }
+                </style>
+            </head>
+            <body>
+                ${printContents}
+            </body>
+        </html>
+    `;
+
+            window.print();
+
+            document.body.innerHTML = originalContents;
+            location.reload(); // 🔥 ensures proper restore
+        }
+    </script>
 @endsection

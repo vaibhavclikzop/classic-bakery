@@ -848,8 +848,12 @@
             $("#uwarranty_days").val($(this).data("warranty_days"))
             $("#uactive").val($(this).data("active"))
             $("#ucategory_id").val($(this).data("category_id"))
-            $("#usub_category_id").html(
-                `<option value="${$(this).data("sub_category_id")}">${$(this).data("sub_category")}</option>`)
+            $("#ucategory_id").trigger("change")
+            setTimeout(() => {
+                $("#usub_category_id").val($(this).data("sub_category_id"))
+
+            }, 1000);
+
 
             $("#editModal").modal("show");
         })

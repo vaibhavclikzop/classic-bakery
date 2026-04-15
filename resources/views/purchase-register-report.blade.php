@@ -25,15 +25,15 @@
 
             </div>
             <div>
-                 <button id="exportToExcel" data-name="purchase Register report"
+                <button id="exportToExcel" data-name="purchase Register report"
                     class="btn btn-success float-end   mx-2">Export
                     to Excel</button>
 
                 <button type="button" onclick="printcontent()" class="btn btn-primary"><i class="fa fa-print"
-                    aria-hidden="true"></i> Print</button>
+                        aria-hidden="true"></i> Print</button>
             </div>
         </div>
-        <div class="card-body"  id="PrintOrder">
+        <div class="card-body" id="PrintOrder">
             <div class="page-title">
                 <h4>Purchase Register</h4>
             </div>
@@ -52,35 +52,45 @@
                         <th>TDS</th>
                         <th>Extra Charges</th>
                         <th>Invoice Amount</th>
-                      
-                    
+
+
                     </tr>
                 </thead>
                 <tbody>
                     @php
-                        $sno=1;
+                        $sno = 1;
                     @endphp
                     @foreach ($data as $item)
+                        @php
+                            if ($item->status == 'cancel') {
+                                $item->taxable_amount = 0;
+                                $item->gst_amount = 0;
+                                $item->cess_amount = 0;
+                                $item->delivery_charges = 0;
+                                $item->total_amount = 0;
+                            }
+
+                        @endphp
                         <tr>
-                            <td>{{$sno++}}</td>
-                             <td>
+                            <td>{{ $sno++ }}</td>
+                            <td>
                                 @if ($item->status == 'cancel')
                                     <span class="badge bg-danger">Cancel</span>
                                 @else
                                     <span class="badge bg-success">Complete</span>
                                 @endif
                             </td>
-                            <td>{{$item->vendor}}</td>
-                            <td>{{$item->invoice_id}}</td>
-                            <td>{{$item->received_material_date}}</td>
-                            <td>{{number_format($item->taxable_amount,2)}}</td>
-                            <td>{{number_format($item->gst_amount,2)}}</td>
-                            <td>{{number_format($item->cess_amount,2)}}</td>
+                            <td>{{ $item->vendor }}</td>
+                            <td>{{ $item->invoice_id }}</td>
+                            <td>{{ $item->received_material_date }}</td>
+                            <td>{{ number_format($item->taxable_amount, 2) }}</td>
+                            <td>{{ number_format($item->gst_amount, 2) }}</td>
+                            <td>{{ number_format($item->cess_amount, 2) }}</td>
                             <td>0</td>
                             <td>0</td>
-                            <td>{{number_format($item->delivery_charges,2)}}</td>
-                            <td>{{number_format($item->total_amount+$item->delivery_charges,2)}}</td>
-                           
+                            <td>{{ number_format($item->delivery_charges, 2) }}</td>
+                            <td>{{ number_format($item->total_amount + $item->delivery_charges, 2) }}</td>
+
                         </tr>
                     @endforeach
                 </tbody>

@@ -25,6 +25,7 @@
                         <th> Days</th>
                         <th> Week Days</th>
                         <th> Sub Category</th>
+                        <th>Active</th>
 
 
                         <th>Action</th>
@@ -44,14 +45,21 @@
                             <td>{{ $item->days }}</td>
                             <td>{!! str_replace(',', '<br>', e($item->week_days)) !!}</td>
                             <td>{!! str_replace(',', '<br>', e($item->sub_category_name)) !!}</td>
+                            <td>
+                                @if ($item->show_pos == 'active')
+                                    <span class="badge bg-success">Active</span>
+                                @else
+                                    <span class="badge bg-danger">Inactive</span>
+                                @endif
 
+                            </td>
 
 
                             <td><button class="btn btn-primary btn-sm edit" type="button" data-id="{{ $item->id }}"
                                     data-name="{{ $item->name }}" data-days="{{ $item->days }}"
                                     data-order_days="{{ $item->week_days }}"
                                     data-f_sub_category_id="{{ $item->f_sub_category_id }}"
-                                    data-type="{{ $item->type }}"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                    data-type="{{ $item->type }}"  data-show_pos="{{ $item->show_pos }}"><i class="fa fa-pencil" aria-hidden="true"></i></button>
                             </td>
 
                         </tr>
@@ -123,6 +131,15 @@
                             </select>
 
                         </div>
+                        <div class="col-md-12 mt-3">
+                            <label for="">Show POS</label>
+                            <select name="show_pos" id="show_pos" class="form-control" required>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                 
+                            </select>
+
+                        </div>
 
 
 
@@ -150,6 +167,7 @@
             $("#brand_id").val($(this).data("brand_id"));
             $("#days").val($(this).data("days"));
             $("#type").val($(this).data("type"));
+            $("#show_pos").val($(this).data("show_pos"));
             $("#week_days").val($(this).data("order_days").split(", "));
             var subCategoryData = $(this).data("f_sub_category_id");
 
