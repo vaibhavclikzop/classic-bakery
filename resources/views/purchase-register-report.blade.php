@@ -82,14 +82,14 @@
                             </td>
                             <td>{{ $item->vendor }}</td>
                             <td>{{ $item->invoice_id }}</td>
-                            <td>{{ $item->received_material_date }}</td>
-                            <td>{{ number_format($item->taxable_amount, 2) }}</td>
-                            <td>{{ number_format($item->gst_amount, 2) }}</td>
-                            <td>{{ number_format($item->cess_amount, 2) }}</td>
+                            <td>{{ myDateFormat($item->received_material_date) }}</td>
+                            <td>{{ round($item->taxable_amount, 2) }}</td>
+                            <td>{{ round($item->gst_amount, 2) }}</td>
+                            <td>{{ round($item->cess_amount, 2) }}</td>
                             <td>0</td>
                             <td>0</td>
-                            <td>{{ number_format($item->delivery_charges, 2) }}</td>
-                            <td>{{ number_format($item->total_amount + $item->delivery_charges, 2) }}</td>
+                            <td>{{ round($item->delivery_charges, 2) }}</td>
+                            <td>{{ round($item->total_amount + $item->delivery_charges, 2) }}</td>
 
                         </tr>
                     @endforeach

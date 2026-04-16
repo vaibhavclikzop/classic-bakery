@@ -115,8 +115,8 @@
                                         class="allChecks"></td>
                                 <td>{{ $item->order_no }}</td>
                                 <td>{{ $item->customer }}</td>
-                                <td>{{ $item->invoice_date }}</td>
-                                <td>{{ $item->delivery_date }}</td>
+                                <td>{{  myDateFormat($item->invoice_date) }}</td>
+                                <td>{{  myDateFormat($item->delivery_date) }}</td>
                                 {{-- <td>{{ $item->transport }}</td>
                                 <td>{{ $item->contact_person }}</td>
                                 <td>{{ $item->number }}</td>

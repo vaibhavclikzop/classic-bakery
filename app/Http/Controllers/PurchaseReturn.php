@@ -21,6 +21,7 @@ class PurchaseReturn extends Controller
             ->leftJoin("company as c", "b.company_id", "c.id")
             ->join("users as d", "a.user_id", "d.id")
             ->join("stock_inward_mst as e", "a.inward_id", "e.id")
+            ->orderBy("a.id","desc")
             ->get();
         return view("purchase-return", compact("vendors", "data"));
     }

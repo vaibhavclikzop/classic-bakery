@@ -99,7 +99,7 @@
                                         <td>{{ $sno++ }}</td>
                                         <td>{{ $item->product_name }}</td>
                                         <td>{{ number_format(optional($item)->qty ?? 0, 2) }}</td>
-                                        <td>{{ \Carbon\Carbon::parse(request('delivery_date'))->addDays($item->expiry)->format('Y-m-d') }}
+                                        <td>{{ \Carbon\Carbon::parse(request('delivery_date'))->addDays($item->expiry)->format('d-m-Y') }}
                                         </td>
                                         <td>
                                             <div class="product-quantity border-secondary-transparent">

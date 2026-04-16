@@ -57,7 +57,7 @@
                                     </td>
                                     <td>{{ $item->order_id }}</td>
                                     <td>{{ $item->name }}</td>
-                                    <td>{{ $item->order_date }}</td>
+                                    <td>{{  myDateFormat($item->order_date) }}</td>
                                     <td>{{ \Carbon\Carbon::parse($item->delivery_date . ' ' . $item->delivery_time)->format('d-m-Y g:i A') }}
                                     </td>
                                     <td>{{ $item->type }}</td>

@@ -101,8 +101,8 @@
                                 <th>{{ $item->customer }}</th>
                                 <th>{{ $item->category }}</th>
 
-                                <th>{{ $item->order_date }}</th>
-                                <th>{{ $item->delivery_date }}</th>
+                                <th>{{  myDateFormat($item->order_date) }}</th>
+                                <th>{{  myDateFormat($item->delivery_date) }}</th>
                                 <th>
 
                                     @if ($item->status == 'complete')
@@ -182,7 +182,7 @@
                                     <th>{{ $item->customer }}</th>
 
 
-                                    <th>{{ $item->delivery_date }}</th>
+                                    <th>{{  myDateFormat($item->delivery_date) }}</th>
                                     <th>
 
                                         @if ($item->status == 'complete')

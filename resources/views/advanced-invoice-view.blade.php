@@ -132,7 +132,7 @@
                     <thead>
                         <th style="border:  solid 1px; padding:2px">S.No</th>
 
-                        <th style="border:  solid 1px; padding:2px">Description of goods</th>
+
 
                         <th style="border:  solid 1px; padding:2px">Desc. Remarks</th>
                         <th style="border:  solid 1px; padding:2px">UOM</th>
@@ -201,7 +201,7 @@
 
                                 <td style="border:  solid 1px; padding:2px">{{ $item->product }}, {{ $item->weight }} KG
                                     {{ $item->shape }} <br> {{ $item->flavour }} </td>
-                                         <td style="border:  solid 1px; padding:2px">{{ $item->message }} <br> {{$item->description}}</td>
+
 
                                 <td style="border:  solid 1px; padding:2px">QTY</td>
                                 <td style="border:  solid 1px; padding:2px">
@@ -232,7 +232,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th style="border:  solid 1px; padding:2px" colspan="6">Total</th>
+                            <th style="border:  solid 1px; padding:2px" colspan="5">Total</th>
                             <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($qty) }}</th>
                             <th style="border:  solid 1px; padding:2px"></th>
                             <th style="border:  solid 1px; padding:2px">{{ formatQtyPrice($total_taxable) }}</th>
@@ -249,6 +249,13 @@
             <div style="display: flex; justify-content: space-between;  ">
                 <div style="padding: 5px; border:solid 1px; width: 50%">
                     <table class="w-100">
+                        <tr>
+                        
+                            <td style="border:  solid 1px; padding:2px" colspan="2">
+                                  <strong>  Description :  </strong>
+                                {{ $item->message }} <br> {{ $item->description }}
+                            </td>
+                        </tr>
                         <tr>
                             <th style="border:  solid 1px; padding:2px" colspan="2">In Words : </th>
                         </tr>

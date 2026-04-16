@@ -64,8 +64,8 @@
                 <tr>
                     <th>S.No</th>
                     <th>Status</th>
-                    <th>Invoice No.</th>
-                    <th>Invoice Date</th>
+                    <th style="min-width: 130px">Invoice No.</th>
+                    <th style="min-width: 110px">Invoice Date</th>
                     <th>Shop Name</th>
                     @foreach ($gstRates as $gst)
                         <th>Taxable {{ $gst->gst }}%</th>
@@ -142,7 +142,15 @@
             <td>${sno++}</td>
             <td>${status}</td>
             <td>${element.id}</td>
-            <td>${element.invoice_date}</td>
+      <td>${
+    (() => {
+        let d = new Date(element.invoice_date);
+        return ("0" + d.getDate()).slice(-2) + "-" +
+               ("0" + (d.getMonth()+1)).slice(-2) + "-" +
+               d.getFullYear();
+    })()
+}</td>
+
             <td>${element.name}</td>
     `;
 

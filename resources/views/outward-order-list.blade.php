@@ -37,7 +37,7 @@
                     
                             <td>{{ $item->department }}</td>
                             <td>{{ $item->order_id }}</td>
-                            <td>{{ $item->invoice_date }}</td>
+                            <td>{{ myDateFormat( $item->invoice_date )}}</td>
                  
                             <td>{{ $item->user }}</td>
                             <td > 

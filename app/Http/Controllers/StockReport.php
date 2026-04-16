@@ -20,7 +20,9 @@ class StockReport extends Controller
 
         $where = DB::table("current_stock as a")
             ->select("a.*", "b.name as product", "b.article_no", "b.id as product_id")
-            ->rightJoin("products as b", "a.product_id", "b.id");
+            ->rightJoin("products as b", "a.product_id", "b.id")
+            ->where("b.active",1)
+            ;
 
 
         if ($search) {
@@ -43,7 +45,7 @@ class StockReport extends Controller
 
         $where = DB::table("finish_product_stock as a")
             ->select("a.*", "b.name as product")
-            ->join("finish_products_mst as b", "a.product_id", "b.id");
+            ->join("finish_products_mst as b", "a.product_id", "b.id")    ->where("b.active",1);
 
         if ($location) {
             $where->where("a.location_id", $location);
@@ -504,6 +506,7 @@ class StockReport extends Controller
                     "a.stock",
                     DB::raw("'NA' as updated_at")
                 )
+                         ->where("b.active",1)
                 ->orderBy("a.product_id")
                 ->get();
         } else {
@@ -513,6 +516,7 @@ class StockReport extends Controller
             $current_stock =  DB::table("outlet_current_stock as a")
                 ->select("a.*", "b.name as product")
                 ->join("finish_products_mst as b", "a.product_id", "b.id")
+                ->where("b.active",1)
                 ->where("a.outlet_id", $outlet_id)->get();
         }
         $totalDuplicates = DB::table("outlet_current_stock")

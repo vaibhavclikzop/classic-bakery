@@ -66,8 +66,8 @@
 
                             <td>{{ $item->invoice_id }}</td>
                             <td>{{ $item->invoice_no }}</td>
-                            <td>{{ $item->invoice_date }}</td>
-                            <td>{{ $item->received_material_date }}</td>
+                            <td>{{ myDateFormat($item->invoice_date) }}</td>
+                            <td>{{ myDateFormat($item->received_material_date) }}</td>
 
                             <td class="text-wrap-custom">{{ $item->user }}</td>
                             <td class="text-wrap-custom"> {{ $item->created_at }}</td>

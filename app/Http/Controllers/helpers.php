@@ -118,4 +118,10 @@ if (!function_exists('getInvoiceNo')) {
         // die;
         return $order_no;
     }
+    if (!function_exists('myDateFormat')) {
+        function myDateFormat($date)
+        {
+            return date("d-m-Y", strtotime($date));
+        }
+    }
 }

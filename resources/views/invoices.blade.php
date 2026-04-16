@@ -83,7 +83,7 @@
                             <td>{{ $item->ordType }}</td>
                             <td class="wrap-text" style="width:25%">{{ $item->customer }}</td>
                             <td>{{ $item->order_no }}</td>
-                            <td>{{ $item->invoice_date }}</td>
+                            <td>{{  myDateFormat($item->invoice_date )}}</td>
                             <td>
                                 <p class="mb-1">{{ $item->transport }}</p>
                                 <p class="mb-1">Vehicle : {{ $item->vehicle_no }}</p>
@@ -105,8 +105,10 @@
                                 @endif
 
                                 @if ($item->status != 'cancel')
-                                    <button style="background-color: orange" class="btn btn-sm btnCancelInvoice" value="{{ $item->id }}"
-                                        type="button">Cancel</button>
+                                    @if ($item->ordType != 'Advance Order')
+                                        <button style="background-color: orange" class="btn btn-sm btnCancelInvoice"
+                                            value="{{ $item->id }}" type="button">Cancel</button>
+                                    @endif
                                 @else
                                     <span class="badge bg-danger">Cancelled </span>
                                 @endif
@@ -184,8 +186,8 @@
     <form action="{{ route('cancelRegularInvoice') }}" method="POST" id="cancelInvoiceForm">
         @csrf
 
-        <div class="modal fade" id="cancelInvoiceModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
-            role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+        <div class="modal fade" id="cancelInvoiceModal" tabindex="-1" data-bs-backdrop="static"
+            data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
 
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">

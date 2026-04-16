@@ -29,7 +29,8 @@
 
                     <div class="col-md-3 mt-3">
                         <label for="">Issue Date</label>
-                        <input type="date" id="invoice_date" name="invoice_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                        <input type="date" id="invoice_date" name="invoice_date" class="form-control"
+                            value="{{ date('Y-m-d') }}" required>
 
 
                     </div>
@@ -159,7 +160,7 @@
                             <td>${sno++}</td>    
                             <td colspan="3">${product_name}</td>    
                             <td>${stock}</td>    
-                            <td>${qty}</td>    
+                            <td><input type="number" step="0.01" value="${qty}" class="updateQty form-control" data-id="${product_id}" data-stock="${stock}"></td>    
                            
                 
                             <td> 
@@ -223,15 +224,47 @@
             // 4. Submit form manually
             this.submit();
         });
+
+        $(document).on("keyup", ".updateQty", function() {
+
+            let product_id = $(this).data("id");
+            let qty = parseFloat($(this).val()).toFixed(2);
+
+            let stock =parseFloat($(this).data("stock")).toFixed(2);
+
+            if (qty > stock) {
+                toastr.error("Qty can not be more then stock");
+                $(this).val(stock)
+                product_list = product_list.map(item => {
+                    if (item.product_id == product_id) {
+                        item.qty = stock;
+                    }
+                    return item;
+                });
+                console.log(product_list);
+                return;
+            }
+            // update in array
+            product_list = product_list.map(item => {
+                if (item.product_id == product_id) {
+                    item.qty = qty;
+                }
+                return item;
+            });
+
+            console.log(product_list);
+        });
+
         $(document).ready(function() {
-    
- 
+
+
             $('#product_id, #qty').on('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     $('#addProduct').click();
                 }
             });
+
         });
     </script>
 @endsection

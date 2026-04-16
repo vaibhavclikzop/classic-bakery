@@ -90,31 +90,31 @@
                                 @endif
                             </td>
                             <td style="border: solid 1px;padding: 5px;">{{ $item->invoice_id }}</td>
-                            <td style="border: solid 1px;padding: 5px;">{{ $item->invoice_date }}</td>
+                            <td style="border: solid 1px;padding: 5px;">{{  myDateFormat($item->invoice_date) }}</td>
                             <td style="border: solid 1px;padding: 5px;">{{ $item->vendor }}</td>
                             @foreach ($gstRates as $gst)
                                 {{-- TAXABLE --}}
                                 <td style="border: solid 1px;padding: 5px;">
-                                    {{ number_format($item->{'taxable_' . $gst} ?? 0, 2) }}
+                                    {{ round($item->{'taxable_' . $gst} ?? 0, 2) }}
                                 </td style="border: solid 1px;padding: 5px;">
 
                                 {{-- GST --}}
                                 <td style="border: solid 1px;padding: 5px;">
-                                    {{ number_format($item->{'gst_' . $gst} ?? 0, 2) }}
+                                    {{ round($item->{'gst_' . $gst} ?? 0, 2) }}
                                 </td>
                             @endforeach
 
                             {{-- TOTAL GST --}}
                             <td style="border: solid 1px;padding: 5px;">
-                                {{ number_format($item->total_gst ?? 0, 2) }}
+                                {{ round($item->total_gst ?? 0, 2) }}
                             </td>
 
                             {{-- TOTAL AMOUNT --}}
                             <td style="border: solid 1px;padding: 5px;">
-                                {{ number_format($item->delivery_charges ?? 0, 2) }}
+                                {{ round($item->delivery_charges ?? 0, 2) }}
                             </td>
                             <td style="border: solid 1px;padding: 5px;">
-                                {{ number_format($item->grand_total + $item->delivery_charges ?? 0, 2) }}
+                                {{ round($item->grand_total + $item->delivery_charges ?? 0, 2) }}
                             </td>
                         </tr>
                     @endforeach

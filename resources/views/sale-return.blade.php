@@ -49,7 +49,7 @@
                             <td>{{ $sno++ }}</td>
                             <td>{{ $item->customer }}</td>
 
-                            <td>{{ $item->return_date }}</td>
+                            <td>{{  myDateFormat($item->return_date) }}</td>
                             <td>{{ $item->description }}</td>
                             <td>{{ $item->status }}</td>
                             <td>{{ $item->user }}</td>

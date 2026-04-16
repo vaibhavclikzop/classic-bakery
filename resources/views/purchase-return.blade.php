@@ -45,7 +45,7 @@
                             <td>{{ $sno++ }}</td>
                             <td>{{ $item->company }} / {{ $item->vendor }}</td>
                             <td>{{ $item->invoice_no }}</td>
-                            <td>{{ $item->return_date }}</td>
+                            <td>{{ myDateFormat($item->return_date )}}</td>
                             <td>{{ $item->description }}</td>
                             <td>{{ $item->user }}</td>
                             <td>
