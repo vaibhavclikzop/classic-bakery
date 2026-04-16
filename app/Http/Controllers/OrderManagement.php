@@ -346,8 +346,18 @@ class OrderManagement extends Controller
         $finish_products_mst = DB::table("finish_products_mst")->get();
         $gst = DB::table("gst")->get();
         $order_type = DB::table("order_type")->orderBy("name", "asc")->get();
+        $orderMst = null;
+        $orderDet = null;
+        if (request("id")) {
+            $orderMst = DB::table("order_mst")->where("id", request("id"))->first();
+            $orderDet = DB::table("order_det as a")
+                ->select("a.*", "b.name")
+                ->join("finish_products_mst as b", "a.product_id", "b.id")
+                ->where("a.mst_id", request("id"))
+                ->get();
+        }
 
-        return view("create-order", compact("customers", "store", "finish_products_mst", "gst", "order_type"));
+        return view("create-order", compact("customers", "store", "finish_products_mst", "gst", "order_type", "orderMst", "orderDet"));
     }
 
     public function GetPendingTaskList(Request $request)
@@ -391,54 +401,62 @@ class OrderManagement extends Controller
         try {
             DB::beginTransaction();
 
+         
 
-            $gst_type = "";
 
-            if ($request->order_type == "customer") {
-                $city = DB::table("customers")->where("id", $request->customer_id)->select("city")->first();
-            } else {
-                $city = DB::table("company_settings")->where("outlet_id", $request->customer_id)->select("city")->first();
-            }
+                $gst_type = "";
 
-            $company_setting = DB::table("company_settings")->where("id", 1)->first();
-            if ($city->city && $company_setting->city) {
-                if ($city->city == $company_setting->city) {
-                    $gst_type = "Inner GST";
+                if ($request->order_type == "customer") {
+                    $city = DB::table("customers")->where("id", $request->customer_id)->select("city")->first();
                 } else {
-                    $gst_type = "Outer GST";
+                    $city = DB::table("company_settings")->where("outlet_id", $request->customer_id)->select("city")->first();
                 }
-            } else {
-                return redirect()->back()->with('error', "Select Outlet City");
+
+                $company_setting = DB::table("company_settings")->where("id", 1)->first();
+                if ($city->city && $company_setting->city) {
+                    if ($city->city == $company_setting->city) {
+                        $gst_type = "Inner GST";
+                    } else {
+                        $gst_type = "Outer GST";
+                    }
+                } else {
+                    return redirect()->back()->with('error', "Select Outlet City");
+                }
+
+
+   if (!$request->id) {
+                $inv_no =   DB::table("order_mst")->whereDate("created_at", now())->count();
+                if (!$inv_no) {
+                    $inv_no = 1;
+                } else {
+                    $inv_no++;
+                }
+                $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
+                $invoice_id = $invoice_prefix->create_order_prefix . date('d-m-y') . "-" . $inv_no;
+
+
+
+                $mst_id =  DB::table('order_mst')->insertGetId(array(
+                    "customer_id" => $request->customer_id,
+                    "user_id" => $request->user->id,
+
+                    "order_id" => $invoice_id,
+                    "status" => "pending",
+                    "order_date" => $request->order_date,
+                    "delivery_date" => $request->delivery_date,
+                    "description" => $request->description,
+                    "order_type_id" => $request->order_type_id,
+                    "order_type" => $request->order_type,
+                    "order_no" => $invoice_id,
+
+                ));
+                $company_setting = DB::table("company_settings")->where("id", 1)->increment("order_no");
+            }else{
+                $mst_id=$request->id;
             }
 
-
-
-            $inv_no =   DB::table("order_mst")->whereDate("created_at", now())->count();
-            if (!$inv_no) {
-                $inv_no = 1;
-            } else {
-                $inv_no++;
-            }
-            $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
-            $invoice_id = $invoice_prefix->create_order_prefix . date('d-m-y') . "-" . $inv_no;
-
-
-
-            $mst_id =  DB::table('order_mst')->insertGetId(array(
-                "customer_id" => $request->customer_id,
-                "user_id" => $request->user->id,
-
-                "order_id" => $invoice_id,
-                "status" => "pending",
-                "order_date" => $request->order_date,
-                "delivery_date" => $request->delivery_date,
-                "description" => $request->description,
-                "order_type_id" => $request->order_type_id,
-                "order_type" => $request->order_type,
-                "order_no" => $invoice_id,
-
-            ));
-
+            DB::table("order_det")->where("mst_id", $request->id)->delete();
+            DB::table("work_order_det")->where("order_id", $request->id)->delete();
             foreach ($prod_list as $key => $value) {
                 $finish_products_mst = DB::table("finish_products_mst")->where("id", $value->product_id)->first();
                 DB::table('order_det')->insertGetId(array(
@@ -453,7 +471,7 @@ class OrderManagement extends Controller
                     "discount" => $value->discount,
                 ));
             }
-            $company_setting = DB::table("company_settings")->where("id", 1)->increment("order_no");
+
             $this->generateWordOrder($mst_id);
 
             DB::commit();
@@ -795,8 +813,13 @@ class OrderManagement extends Controller
         $order_mst = $customer_order ?? $outlet_order;
 
         $order_det = DB::table("order_det as a")
-            ->select("a.*", "b.name as product", "b.hsn_code as hsn", "b.article_no as article_no", "c.name as sub_category",
-            DB::raw(" a.price-a.price/100*a.discount as price")
+            ->select(
+                "a.*",
+                "b.name as product",
+                "b.hsn_code as hsn",
+                "b.article_no as article_no",
+                "c.name as sub_category",
+                DB::raw(" a.price-a.price/100*a.discount as price")
             )
             ->join("finish_products_mst as b", "a.product_id", "b.id")
             ->join("f_product_sub_category as c", "b.f_sub_category_id", "c.id")
@@ -1234,7 +1257,7 @@ class OrderManagement extends Controller
         $order_type = DB::table("order_type")->where("id", $request->order_type_id)->first();
 
         $customer_type_product =  DB::table("customer_type_product as a")
-            ->select("a.*", "b.name as name", "b.id as id", "b.gst",   DB::raw("CASE WHEN c.stock IS NOT NULL THEN c.stock ELSE 0 END as stock"),"b.price as mrp")
+            ->select("a.*", "b.name as name", "b.id as id", "b.gst",   DB::raw("CASE WHEN c.stock IS NOT NULL THEN c.stock ELSE 0 END as stock"), "b.price as mrp")
             ->join("finish_products_mst as b", "a.finish_product_id", "b.id")
             ->leftJoin("finish_product_stock as c", "b.id", "c.product_id")
             ->join("f_product_sub_category as e", "b.f_sub_category_id", "e.id")
@@ -1340,15 +1363,18 @@ class OrderManagement extends Controller
         if ($order_id) {
 
             $work_order =    DB::table("work_order_det as a")
-                ->select( "d.name as product", "e.name as sub_category", "f.name as category",
-                DB::raw("sum(a.qty) as qty")
+                ->select(
+                    "d.name as product",
+                    "e.name as sub_category",
+                    "f.name as category",
+                    DB::raw("sum(a.qty) as qty")
                 )
                 ->join("order_mst as b", "a.order_id", "b.id")
 
                 ->join("finish_products_mst as d", "a.product_id", "d.id")
                 ->join("f_product_sub_category as e", "d.f_sub_category_id", "e.id")
                 ->join("f_product_category as f", "d.f_category_id", "f.id")
-                ->groupBy("a.product_id","d.name","e.name","f.name");
+                ->groupBy("a.product_id", "d.name", "e.name", "f.name");
             if ($request->order_id) {
 
                 $work_order->whereIn("b.id", $request->order_id);
@@ -1391,7 +1417,12 @@ class OrderManagement extends Controller
         return     DB::table("order_mst as a")
             ->select("a.*", "b.name as order_type")
             ->join("order_type as b", "a.order_type_id", "b.id")
-            ->where("a.order_type", $request->type)->where("a.customer_id", $request->customer_id)->whereDate("a.delivery_date", $request->date)->where("a.status", "!=", "pending")->orderBy("b.name", "asc")->get();
+            ->where("a.order_type", $request->type)
+            ->where("a.customer_id", $request->customer_id)
+            ->whereDate("a.delivery_date", $request->date)
+            ->where("a.status", "!=", "pending")
+            ->where("a.status", "!=", "cancel")
+            ->orderBy("b.name", "asc")->get();
     }
 
     public function CancelOrder(Request $request)
@@ -1399,7 +1430,7 @@ class OrderManagement extends Controller
         $validator = Validator::make($request->all(), [
 
             'id' => 'required',
-            'order_pwd' => 'required',
+
 
 
         ]);
@@ -1417,15 +1448,11 @@ class OrderManagement extends Controller
 
 
         try {
-            $company_setting = DB::table("company_settings")->where("id", $request->user->id)->select('order_pwd')->first();
-            if ($request->order_pwd !== $company_setting->order_pwd) {
-                return  redirect()->back()->with("error", 'Incorrect password.');
-            }
 
+            DB::table("work_order_det")->where("order_id", $request->id)->delete();
 
             DB::table('order_mst')->where("id", $request->id)->update(array(
                 "status" => "cancel",
-
             ));
         } catch (\Throwable $th) {
             return  redirect()->back()->with("error", $th->getMessage());

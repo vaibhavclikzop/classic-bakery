@@ -191,7 +191,9 @@ class BulkImport extends Controller
                 $sub_category_id = "";
                 $unit_type_id = "";
                 try {
-
+                    if ($record[2]=="name") {
+                     continue;
+                    }
 
 
                     $category = DB::table("f_product_category")->where("name", $record[0])->first();
@@ -226,22 +228,38 @@ class BulkImport extends Controller
 
 
 
-                    $products = DB::table("finish_products_mst")->where("article_no", $record[3])->first();
+                    $products = DB::table("finish_products_mst")
+                        ->where("f_category_id", $category_id)
+                        ->where("f_sub_category_id", $sub_category_id)
+                        ->where("name", trim($record[2]))
+                        ->where("price", (float) trim($record[4]))
+                        ->first();
+
+
+
                     if ($products) {
-                        $error .= "Raw ID " . $count . " Duplicate article no. <br>";
+                        $error .= "Raw ID " . $count . " Duplicate product. <br>";
+
                         $duplicate++;
                     } else {
                         $barcode = $this->generateRandomNumber(10);
 
+                        $articleNo = strtoupper(substr(trim($record[2]), 0, 3));
 
-                        $product =  DB::table('finish_products_mst')->insertGetId(array(
+
+
+                        $fpmCount = DB::table("finish_products_mst")->count();
+
+                        $newArticleNo= substr(trim($articleNo), 0, 3) . $fpmCount+1 . "<br>";
+
+                        DB::table('finish_products_mst')->insertGetId(array(
 
                             "f_category_id" => $category_id,
                             "f_sub_category_id" => $sub_category_id,
 
 
                             "name" => $record[2],
-                            "article_no" => $record[3],
+                            "article_no" => $newArticleNo,
                             "price" => $record[4],
                             "min_stock" => $record[5],
                             "uom" => $unit_type_id,
@@ -256,12 +274,13 @@ class BulkImport extends Controller
                         $success++;
                     }
                 } catch (\Throwable $th) {
-                    $error .= "Raw ID " . $count . " Invalid format. <br>";
+                    $error .= "Raw ID " . $count .  $th->getMessage()."<br>";
                     $error_count++;
                 }
                 $count++;
             }
 
+       
             return redirect()->back()->with("success", "Save successfully - Total : " . $count - 1 . " Success : " . $success . "  Duplicate : " . $duplicate . " Error : " . $error_count)->with("msg", $error);
         }
 

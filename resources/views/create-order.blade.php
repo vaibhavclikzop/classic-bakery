@@ -13,6 +13,7 @@
         <div class="card-body">
             <form method="POST" class="needs-validation" id="UploadForm" novalidate action="{{ route('SaveOrder') }}">
                 @csrf
+                <input type="text" name="id" value="{{ request('id') }}" hidden>
 
                 <div class="row">
                     <div class="col-md-2 mt-3">
@@ -147,10 +148,32 @@
                         <input type="hidden" id="prod_list" name="prod_list">
 
                     </div>
-                    <div class="col-md-12 mt-5 text-center">
-                        <button class="btn btn-success" id="btnSubmit" type="submit">Save Order</button>
+                    @if (request('id'))
+                        <div class="col-md-12 text-center">
 
-                    </div>
+
+                            <div class="mb-3 mt-3" id="btnSection">
+                                <button type="button" class="btn btn-dark" id="sendOtpBtn">
+                                    Send OTP
+                                </button>
+                            </div>
+
+                            <!-- OTP Input -->
+                            <div class=" mt-3 d-none" id="otpSection">
+                                <label>Enter OTP</label>
+                                <input type="text" id="otp" class="form-control" placeholder="Enter OTP">
+                            </div>
+                            <button type="button" class="btn btn-danger d-none mt-3" id="verifyOtpBtn" type="button">
+                                Verify Update Order
+                            </button>
+                        </div>
+                    @else
+                        <div class="col-md-12 mt-5 text-center">
+                            <button class="btn btn-success" id="btnSubmit" type="submit">Save Order</button>
+
+                        </div>
+                    @endif
+
                 </div>
             </form>
         </div>
@@ -560,5 +583,162 @@
                 }
             });
         });
+        $(document).ready(function() {
+
+            let order_mst = @json($orderMst);
+            let order_det = @json($orderDet);
+            if (order_mst) {
+                $("#order_type").val(order_mst.order_type);
+                $("#order_type").trigger("change");
+                $("#delivery_date").val(order_mst.delivery_date);
+
+                setTimeout(() => {
+                    $("#customer_id").val(order_mst.customer_id);
+                    $("#customer_id").trigger("change");
+                    $("#order_type_id").val(order_mst.order_type_id)
+                    $("#order_type_id").trigger("change")
+                }, 1000);
+
+                setTimeout(() => {
+
+
+                    order_det.forEach(element => {
+
+
+                        var product_id = element.product_id;
+                        var product_name = element.name;
+                        var qty = element.qty
+
+                        var price = parseFloat(element.price)
+                        var gst = element.gst;
+                        var gst_type = "Outer GST";
+                        let discount = parseFloat(element.discount);
+                        let rate = parseFloat(price - (price / 100 * discount)).toFixed(2);
+                        let gst_amount = parseFloat(rate - (rate / (1 + gst / 100))).toFixed(2);
+                        let taxable = parseFloat(rate - gst_amount).toFixed(2);
+                        let mrp = $("#product_id").find(":selected").data("mrp");
+
+                        let MRP = element.mrp;
+                        console.log(element.id);
+
+                        var html = `<tr class="product${product_id}">
+                            <td>${sno++}</td>    
+                            <td>${product_name}</td>    
+                            <td>${MRP}</td>    
+                            <td>${qty}</td>    
+                            <td>${price}</td>    
+                            <td>${discount} </td>    
+                            <td>${rate}</td>
+                            <td>${taxable}</td>    
+
+                            <td>${gst} % <br> ${gst_amount} ₹ </td>    
+                              <td>${rate*qty}</td>    
+                          
+                            <td> 
+                                  <button type="button" class="btn btn-primary edit btn-sm" data-id="${product_id}" data-price="${price}" data-qty="${qty}">
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </button>
+                                <button type="button"  class="btn btn-danger remove btn-sm"  data-id="${product_id}">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                </button>
+                          
+                            </td>    
+                        </tr>`;
+
+                        $("#prodList").append(html)
+                        let total = parseFloat(rate * qty).toFixed(2);
+                        product_list.push({
+                            product_id,
+                            qty,
+                            price,
+                            gst,
+                            gst_type,
+                            discount,
+                            total,
+                        });
+
+                        console.log(product_list);
+                        footerUpdate();
+                    });
+                }, 2000);
+                $("#sendOtpBtn").on("click", function() {
+
+
+                    $.ajax({
+                        url: '/updateOrderOTP',
+                        type: 'POST',
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        beforeSend: function() {
+                            $("#sendOtpBtn").attr("disabled", "disabled");
+                            $("#sendOtpBtn").text("Sending OTP....");
+
+                        },
+                        success: function(res) {
+                            let data = res;
+                            if (data.status == true) {
+
+
+                                let data = res;
+                                otp = data.OTP;
+                                $('#otpSection').removeClass('d-none');
+                                $('#verifyOtpBtn').removeClass('d-none');
+                                $("#btnSection").addClass("d-none")
+                                toastr.success(data.message)
+                            } else {
+                                toastr.error(data.message)
+                            }
+                        }
+                    });
+                });
+
+                $("#verifyOtpBtn").on("click", function() {
+                    let clientOTP = $("#otp").val().trim();
+
+
+                    $.ajax({
+                        url: '/verifyCancelOTP',
+                        type: 'POST',
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                            otp: clientOTP,
+                        },
+                        beforeSend: function() {
+                            $("#verifyOtpBtn").attr("disabled", "disabled");
+                            $("#verifyOtpBtn").text("Verifying OTP....");
+
+                        },
+                        success: function(res) {
+                            if (res.status == false) {
+
+                                toastr.error(res.message)
+                                return;
+                            } else {
+                                $("#verifyOtpBtn").attr("disabled", "disabled");
+                                $("#verifyOtpBtn").text("Verifying OTP....");
+                                $('#prod_list').val(JSON.stringify(product_list));
+                                if (product_list.length === 0) {
+                                    e.preventDefault();
+                                    return toastr.error("Add at least one product.");
+                                }
+                                $("#verifyOtpBtn").attr("disabled", true);
+                                $("#UploadForm").submit();
+                            }
+
+                        },
+                        complete: function() {
+                            $("#verifyOtpBtn").removeAttr("disabled");
+                            $("#verifyOtpBtn").text("Verify & Update Order");
+
+                        },
+                    });
+
+                })
+
+            }
+
+
+        })
     </script>
 @endsection

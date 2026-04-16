@@ -70,22 +70,28 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   // ajax call
   //Email 
-  Route::post('sendCancelInvoiceOTP',[cancelInvoiceController::class,"sendCancelInvoiceOTP"])->name("sendCancelInvoiceOTP");
-  Route::post('verifyCancelOTP',[cancelInvoiceController::class,"verifyCancelOTP"])->name("verifyCancelOTP");
-  Route::post('cancelRegularInvoice',[cancelInvoiceController::class,"cancelRegularInvoice"])->name("cancelRegularInvoice");
+  Route::post('sendCancelInvoiceOTP', [cancelInvoiceController::class, "sendCancelInvoiceOTP"])->name("sendCancelInvoiceOTP");
+  Route::post('verifyCancelOTP', [cancelInvoiceController::class, "verifyCancelOTP"])->name("verifyCancelOTP");
+  Route::post('cancelRegularInvoice', [cancelInvoiceController::class, "cancelRegularInvoice"])->name("cancelRegularInvoice");
 
-  Route::post('sendStockUpdateOTP',[sendOTPController::class,"sendStockUpdateOTP"])->name("sendStockUpdateOTP");
-  Route::post('updateOutletStock',[sendOTPController::class,"updateOutletStock"])->name("updateOutletStock");
-  Route::post('sendDeleteDuplicateOTP',[sendOTPController::class,"sendDeleteDuplicateOTP"])->name("sendDeleteDuplicateOTP");
-  Route::post('deleteOutletCSDuplicate',[sendOTPController::class,"deleteOutletCSDuplicate"])->name("deleteOutletCSDuplicate");
-
-
-  Route::post('cancelPurchaseInvoiceOTP',[sendOTPController::class,"cancelPurchaseInvoiceOTP"])->name("cancelPurchaseInvoiceOTP");
-
-    Route::post('cancelPurchaseInvoice',[sendOTPController::class,"cancelPurchaseInvoice"])->name("cancelPurchaseInvoice");
+  Route::post('sendStockUpdateOTP', [sendOTPController::class, "sendStockUpdateOTP"])->name("sendStockUpdateOTP");
+  Route::post('updateOutletStock', [sendOTPController::class, "updateOutletStock"])->name("updateOutletStock");
+  Route::post('sendDeleteDuplicateOTP', [sendOTPController::class, "sendDeleteDuplicateOTP"])->name("sendDeleteDuplicateOTP");
+  Route::post('deleteOutletCSDuplicate', [sendOTPController::class, "deleteOutletCSDuplicate"])->name("deleteOutletCSDuplicate");
 
 
-  
+  Route::post('cancelOrderOTP', [sendOTPController::class, "cancelOrderOTP"])->name("cancelOrderOTP");
+
+  Route::post('CancelOrder', [OrderManagement::class, 'CancelOrder'])->name('CancelOrder');
+
+  Route::post('cancelPurchaseInvoiceOTP', [sendOTPController::class, "cancelPurchaseInvoiceOTP"])->name("cancelPurchaseInvoiceOTP");
+
+  Route::post('cancelPurchaseInvoice', [sendOTPController::class, "cancelPurchaseInvoice"])->name("cancelPurchaseInvoice");
+  Route::post('updateOrderOTP', [sendOTPController::class, "updateOrderOTP"])->name("updateOrderOTP");
+
+
+
+
   Route::post('getLastPurchasePriceRM', [AjaxController::class, 'getLastPurchasePriceRM'])->name('getLastPurchasePriceRM');
   Route::post('getLastPurchasePriceFG', [AjaxController::class, 'getLastPurchasePriceFG'])->name('getLastPurchasePriceFG');
 
@@ -200,7 +206,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('deleteDepartment', [cancelInvoiceController::class, 'deleteDepartment'])->name('deleteDepartment');
 
 
-  
+
 
   Route::get('department-product/{id}', [Masters::class, 'DepartmentProduct'])->name('department-product');
 
@@ -317,7 +323,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('order-summary-shop-wise', [OrderManagement::class, 'OrderSummaryShopWise'])->name('order-summary-shop-wise');
   Route::post('GetCustomerTypeProducts', [OrderManagement::class, 'GetCustomerTypeProducts'])->name('GetCustomerTypeProducts');
   Route::post('CompleteProduction', [OrderManagement::class, 'CompleteProduction'])->name('CompleteProduction');
-  Route::post('CancelOrder', [OrderManagement::class, 'CancelOrder'])->name('CancelOrder');
+
   Route::post('ConvertToInvoice', [OrderManagement::class, 'ConvertToInvoice'])->name('ConvertToInvoice');
 
   Route::post('GetWordOrder', [OrderManagement::class, 'GetWordOrder'])->name('GetWordOrder');
@@ -495,9 +501,9 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('GetAdvProduct', [AdvanceOrder::class, 'GetAdvProduct'])->name('GetAdvProduct');
   Route::post('Cancel_order', [AdvanceOrder::class, 'Cancel_Order'])->name('Cancel_order');
 
-Route::post('/sendCancelOrderOTP', [AdvanceOrder::class, 'sendCancelOrderOTP']);
+  Route::post('/sendCancelOrderOTP', [AdvanceOrder::class, 'sendCancelOrderOTP']);
 
-Route::post('/verifyCancelOrderOTP', [AdvanceOrder::class, 'verifyCancelOrderOTP']);
+  Route::post('/verifyCancelOrderOTP', [AdvanceOrder::class, 'verifyCancelOrderOTP']);
   Route::post('advConvertToInvoice', [AdvanceOrder::class, 'advConvertToInvoice'])->name('advConvertToInvoice');
 
 

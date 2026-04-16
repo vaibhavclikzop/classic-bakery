@@ -20,7 +20,7 @@
                     @if ($status == 'processing')
                         {{-- <a href="/order-summary-department-wise?id={{ $department->id }}" class="btn btn-primary mx-1">Order
                         Summary Department Wise</a> --}}
-                         <a href="/department-wise-treading?id={{ $department->id }}" class="btn btn-info mx-1">Department
+                        <a href="/department-wise-treading?id={{ $department->id }}" class="btn btn-info mx-1">Department
                             wise Treading Report
                         </a>
                         <a href="/order-summary-customer-wise?id={{ $department->id }}" class="btn btn-info mx-1">Department
@@ -212,9 +212,11 @@
                                             <a href="/outward-customer-order?id={{ $item->id }}&customer_id={{ $item->customer_id }}"
                                                 class="btn btn-secondary btn-sm">Outward</a>
                                         @endif
-                                        @if ($item->status == 'pending')
-                                            <button type="button" class="btn btn-danger btn-sm cancel"
-                                                value="{{ $item->id }}">Cancel Order</button>
+                                        @if ($item->status == 'processing')
+                                            <a class="btn btn-primary btn-sm" href="/create-order?id={{$item->id}}"  
+                                                value="{{ $item->id }}"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                                            <button class="btn btn-danger btn-sm btnCancelInvoice" type="button"
+                                                value="{{ $item->id }}">Cancel</button>
                                         @endif
 
                                     </th>
@@ -306,6 +308,9 @@
             </div>
         </div>
     </form>
+
+
+
     <form action="" method="POST" class="needs-validation" novalidate>
         @csrf
         <div class="modal fade" id="CompleteProduction" tabindex="-1" aria-labelledby="exampleModalLabel"
@@ -359,6 +364,70 @@
             </div>
         </div>
     </form>
+
+
+
+    <form action="{{ route('CancelOrder') }}" method="POST" id="cancelInvoiceForm">
+        @csrf
+
+        <div class="modal fade" id="cancelInvoiceModal" tabindex="-1" data-bs-backdrop="static"
+            data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header bg-danger">
+                        <h5 class="modal-title text-white">Cancel Processing Order</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div style="text-align: center">
+                            <span style="font-size: 24px; color: red"><i class="fa-solid fa-ban"></i></span>
+                            <h4 class="text-danger fw-bold">Are you sure you want to cancel this order ?</h4>
+
+
+                            <input type="hidden" name="id" id="cancelID" hidden>
+                        </div>
+                        <div>
+
+                            <p class="text-danger fw-bold mt-3">
+                                ⚠️ Attention: Please read the following instructions carefully before proceeding. This
+                                action will directly impact your production stock records.
+                            </p>
+                            <ol class="text-danger">
+                                <li>This action is irreversible.</li>
+                                <li>Stock will be deducted for all items in this production order.</li>
+
+                            </ol>
+                        </div>
+                        <div class="mb-3 mt-3" id="btnSection">
+                            <button type="button" class="btn btn-dark w-100" id="sendOtpBtn">
+                                Send OTP
+                            </button>
+                        </div>
+
+                        <!-- OTP Input -->
+                        <div class=" mt-3 d-none" id="otpSection">
+                            <label>Enter OTP</label>
+                            <input type="text" id="otp" class="form-control" placeholder="Enter OTP">
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-danger d-none w-100" id="verifyOtpBtn" type="button">
+                            Verify & Cancel Order
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </form>
+
 
     <script>
         window.addEventListener("pageshow", function(event) {
@@ -431,6 +500,84 @@
                 return;
             }
             $("#formMain").submit();
+        });
+
+
+
+        $(document).ready(function() {
+            $(document).on("click", ".btnCancelInvoice", function() {
+                $("#cancelID").val($(this).val())
+                $("#cancelInvoiceModal").modal("show")
+            });
+
+            let otp = null;
+            $("#sendOtpBtn").on("click", function() {
+
+
+                $.ajax({
+                    url: '/cancelOrderOTP',
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    beforeSend: function() {
+                        $("#sendOtpBtn").attr("disabled", "disabled");
+                        $("#sendOtpBtn").text("Sending OTP....");
+
+                    },
+                    success: function(res) {
+                        let data = res;
+                        if (data.status == true) {
+
+
+                            let data = res;
+                            otp = data.OTP;
+                            $('#otpSection').removeClass('d-none');
+                            $('#verifyOtpBtn').removeClass('d-none');
+                            $("#btnSection").addClass("d-none")
+                            toastr.success(data.message)
+                        } else {
+                            toastr.error(data.message)
+                        }
+                    }
+                });
+            });
+            $("#verifyOtpBtn").on("click", function() {
+                let clientOTP = $("#otp").val().trim();
+
+
+                $.ajax({
+                    url: '/verifyCancelOTP',
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        otp: clientOTP,
+                    },
+                    beforeSend: function() {
+                        $("#verifyOtpBtn").attr("disabled", "disabled");
+                        $("#verifyOtpBtn").text("Verifying OTP....");
+
+                    },
+                    success: function(res) {
+                        if (res.status == false) {
+
+                            toastr.error(res.message)
+                            return;
+                        } else {
+                            $("#verifyOtpBtn").attr("disabled", "disabled");
+                            $("#verifyOtpBtn").text("Verifying OTP....");
+                            $("#cancelInvoiceForm").submit();
+                        }
+
+                    },
+                    complete: function() {
+                        $("#verifyOtpBtn").removeAttr("disabled");
+                        $("#verifyOtpBtn").text("Verify & Cancel Order");
+
+                    },
+                });
+
+            })
         });
     </script>
 @endsection

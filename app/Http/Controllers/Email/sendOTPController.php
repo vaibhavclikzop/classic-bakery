@@ -115,8 +115,8 @@ class sendOTPController extends Controller
         try {
             $otp = rand(100000, 999999);
             session(['otp' => $otp]);
-            // Mail::to("singh.dashmeet007@gmail.com")->send(new sendOTPs($otp, "Cancel Purchase Invoice"));
-            Mail::to("vaibhav@clikzopinnovations.com")->send(new sendOTPs($otp, "Cancel Purchase Invoice"));
+            Mail::to("singh.dashmeet007@gmail.com")->send(new sendOTPs($otp, "Cancel Purchase Invoice"));
+            //Mail::to("vaibhav@clikzopinnovations.com")->send(new sendOTPs($otp, "Cancel Purchase Invoice"));
             return response()->json(['status' => true, 'message' => 'OTP sent']);
         } catch (\Throwable $th) {
             return response()->json(['status' => false, 'message' => $th->getMessage()]);
@@ -152,11 +152,37 @@ class sendOTPController extends Controller
                 "status" => "cancel"
             ));
             DB::commit();
-    
+
             return redirect()->back()->with('success', "Save Successfully");
         } catch (\Throwable $th) {
             DB::rollBack();
             return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+
+    public function cancelOrderOTP(Request $request)
+    {
+        try {
+            $otp = rand(100000, 999999);
+            session(['otp' => $otp]);
+            Mail::to("singh.dashmeet007@gmail.com")->send(new sendOTPs($otp, "Cancel Order"));
+            // Mail::to("vaibhav@clikzopinnovations.com")->send(new sendOTPs($otp, "Cancel Order"));
+            return response()->json(['status' => true, 'message' => 'OTP sent']);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()]);
+        }
+    }
+
+    public function updateOrderOTP(Request $request)
+    {
+        try {
+            $otp = rand(100000, 999999);
+            session(['otp' => $otp]);
+              Mail::to("singh.dashmeet007@gmail.com")->send(new sendOTPs($otp, "Update Order"));
+            //Mail::to("vaibhav@clikzopinnovations.com")->send(new sendOTPs($otp, "Update Order"));
+            return response()->json(['status' => true, 'message' => 'OTP sent']);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()]);
         }
     }
 }

@@ -51,22 +51,26 @@
                         <p style="margin:0; color: black; font-weight:bold;">
                             {{ $data->name }}
                         </p>
-                        <p style="margin:0; color: black; font-weight: 900">
+                        <p style="margin:0; color: black; font-weight: 900; margin-top: 5px">
                             MRP : {{ $data->price }}
                         </p>
-                        <p style="margin:0; color: black; font-weight: 900">
+                        <p style="margin:0; color: black; font-weight: 900;margin-top: 5px">
                             Date Used By : {{ date('d-m-Y', strtotime(request('expiry'))) }}
 
                         </p>
-                        <p style="margin:0; color: black; font-weight: 500">
+                        <p style="margin:0; color: black; font-weight: 500;margin-top: 5px">
                             Inclusive of all taxes.
                         </p>
                     </div>
 
 
                     <div style="width:2cm; height:2cm; flex-shrink:0; text-align:center;padding-bottom:3px;">
-                        <img src="data:image/png;base64,{!! DNS2D::getBarcodePNG($data->bar_code, 'QRCODE', 5, 5) !!}" alt="QR Code"
-                            style="width:100%; height:100%; object-fit:contain;">
+                        <div style="width:1.2cm; height:1.2cm;">
+
+
+                            <img src="data:image/png;base64,{!! DNS2D::getBarcodePNG($data->bar_code, 'QRCODE', 5, 5) !!}" alt="QR Code"
+                                style="width:100%; height:100%; object-fit:contain;">
+                        </div>
                     </div>
                 </div>
             @endfor
@@ -99,8 +103,9 @@
                         print-color-adjust: exact;
                     }
                     p {
-                        font-size: 10px !important;
+                        font-size: 11px !important;
                         margin: 0 !important;
+                        margin-top: 3px !important;
                         line-height: 1.1 !important;
                     }
                 </style>
