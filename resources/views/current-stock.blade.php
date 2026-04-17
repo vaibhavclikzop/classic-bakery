@@ -51,7 +51,7 @@
                                 <td>{{ $item->article_no }}</td>
                                 <td class="total_stock">{{ formatQtyPrice($item->stock) }}</td>
                                 <td style="width:10%">
-                                    <input type="number" class="add_qty form-control" steps="0.00"
+                                    <input type="text" class="add_qty form-control" steps="0.00"
                                         data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}"  name="updateStock[{{ $item->id ?? 'new' }}][{{$item->id ?? $item->product_id}}]">
                                 </td>
 

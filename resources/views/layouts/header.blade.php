@@ -41,7 +41,7 @@
          integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
      <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
- 
+
  </head>
 
  <body>
@@ -106,12 +106,25 @@
              'finish-goods-defective-stock',
          ];
          $reportsRoutes = [
-             'purchase-variation-report',
-             'purchase-register-report',
-             'sale-register-report',
              'category-subcategory-report',
              'customer-wise-report',
-             'tally-report',
+             'debit-credit-report',
+             'rm-consumpton-report',
+             'sub-report-consumption',
+             'production-chart-report',
+             'fa-stock-upload-report',
+         ];
+
+         $saleReportRoutes = [
+             'sale-register-report',
+             'sale-register-user-wise',
+             'sale-report-tax-bifurcation',
+             'reports/category-wise-sale-and-damage',
+         ];
+         $purchaseReportRoutes = [
+             'purchase-variation-report',
+             'purchase-register-report',
+             'purchase-register-tax-bifurcation',
          ];
          $stockAuditRoutes = [
              'audit-setting',
@@ -362,7 +375,8 @@
                                          <ul
                                              style="{{ in_array(Request::path(), $outwardRoutes) ? 'display: block;' : '' }}">
                                              <li><a href="/outward-order"
-                                                     class="{{ Request::is('outward-order') ? 'active' : '' }}">RM Issue</a></li>
+                                                     class="{{ Request::is('outward-order') ? 'active' : '' }}">RM
+                                                     Issue</a></li>
                                              <li><a href="/outward-order-list"
                                                      class="{{ Request::is('outward-order-list') ? 'active' : '' }}">Outward
                                                      Challan</a></li>
@@ -429,9 +443,9 @@
                                                      class="{{ Request::is('advance-order-list/pending') ? 'active' : '' }}">Created
                                                      Orders</a></li>
                                              <li><a href="/advance-order-list/processing"
-                                                 class="{{ Request::is('advance-order-list/processing') ? 'active' : '' }}">Processing
-                                                    Orders</a>
-                                            </li>
+                                                     class="{{ Request::is('advance-order-list/processing') ? 'active' : '' }}">Processing
+                                                     Orders</a>
+                                             </li>
                                              <li><a href="/advance-order-list/dispatch"
                                                      class="{{ Request::is('advance-order-list/dispatch') ? 'active' : '' }}">Dispatch
                                                      Orders</a></li>
@@ -696,6 +710,18 @@
                          </li>
 
 
+
+                         <li class="{{ Request::is('tally-report') ? 'active' : '' }}">
+                             <a href="/tally-report">
+                                 <i class="fa-solid fa-receipt"></i> &nbsp; &nbsp;
+                                 <span>Tally Report</span>
+                             </a>
+                         </li>
+
+
+
+
+
                          <li class="submenu-open">
                              <ul>
                                  @if ($rolePermissions->where('permission_id', 21)->where('view', 1)->isNotEmpty())
@@ -726,36 +752,84 @@
                                          </ul>
                                      </li>
                                  @endif
+
                                  @if ($rolePermissions->where('permission_id', 22)->where('view', 1)->isNotEmpty())
                                      <li
-                                         class="submenu {{ collect($reportsRoutes)->contains(fn($route) => Request::is($route)) ? 'submenu-open' : '' }}">
+                                         class="submenu {{ collect($purchaseReportRoutes)->contains(fn($route) => Request::is($route)) ? 'submenu-open' : '' }}">
                                          <a href="javascript:void(0);"
-                                             class="{{ collect($reportsRoutes)->contains(fn($route) => Request::is($route)) ? 'subdrop active' : '' }}">
-                                             <i data-feather="layers"></i><span>Reports</span><span
+                                             class="{{ collect($purchaseReportRoutes)->contains(fn($route) => Request::is($route)) ? 'subdrop active' : '' }}">
+                                             <i data-feather="layers"></i><span>Operation Reports</span><span
                                                  class="menu-arrow"></span>
                                          </a>
                                          <ul
-                                             style="{{ collect($reportsRoutes)->contains(fn($route) => Request::is($route)) ? 'display: block;' : '' }}">
+                                             style="{{ collect($purchaseReportRoutes)->contains(fn($route) => Request::is($route)) ? 'display: block;' : '' }}">
                                              <li><a href="/purchase-variation-report"
                                                      class="{{ Request::is('purchase-variation-report') ? 'active' : '' }}">Purchase
                                                      Variation</a></li>
                                              <li><a href="/purchase-register-report"
                                                      class="{{ Request::is('purchase-register-report') ? 'active' : '' }}">Purchase
                                                      Register</a></li>
-                                                      <li><a href="/purchase-register-tax-bifurcation"
+                                             <li><a href="/purchase-register-tax-bifurcation"
                                                      class="{{ Request::is('purchase-register-tax-bifurcation') ? 'active' : '' }}">Purchase
                                                      Register Tax Bifurcation</a></li>
+
+                                         </ul>
+                                     </li>
+                                 @endif
+
+
+
+                                 @if ($rolePermissions->where('permission_id', 22)->where('view', 1)->isNotEmpty())
+                                     <li
+                                         class="submenu {{ collect($saleReportRoutes)->contains(fn($route) => Request::is($route)) ? 'submenu-open' : '' }}">
+                                         <a href="javascript:void(0);"
+                                             class="{{ collect($saleReportRoutes)->contains(fn($route) => Request::is($route)) ? 'subdrop active' : '' }}">
+                                             <i data-feather="layers"></i><span>Sale Reports</span><span
+                                                 class="menu-arrow"></span>
+                                         </a>
+                                         <ul
+                                             style="{{ collect($saleReportRoutes)->contains(fn($route) => Request::is($route)) ? 'display: block;' : '' }}">
+
+
+
                                              <li><a href="/sale-register-report"
                                                      class="{{ Request::is('sale-register-report') ? 'active' : '' }}">Sale
                                                      Register</a></li>
-                                                          <li><a href="/sale-register-user-wise"
+                                             <li><a href="/sale-register-user-wise"
                                                      class="{{ Request::is('sale-register-user-wise') ? 'active' : '' }}">Sale
                                                      Register Cash Sheet</a></li>
 
                                              <li><a href="/sale-report-tax-bifurcation"
                                                      class="{{ Request::is('sale-report-tax-bifurcation') ? 'active' : '' }}">
-                                                     Sale Report Tax Bifurcation </a></li>
-                                                     
+                                                     Sale Register Tax Bifurcation </a></li>
+                                             <li><a href="/reports/category-wise-sale-and-damage"
+                                                     class="{{ Request::is('reports/category-wise-sale-and-damage') ? 'active' : '' }}">
+                                                     Category wise sale and damage </a></li>
+
+
+
+
+
+                                         </ul>
+                                     </li>
+                                 @endif
+
+
+                                 @if ($rolePermissions->where('permission_id', 22)->where('view', 1)->isNotEmpty())
+                                     <li
+                                         class="submenu {{ collect($reportsRoutes)->contains(fn($route) => Request::is($route)) ? 'submenu-open' : '' }}">
+                                         <a href="javascript:void(0);"
+                                             class="{{ collect($reportsRoutes)->contains(fn($route) => Request::is($route)) ? 'subdrop active' : '' }}">
+                                             <i data-feather="layers"></i><span>Misllenous Reports</span><span
+                                                 class="menu-arrow"></span>
+                                         </a>
+                                         <ul
+                                             style="{{ collect($reportsRoutes)->contains(fn($route) => Request::is($route)) ? 'display: block;' : '' }}">
+
+
+
+
+
                                              <li><a href="/category-subcategory-report"
                                                      class="{{ Request::is('category-subcategory-report') ? 'active' : '' }}">Category
                                                      Sub Category Report</a></li>
@@ -763,11 +837,9 @@
                                                      class="{{ Request::is('customer-wise-report') ? 'active' : '' }}">Customer
                                                      Wise Report</a></li>
 
-                                             <li><a href="/tally-report"
-                                                     class="{{ Request::is('tally-report') ? 'active' : '' }}">Tally
-                                                     Report</a></li>
+
                                              <li><a href="/debit-credit-report"
-                                                     class="{{ Request::is('tally-report') ? 'active' : '' }}">Debit
+                                                     class="{{ Request::is('debit-credit-report') ? 'active' : '' }}">Debit
                                                      Credit Note</a></li>
                                              <li><a href="/rm-consumpton-report"
                                                      class="{{ Request::is('rm-consumpton-report') ? 'active' : '' }}">RM
@@ -787,6 +859,9 @@
                                          </ul>
                                      </li>
                                  @endif
+
+
+
                                  @if ($rolePermissions->where('permission_id', 23)->where('view', 1)->isNotEmpty())
                                      <li
                                          class="submenu {{ collect($stockAuditRoutes)->contains(fn($route) => Request::is($route)) ? 'submenu-open' : '' }}">

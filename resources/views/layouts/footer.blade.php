@@ -335,22 +335,19 @@
 
         var table = document.getElementById('exportTable');
 
-        var ws = XLSX.utils.table_to_sheet(table, {
-            raw: true
-        });
-
-        // Loop through all cells
+     var ws = XLSX.utils.table_to_sheet(table);
         Object.keys(ws).forEach(function(cell) {
             if (cell[0] === '!') return;
 
             let value = ws[cell].v;
 
-            // match dd/mm/yyyy
-            if (typeof value === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
-                ws[cell].t = 's'; // force STRING
-                ws[cell].z = '@'; // text format
+            // match dd-mm-yyyy (your format)
+            if (typeof value === 'string' && /^\d{2}-\d{2}-\d{4}$/.test(value)) {
+                ws[cell].t = 's'; // only date as text
+                ws[cell].z = '@';
             }
         });
+
 
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Report");

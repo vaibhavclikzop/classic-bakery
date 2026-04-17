@@ -24,6 +24,7 @@ use App\Http\Controllers\Email\sendOTPController;
 use App\Http\Controllers\expenseManagement;
 use App\Http\Controllers\posOrderController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Reports\SaleReportController;
 use App\Http\Controllers\TallyController;
 use App\Mail\SendCancelInvoiceOTP;
 use Illuminate\Database\Console\Migrations\ResetCommand;
@@ -565,4 +566,11 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('getFaStockReportData', [ReportController::class, 'getFaStockReportData'])->name('getFaStockReportData');
   Route::get('manual-order-report', [ReportController::class, 'manualOrderReport'])->name('manualOrderReport');
   Route::get('purchase-register-tax-bifurcation', [ReportController::class, 'purchaseRegisterTaxBifurcation'])->name('purchase-register-tax-bifurcation');
+
+
+
+
+
+  //reports controller 
+  Route::get('reports/category-wise-sale-and-damage', [SaleReportController::class, 'categoryWiseSaleDamage'])->name('category-wise-sale-and-damage');
 });

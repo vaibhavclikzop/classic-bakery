@@ -249,13 +249,7 @@
             <div style="display: flex; justify-content: space-between;  ">
                 <div style="padding: 5px; border:solid 1px; width: 50%">
                     <table class="w-100">
-                        <tr>
-                        
-                            <td style="border:  solid 1px; padding:2px" colspan="2">
-                                  <strong>  Description :  </strong>
-                                {{ $item->message }} <br> {{ $item->description }}
-                            </td>
-                        </tr>
+
                         <tr>
                             <th style="border:  solid 1px; padding:2px" colspan="2">In Words : </th>
                         </tr>
@@ -325,7 +319,12 @@
                     </table>
                 </div>
             </div>
+            <div>
+                <strong> Description : </strong>
+                {{ $item->message }} <br> {{ $item->description }}
+            </div>
             <div style="display: flex; justify-content: space-between;  ">
+
                 <div>
                     <h5>GST Summary</h5>
                 </div>

@@ -5,45 +5,48 @@
         <title>Production Chart Report</title>
     @endpush
     <style>
-               /* 🔥 HEADER FULL WIDTH */
-            .header-print {
-                text-align: center;
-                width: 100%;
-                margin-bottom: 0px;
-                break-after: avoid;
-            }
+        /* 🔥 HEADER FULL WIDTH */
+        .header-print {
+            text-align: center;
+            width: 100%;
+            margin-bottom: 0px;
+            break-after: avoid;
+        }
 
-            /* 🔥 APPLY COLUMN ONLY HERE */
-            #print-content {
-                column-count: 2;
-                column-gap: 10px;
-            }
+        /* 🔥 APPLY COLUMN ONLY HERE */
+        #print-content {
+            column-count: 2;
+            column-gap: 10px;
+        }
 
-            /* 🔥 PREVENT BREAKING */
-            .sub-block {
-                break-inside: avoid;
-                page-break-inside: avoid;
-                margin-bottom: 10px;
-            }
+        /* 🔥 PREVENT BREAKING */
+        .sub-block {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            margin-bottom: 10px;
+        }
 
-            h5 {
-                break-after: avoid;
-            }
+        h5 {
+            break-after: avoid;
+        }
 
-            table {
-                margin-top: 12px;
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 12px;
-            }
+        table {
+            margin-top: 12px;
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
 
-            table, th, td {
-                border: 1px solid #000;
-            }
+        table,
+        th,
+        td {
+            border: 1px solid #000;
+        }
 
-            th, td {
-                padding: 2px;
-            }
+        th,
+        td {
+            padding: 2px;
+        }
     </style>
 
     <div class="card">
@@ -129,7 +132,7 @@
         <div class="card-body" id="PrintOrder">
 
             <div class="text-center mb-1 header-print">
-                <p>Classic Bakery : Production Chart Report</h5>
+                <h5>Classic Bakery : Production Chart Report <span id="headerDate"></span> </h5>
             </div>
             <div id="print-content">
                 <div id="exportTable"></div>
@@ -298,6 +301,14 @@
     `;
             }
 
+            let rawDate = $("#date").val(); // YYYY-MM-DD
+
+            if (rawDate) {
+                let parts = rawDate.split("-"); // [YYYY, MM, DD]
+                let formattedDate = parts[2] + "-" + parts[1] + "-" + parts[0];
+
+                $("#headerDate").text(formattedDate);
+            }
 
 
             $("#date,#category_id,#customer_type, #order_type").on("change", function() {
@@ -307,6 +318,16 @@
                 $("#exportTable").html("");
 
                 $("#load-more").show();
+
+                let rawDate = $("#date").val(); // YYYY-MM-DD
+
+                if (rawDate) {
+                    let parts = rawDate.split("-"); // [YYYY, MM, DD]
+                    let formattedDate = parts[2] + "-" + parts[1] + "-" + parts[0];
+
+                    $("#headerDate").text(formattedDate);
+                }
+
 
                 fetchData();
 

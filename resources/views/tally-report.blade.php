@@ -46,7 +46,7 @@
 
             </div>
             <div>
-                <button id="exportToExcel" data-name="TallyExport Report{{ Request('fromDt') }}{{ Request('toDt') }}"
+                <button id="exportToExcelTally" data-name="TallyExport Report{{ Request('fromDt') }}{{ Request('toDt') }}"
                     class="btn btn-success float-end btn-sm mx-2">Export
                     to Excel</button>
                 <button type="button" onclick="printcontent()" class="btn btn-primary btn-sm"><i class="fa fa-print"
@@ -118,26 +118,26 @@
                         <th>Narration</th>
                     </tr>
                 </thead>
-              <tbody>
-                @foreach ($data as $row)
-                    <tr>
-                        <td>{{ $row->invoice_type }}</td>
-                        <td>{{ \Carbon\Carbon::parse($row->date)->format('d/m/Y') }}</td>
-                        <td></td>
-                        <td></td>
-                        <td>{{ $row->invoice_no }}</td>
-                        <td>{{ $row->ledger }}</td>
-                        <td>{{ $row->ledger_group }}</td>
-                        <td>{{ $row->hsn ?? '' }}</td>
-                        <td>{{ $row->gst ?? '' }}</td>
-                        <td></td>
-                        <td></td>
-                        <td>{{ $row->amount }}</td>
-                        <td>{{ $row->invoice_amount ?? '' }}</td>
-                        <td></td>
-                    </tr>
-                @endforeach
-            </tbody>
+                <tbody>
+                    @foreach ($data as $row)
+                        <tr>
+                            <td>{{ $row->invoice_type }}</td>
+                            <td>{{ \Carbon\Carbon::parse($row->date)->format('d/m/Y') }}</td>
+                            <td></td>
+                            <td></td>
+                            <td>{{ $row->invoice_no }}</td>
+                            <td>{{ $row->ledger }}</td>
+                            <td>{{ $row->ledger_group }}</td>
+                            <td>{{ $row->hsn ?? '' }}</td>
+                            <td>{{ $row->gst ?? '' }}</td>
+                            <td></td>
+                            <td></td>
+                            <td>{{ $row->amount }}</td>
+                            <td>{{ $row->invoice_amount ?? '' }}</td>
+                            <td></td>
+                        </tr>
+                    @endforeach
+                </tbody>
 
             </table>
 
@@ -145,4 +145,33 @@
         </div>
 
     </div>
+    <script>
+        $('#exportToExcelTally').click(function() {
+            var name = $(this).data("name");
+
+            var table = document.getElementById('exportTable');
+
+            var ws = XLSX.utils.table_to_sheet(table, {
+                raw: true
+            });
+
+            // Loop through all cells
+            Object.keys(ws).forEach(function(cell) {
+                if (cell[0] === '!') return;
+
+                let value = ws[cell].v;
+
+                // match dd/mm/yyyy
+                if (typeof value === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+                    ws[cell].t = 's'; // force STRING
+                    ws[cell].z = '@'; // text format
+                }
+            });
+
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Report");
+
+            XLSX.writeFile(wb, name + '.xlsx');
+        });
+    </script>
 @endsection

@@ -196,7 +196,11 @@
                 <td style="border: solid 1px; padding:5px"> ${status}</td>
                 <td style="border: solid 1px; padding:5px"> ${item.order_type}</td>
                 <td style="border: solid 1px; padding:5px">${challan}</td>
-                <td style="border: solid 1px; padding:5px">${item.invoice_date}</td>
+              <td style="border: solid 1px; padding:5px">
+    ${("0" + new Date(item.invoice_date).getDate()).slice(-2) + "-" +
+      ("0" + (new Date(item.invoice_date).getMonth()+1)).slice(-2) + "-" +
+      new Date(item.invoice_date).getFullYear()}
+</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(parseFloat(item.sub_total-item.igst-item.cgst-item.sgst).toFixed(2))}</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(item.total_mrp)}</td>
                 <td style="border: solid 1px; padding:5px">${formatQtyPrice(itemTax)}</td>
