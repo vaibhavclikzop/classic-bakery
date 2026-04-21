@@ -80,7 +80,7 @@
                                         <div class="input-group has-validation">
                                             <input type="number" step="0.01" id="qty" class="form-control"
                                                 required>
-                                            <span class="input-group-text btn btn-dark" id="inputGroupPrepend"></span>
+                                            <span class="input-group-text btn btn-dark" id="">GM</span>
                                         </div>
                                     </td>
                                     <td>

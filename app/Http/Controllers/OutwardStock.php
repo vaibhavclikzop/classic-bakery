@@ -74,16 +74,44 @@ class OutwardStock extends Controller
 
         try {
 
-            $order_mst =  DB::table("order_mst")->where("id", $request->order_id)->first();
 
-            $inv_no =   DB::table("outward_mst")->whereDate("created_at", now())->count();
-            if (!$inv_no) {
-                $inv_no = 1;
-            } else {
-                $inv_no++;
-            }
             $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
-            $invoice_id = $invoice_prefix->outward_production_prefix . date('d-m-y') . "-" . $inv_no;
+
+            $today = now();
+
+
+            if ($today->month >= 4) {
+                $startYear = $today->year;
+                $endYear = $today->year + 1;
+            } else {
+                $startYear = $today->year - 1;
+                $endYear = $today->year;
+            }
+
+            $financialYear = $startYear . "-" . substr($endYear, -2);
+
+            $regularExistsInFY = DB::table("outward_mst")
+                ->where("financial_year", "=", $financialYear)
+                ->exists();
+
+            if ($regularExistsInFY) {
+                $maxRegular = DB::table("outward_mst")
+                    ->where("financial_year", "=", $financialYear)
+                    ->count("id");
+                $nextNumber = $maxRegular + 1;
+            } else {
+                $nextNumber = 1;
+            }
+
+            $invoice_id = $invoice_prefix->outward_production_prefix . date('d-m-y') . "-" . $nextNumber;
+
+            $exists = DB::table('outward_mst')
+                ->where('order_id', $invoice_id)
+                ->exists();
+
+            if ($exists) {
+                return back()->with('error', 'Invoice already exists');
+            }
 
 
             $mst_id = DB::table('outward_mst')->insertGetId(array(
@@ -94,6 +122,7 @@ class OutwardStock extends Controller
                 "description" => $request->description,
                 "order_id" => $invoice_id,
                 "user_id" => $request->user->id,
+                "financial_year" => $financialYear,
 
             ));
             foreach ($prod_list as $k => $v) {
@@ -304,12 +333,12 @@ class OutwardStock extends Controller
 
                 if ($v->qty > 0) {
 
-                   $finish_products_mst= DB::table("finish_products_mst")->where("id",$v->product_id)->first();
+                    $finish_products_mst = DB::table("finish_products_mst")->where("id", $v->product_id)->first();
                     DB::table('outward_customer_order_det')->insertGetId(array(
                         "mst_id" => $mst_id,
                         "product_id" => $v->product_id,
                         "qty" => $v->qty,
-                        "mrp"=>$finish_products_mst->price
+                        "mrp" => $finish_products_mst->price
                     ));
                     DB::table('order_det')->where("product_id", $v->product_id)->where("mst_id", $request->order_id)
                         ->increment("booked_qty", $v->qty);

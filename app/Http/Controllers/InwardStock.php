@@ -97,7 +97,46 @@ class InwardStock extends Controller
             $inv_no++;
         }
         $invoice_prefix =  DB::table("company_settings")->where("id", 1)->first();
-        $invoice_id = $invoice_prefix->po_prefix . date('d-m-y') . "-" . $inv_no;
+
+
+
+        $today = now();
+
+
+        if ($today->month >= 4) {
+            $startYear = $today->year;
+            $endYear = $today->year + 1;
+        } else {
+            $startYear = $today->year - 1;
+            $endYear = $today->year;
+        }
+
+        $financialYear = $startYear . "-" . substr($endYear, -2);
+
+        $regularExistsInFY = DB::table("po_mst")
+            ->where("financial_year", "=", $financialYear)
+            ->exists();
+
+        if ($regularExistsInFY) {
+            $maxRegular = DB::table("po_mst")
+                ->where("financial_year", "=", $financialYear)
+                ->count("id");
+            $nextNumber = $maxRegular + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+         $invoice_id = $invoice_prefix->po_prefix . date('d-m-y') . "-" . $nextNumber;
+
+        $exists = DB::table('po_mst')
+            ->where('po_id', $invoice_id)
+            ->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Invoice already exists');
+        }
+
+    
 
         DB::beginTransaction();
         try {
@@ -109,6 +148,7 @@ class InwardStock extends Controller
                 "description" => $request->description,
                 "status" => $status,
                 "created_at" => now(),
+                "financial_year"=>$financialYear
 
             ));
 
@@ -1368,10 +1408,11 @@ class InwardStock extends Controller
         return view("inward-challan-finish-goods-view", compact("po_mst", "po_det"));
     }
 
-    public function deletePO(Request $request){
- $validator = Validator::make($request->all(), [
+    public function deletePO(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'id' => 'required',
-    
+
 
 
         ]);
@@ -1385,14 +1426,13 @@ class InwardStock extends Controller
             }
         }
 
-       
+
 
         try {
-       
 
-    DB::table("po_mst")->where("id",$request->id)->delete();
-    DB::table("po_det")->where("mst_id",$request->id)->delete();
-           
+
+            DB::table("po_mst")->where("id", $request->id)->delete();
+            DB::table("po_det")->where("mst_id", $request->id)->delete();
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
