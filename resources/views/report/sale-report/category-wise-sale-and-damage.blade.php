@@ -69,151 +69,142 @@
         </div>
         <div class="card-body table-responsive">
 
-          <table class="w-100" id="exportTable" border="1" cellspacing="0" cellpadding="5">
-    <thead>
-        <tr>
-            <th colspan="{{ 4 + (count($parties) * 4) + 4 }}" style="text-align: center">
-                From Date : {{ request('fromDt') }} To Date : {{ request('toDt') }}
-                <br>
-                <span id="orderSubCategoryName"></span>
-            </th>
-        </tr>
+            <table class="w-100" id="exportTable" border="1" cellspacing="0" cellpadding="5">
+                <thead>
+                    <tr>
+                        <th colspan="{{ 4 + count($parties) * 4 + 4 }}" style="text-align: center">
+                            From Date : {{ request('fromDt') }} To Date : {{ request('toDt') }}
+                            <br>
+                            <span id="orderSubCategoryName"></span>
+                        </th>
+                    </tr>
 
-        <tr>
-            <th rowspan="2">S.No</th>
-            <th rowspan="2" style="min-width: 150px">Category</th>
-            <th rowspan="2" style="min-width: 200px">Sub Category</th>
-            <th rowspan="2" style="min-width: 200px">Name</th>
+                    <tr>
+                        <th rowspan="2">S.No</th>
+                        <th rowspan="2" style="min-width: 150px">Category</th>
+                        <th rowspan="2" style="min-width: 200px">Sub Category</th>
+                        <th rowspan="2" style="min-width: 200px">Name</th>
 
-            @foreach ($parties as $party)
-                <th colspan="4" style="text-align: center">{{ $party }}</th>
-            @endforeach
+                        @foreach ($parties as $party)
+                            <th colspan="4" style="text-align: center">{{ $party }}</th>
+                        @endforeach
 
-            {{-- ✅ Total Header --}}
-            <th colspan="4" style="text-align:center">Total</th>
-        </tr>
+                        <th colspan="4" style="text-align:center">Total</th>
+                    </tr>
 
-        <tr>
-            @foreach ($parties as $party)
-                <th>Order</th>
-                <th>Sale</th>
-                <th>Amount</th>
-                <th>Return</th>
-            @endforeach
+                    <tr>
+                        @foreach ($parties as $party)
+                            <th>Order</th>
+                            <th>Sale</th>
+                            <th>Amount</th>
+                            <th>Return</th>
+                        @endforeach
 
-            {{-- Total Columns --}}
-            <th>Order</th>
-            <th>Sale</th>
-            <th>Amount</th>
-            <th>Return</th>
-        </tr>
-    </thead>
+                        <th>Order</th>
+                        <th>Sale</th>
+                        <th>Amount</th>
+                        <th>Return</th>
+                    </tr>
+                </thead>
 
-    <tbody>
-
-        @php
-            // Column totals
-            $colOrder = $colSale = $colAmount = $colReturn = [];
-
-            foreach ($parties as $party) {
-                $safe = preg_replace('/[^A-Za-z0-9]/', '_', $party);
-                $colOrder[$safe] = 0;
-                $colSale[$safe] = 0;
-                $colAmount[$safe] = 0;
-                $colReturn[$safe] = 0;
-            }
-
-            $grandOrder = 0;
-            $grandSale = 0;
-            $grandAmount = 0;
-            $grandReturn = 0;
-        @endphp
-
-        @foreach ($data as $key => $row)
-
-            @php
-                $rowOrder = 0;
-                $rowSale = 0;
-                $rowAmount = 0;
-                $rowReturn = 0;
-            @endphp
-
-            <tr>
-                <td>{{ $key + 1 }}</td>
-                <td>{{ $row->category }}</td>
-                <td>{{ $row->sub_category }}</td>
-                <td>{{ $row->product }}</td>
-
-                @foreach ($parties as $party)
+                <tbody>
                     @php
-                        $safe = preg_replace('/[^A-Za-z0-9]/', '_', $party);
+                        $colOrder = $colSale = $colAmount = $colReturn = [];
 
-                        $order = $row->{'order_qty_' . $safe} ?? 0;
-                        $sale = $row->{'sale_qty_' . $safe} ?? 0;
-                        $amount = $row->{'amount_' . $safe} ?? 0;
-                        $return = $row->{'return_qty_' . $safe} ?? 0;
+                        foreach ($parties as $party) {
+                            $safe = preg_replace('/[^A-Za-z0-9]/', '_', $party);
+                            $colOrder[$safe] = 0;
+                            $colSale[$safe] = 0;
+                            $colAmount[$safe] = 0;
+                            $colReturn[$safe] = 0;
+                        }
 
-                        // ✅ If amount is price → multiply
-                        $totalAmount = $sale * $amount;
-
-                        // Row totals
-                        $rowOrder += $order;
-                        $rowSale += $sale;
-                        $rowAmount += $totalAmount;
-                        $rowReturn += $return;
-
-                        // Column totals
-                        $colOrder[$safe] += $order;
-                        $colSale[$safe] += $sale;
-                        $colAmount[$safe] += $totalAmount;
-                        $colReturn[$safe] += $return;
+                        $grandOrder = 0;
+                        $grandSale = 0;
+                        $grandAmount = 0;
+                        $grandReturn = 0;
                     @endphp
 
-                    <td>{{ formatQtyPrice($order) }}</td>
-                    <td>{{ formatQtyPrice($sale) }}</td>
-                    <td>{{ formatQtyPrice($totalAmount) }}</td>
-                    <td>{{ formatQtyPrice($return) }}</td>
-                @endforeach
+                    @foreach ($data as $key => $row)
+                        @php
+                            $rowOrder = 0;
+                            $rowSale = 0;
+                            $rowAmount = 0;
+                            $rowReturn = 0;
+                        @endphp
 
-                {{-- ✅ Row Total --}}
-                <td>{{ formatQtyPrice($rowOrder) }}</td>
-                <td>{{ formatQtyPrice($rowSale) }}</td>
-                <td>{{ formatQtyPrice($rowAmount) }}</td>
-                <td>{{ formatQtyPrice($rowReturn) }}</td>
-            </tr>
+                        <tr>
+                            <td>{{ $key + 1 }}</td>
+                            <td>{{ $row['category'] }}</td>
+                            <td>{{ $row['sub_category'] }}</td>
+                            <td>{{ $row['product'] }}</td>
 
-            @php
-                // Grand totals
-                $grandOrder += $rowOrder;
-                $grandSale += $rowSale;
-                $grandAmount += $rowAmount;
-                $grandReturn += $rowReturn;
-            @endphp
+                            @foreach ($parties as $party)
+                                @php
+                                    $safe = preg_replace('/[^A-Za-z0-9]/', '_', $party);
 
-        @endforeach
+                                    $order = $row['order_qty_' . $safe] ?? 0;
+                                    $sale = $row['sale_qty_' . $safe] ?? 0;
+                                    $amount = $row['amount_' . $safe] ?? 0;
+                                    $return = $row['return_qty_' . $safe] ?? 0;
 
-        {{-- ✅ Footer Total Row --}}
-        <tr style="font-weight:bold; background:#f2f2f2;">
-            <td colspan="4" style="text-align:right;">Total</td>
+                                    // ✅ FIX: no multiplication
+                                    $totalAmount = $amount;
 
-            @foreach ($parties as $party)
-                @php $safe = preg_replace('/[^A-Za-z0-9]/', '_', $party); @endphp
+                                    // Row totals
+                                    $rowOrder += $order;
+                                    $rowSale += $sale;
+                                    $rowAmount += $totalAmount;
+                                    $rowReturn += $return;
 
-                <td>{{ formatQtyPrice($colOrder[$safe]) }}</td>
-                <td>{{ formatQtyPrice($colSale[$safe]) }}</td>
-                <td>{{ formatQtyPrice($colAmount[$safe]) }}</td>
-                <td>{{ formatQtyPrice($colReturn[$safe]) }}</td>
-            @endforeach
+                                    // Column totals
+                                    $colOrder[$safe] += $order;
+                                    $colSale[$safe] += $sale;
+                                    $colAmount[$safe] += $totalAmount;
+                                    $colReturn[$safe] += $return;
+                                @endphp
 
-            {{-- Grand Total --}}
-            <td>{{ formatQtyPrice($grandOrder) }}</td>
-            <td>{{ formatQtyPrice($grandSale) }}</td>
-            <td>{{ formatQtyPrice($grandAmount) }}</td>
-            <td>{{ formatQtyPrice($grandReturn) }}</td>
-        </tr>
+                                <td>{{ formatQtyPrice($order) }}</td>
+                                <td>{{ formatQtyPrice($sale) }}</td>
+                                <td>{{ formatQtyPrice($totalAmount) }}</td>
+                                <td>{{ formatQtyPrice($return) }}</td>
+                            @endforeach
 
-    </tbody>
-</table>
+                            {{-- Row Total --}}
+                            <td>{{ formatQtyPrice($rowOrder) }}</td>
+                            <td>{{ formatQtyPrice($rowSale) }}</td>
+                            <td>{{ formatQtyPrice($rowAmount) }}</td>
+                            <td>{{ formatQtyPrice($rowReturn) }}</td>
+                        </tr>
+
+                        @php
+                            $grandOrder += $rowOrder;
+                            $grandSale += $rowSale;
+                            $grandAmount += $rowAmount;
+                            $grandReturn += $rowReturn;
+                        @endphp
+                    @endforeach
+
+                    {{-- Footer --}}
+                    <tr style="font-weight:bold; background:#f2f2f2;">
+                        <td colspan="4" style="text-align:right;">Total</td>
+
+                        @foreach ($parties as $party)
+                            @php $safe = preg_replace('/[^A-Za-z0-9]/', '_', $party); @endphp
+
+                            <td>{{ formatQtyPrice($colOrder[$safe]) }}</td>
+                            <td>{{ formatQtyPrice($colSale[$safe]) }}</td>
+                            <td>{{ formatQtyPrice($colAmount[$safe]) }}</td>
+                            <td>{{ formatQtyPrice($colReturn[$safe]) }}</td>
+                        @endforeach
+
+                        <td>{{ formatQtyPrice($grandOrder) }}</td>
+                        <td>{{ formatQtyPrice($grandSale) }}</td>
+                        <td>{{ formatQtyPrice($grandAmount) }}</td>
+                        <td>{{ formatQtyPrice($grandReturn) }}</td>
+                    </tr>
+                </tbody>
+            </table>
 
 
         </div>

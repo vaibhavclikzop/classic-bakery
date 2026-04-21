@@ -185,7 +185,7 @@ class SaleReturn extends Controller
 
         $po_mst = $customer ?? $outlet;
         $po_det = DB::table("sale_return_det as a")
-            ->select("a.*", "b.name as product")
+            ->select("a.*", "b.name as product", "b.price")
             ->join("finish_products_mst as b", "a.product_id", "b.id")
             ->where("a.mst_id", $id)
             ->get();
@@ -218,8 +218,10 @@ class SaleReturn extends Controller
                 if ($sale_return_det) {
 
 
+                    $price = $request->price[$key][0] ?? 0;
                     DB::table("sale_return_det")->where("id", $key)->update(array(
-                        "type" => $value[0]
+                        "type" => $value[0],
+                        "mrp" => $price
                     ));
                     if ($value[0] == "current_stock") {
 

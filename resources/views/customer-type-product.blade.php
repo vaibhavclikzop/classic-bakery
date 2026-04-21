@@ -40,6 +40,7 @@
                         <div>
                             <button type="submit" name="btnUpdateAll" value="btnUpdateAll" class="btn btn-primary">Apply to
                                 All</button>
+
                         </div>
                     </div>
                 </form>
@@ -48,6 +49,7 @@
 
 
                 <button type="button" class="btn btn-dark" id="AddProduct">Add Product</button>
+                <button class="btn btn-danger btnUnAllocate" type="button">UnAllocate</button>
 
             </div>
         </div>
@@ -58,7 +60,9 @@
                     <thead>
                         <tr>
                             <th>S.no</th>
-
+                            <th>
+                                <input type="checkbox" id="checks">
+                            </th>
 
                             <th>Category</th>
                             <th>Sub Category</th>
@@ -76,10 +80,14 @@
                         @foreach ($customer_type_product as $item)
                             <tr>
                                 <td>{{ $sno++ }}</td>
+                                <td><input type="checkbox" name="checks[]" value="{{ $item->id }}" class="checks"></td>
 
                                 <td>{{ $item->category }}</td>
-                                <td>{{ $item->sub_category }}</td>
-                                <td>{{ $item->name }}</td>
+                                <td style="word-wrap: break-word; white-space: normal;">{{ $item->sub_category }}</td>
+                                <td style="word-wrap: break-word; white-space: normal;">
+                                    {{ $item->name }}
+                                </td>
+
                                 <td>{{ $item->article_no }}</td>
                                 <td>{{ $item->price }}</td>
                                 <td>
@@ -177,6 +185,56 @@
             </form>
         </div>
     </div>
+    <form action="{{ route('unAllocateProducts') }}" method="POST" id="unAllocateProducts">
+        @csrf
+
+        <div class="modal fade" id="cancelInvoiceModal" tabindex="-1" data-bs-backdrop="static"
+            data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header bg-danger">
+                        <h5 class="modal-title text-white">UnAllocate Product</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div style="text-align: center">
+                            <span style="font-size: 24px; color: red"><i class="fa-solid fa-ban"></i></span>
+                            <h4 class="text-danger fw-bold">Are you sure you want to un-allocate product?</h4>
+                            <input type="" name="id" id="productIDS" hidden>
+                        </div>
+                        {{-- <div class="mb-3 mt-3" id="btnSection">
+                            <button type="button" class="btn btn-dark w-100" id="sendOtpBtn">
+                                Send OTP
+                            </button>
+                        </div>
+
+                        <!-- OTP Input -->
+                        <div class=" mt-3 d-none" id="otpSection">
+                            <label>Enter OTP</label>
+                            <input type="text" id="otp" class="form-control" placeholder="Enter OTP">
+                        </div> --}}
+                         <button type="submit" class="btn btn-danger mt-3 w-100" id="verifyOtpBtn" type="button">
+                            UnAllocate
+                        </button>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-danger d-none w-100" id="verifyOtpBtn" type="button">
+                            Verify & UnAllocate
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </form>
+
     <script>
         $(document).ready(function() {
             $("#sub_category_id").select2()
@@ -230,6 +288,104 @@
                 let subcategory = $(this).val();
                 table.column(3).search(subcategory).draw(); // Column 3 is Subcategory
             });
+
+            $("#checks").on("click", function() {
+                if ($(this).prop("checked")) {
+                    $(".checks").prop("checked", true);
+                } else {
+                    $(".checks").prop("checked", false);
+                }
+
+            });
+
+
+        });
+        $(document).ready(function() {
+
+            $(document).on("click", ".btnUnAllocate", function() {
+                if ($(".checks:checked").length === 0) {
+                    alert("Please select at least one product");
+                    return;
+                }
+                let ids = [];
+
+                $(".checks:checked").each(function() {
+                    ids.push($(this).val());
+                });
+
+                $("#productIDS").val(ids.join(","));
+                $("#cancelInvoiceModal").modal("show")
+            });
+
+            let otp = null;
+            $("#sendOtpBtn").on("click", function() {
+
+
+                $.ajax({
+                    url: '/sendUnAllocateOTP',
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    beforeSend: function() {
+                        $("#sendOtpBtn").attr("disabled", "disabled");
+                        $("#sendOtpBtn").text("Sending OTP....");
+
+                    },
+                    success: function(res) {
+                        let data = res;
+                        if (data.status == true) {
+
+
+                            let data = res;
+                            otp = data.OTP;
+                            $('#otpSection').removeClass('d-none');
+                            $('#verifyOtpBtn').removeClass('d-none');
+                            $("#btnSection").addClass("d-none")
+                            toastr.success(data.message)
+                        } else {
+                            toastr.error(data.message)
+                        }
+                    }
+                });
+            });
+
+            $("#verifyOtpBtn").on("click", function() {
+                let clientOTP = $("#otp").val().trim();
+
+
+                $.ajax({
+                    url: '/verifyCancelOTP',
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        otp: clientOTP,
+                    },
+                    beforeSend: function() {
+                        $("#verifyOtpBtn").attr("disabled", "disabled");
+                        $("#verifyOtpBtn").text("Verifying OTP....");
+
+                    },
+                    success: function(res) {
+                        if (res.status == false) {
+
+                            toastr.error(res.message)
+                            return;
+                        } else {
+                            $("#verifyOtpBtn").attr("disabled", "disabled");
+                            $("#verifyOtpBtn").text("Verifying OTP....");
+                            $("#unAllocateProducts").submit();
+                        }
+
+                    },
+                    complete: function() {
+                        $("#verifyOtpBtn").removeAttr("disabled");
+                        $("#verifyOtpBtn").text("Verify & UnAllocate");
+
+                    },
+                });
+
+            })
         });
     </script>
 @endsection

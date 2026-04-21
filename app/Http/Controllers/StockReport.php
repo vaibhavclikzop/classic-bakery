@@ -16,44 +16,53 @@ class StockReport extends Controller
     {
         $location = $request->input("location");
         $search = $request->input("search");
+        $sub_category_id = $request->input("sub_category_id");
         $where = "";
 
         $where = DB::table("current_stock as a")
             ->select("a.*", "b.name as product", "b.article_no", "b.id as product_id")
             ->rightJoin("products as b", "a.product_id", "b.id")
-            ->where("b.active",1)
-            ;
+            ->where("b.active", 1);
 
 
         if ($search) {
             $where->where("b.name", 'like', '%' . $search . '%');
         }
+        if ($sub_category_id) {
+            $where->whereIn("b.sub_category_id", $sub_category_id);
+        }
         $current_stock = $where->paginate(50);
 
 
         $user_type = $request->user->user_type;
+        $sub_category = DB::table("sub_category")->get();
 
-
-        return view("current-stock", compact("current_stock", "user_type"));
+        return view("current-stock", compact("current_stock", "user_type", "sub_category"));
     }
 
 
     public function CurrentStockFinishProducts(Request $request)
     {
         $location = $request->input("location");
+        $f_product_sub_category = $request->input("f_product_sub_category");
+
         $where = "";
 
         $where = DB::table("finish_product_stock as a")
             ->select("a.*", "b.name as product")
-            ->join("finish_products_mst as b", "a.product_id", "b.id")    ->where("b.active",1);
+            ->join("finish_products_mst as b", "a.product_id", "b.id")->where("b.active", 1);
 
         if ($location) {
             $where->where("a.location_id", $location);
         }
+        if ($f_product_sub_category) {
+            $where->whereIn("b.f_sub_category_id", $f_product_sub_category);
+        }
         $current_stock = $where->get();
 
         $location = DB::table("store")->get();
-        return view("current-stock-finish-products", compact("current_stock", "location"));
+        $f_product_sub_category = DB::table("f_product_sub_category")->get();
+        return view("current-stock-finish-products", compact("current_stock", "location", "f_product_sub_category"));
     }
 
     public function NearMinimumStock(Request $request)
@@ -79,13 +88,13 @@ class StockReport extends Controller
 
     public function InwardReport(Request $request)
     {
-        $fromDt = request("fromDt",date("Y-m-d"));
-        $toDt = request("toDt",date("Y-m-d"));
+        $fromDt = request("fromDt", date("Y-m-d"));
+        $toDt = request("toDt", date("Y-m-d"));
 
         $filter =   DB::table("stock_inward_mst as a")
-            ->select("a.*", "b.name as vendor", "c.name as po_name", "e.name as user")
+            ->select("a.*", "b.name as vendor",  "e.name as user")
             ->join("vendor as b", "a.vendor_id", "b.id")
-            ->join("po_mst as c", "a.po_id", "c.id")
+
 
             ->join("users as e", "a.user_id", "e.id");
         if ($fromDt) {
@@ -506,7 +515,7 @@ class StockReport extends Controller
                     "a.stock",
                     DB::raw("'NA' as updated_at")
                 )
-                         ->where("b.active",1)
+                ->where("b.active", 1)
                 ->orderBy("a.product_id")
                 ->get();
         } else {
@@ -516,7 +525,7 @@ class StockReport extends Controller
             $current_stock =  DB::table("outlet_current_stock as a")
                 ->select("a.*", "b.name as product")
                 ->join("finish_products_mst as b", "a.product_id", "b.id")
-                ->where("b.active",1)
+                ->where("b.active", 1)
                 ->where("a.outlet_id", $outlet_id)->get();
         }
         $totalDuplicates = DB::table("outlet_current_stock")

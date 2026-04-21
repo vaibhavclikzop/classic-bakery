@@ -42,7 +42,7 @@
                 <thead>
                     <tr>
                         <th>S.No</th>
-                        <th>PO</th>
+                  
                         <th>Vendor</th>
 
                         <th>PE No</th>
@@ -60,7 +60,7 @@
                     @foreach ($stock_inward_mst as $item)
                         <tr>
                             <td>{{ $sno++ }}</td>
-                            <td class="text-wrap-custom">{{ $item->po_name }}</td>
+             
                             <td class="text-wrap-custom">{{ $item->vendor }}</td>
 
 

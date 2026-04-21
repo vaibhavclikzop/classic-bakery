@@ -57,7 +57,7 @@
             </div>
             <form action="{{ route('SaveSaleReturnApprove') }}" method="POST">
                 @csrf
-                <input name="mst_id" type="hidden" value="{{$po_mst->id}}">
+                <input name="mst_id" type="hidden" value="{{ $po_mst->id }}">
                 <div class="">
                     <hr>
                     <h6>Products</h6>
@@ -70,6 +70,7 @@
 
                             <th>Product</th>
                             <th>Qty</th>
+                            <th>MRP</th>
                             <th>Type</th>
 
                         </thead>
@@ -84,6 +85,8 @@
 
                                     <td>{{ $item->product }}</td>
                                     <td>{{ $item->qty }}</td>
+                                    <td> <input type="number" step="0.001" class="form-control"
+                                            value="{{ $item->price }}" name="price[{{ $item->id }}][]"> </td>
                                     <td>
 
                                         <select name="type[{{ $item->id }}][]" class="form-control">

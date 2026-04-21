@@ -89,8 +89,14 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   Route::post('cancelPurchaseInvoice', [sendOTPController::class, "cancelPurchaseInvoice"])->name("cancelPurchaseInvoice");
   Route::post('updateOrderOTP', [sendOTPController::class, "updateOrderOTP"])->name("updateOrderOTP");
+  Route::post('sendUnAllocateOTP', [sendOTPController::class, "sendUnAllocateOTP"])->name("sendUnAllocateOTP");
+  Route::post('unAllocateProducts', [sendOTPController::class, "unAllocateProducts"])->name("unAllocateProducts");
 
 
+
+
+
+  //ajax call 
 
 
   Route::post('getLastPurchasePriceRM', [AjaxController::class, 'getLastPurchasePriceRM'])->name('getLastPurchasePriceRM');
@@ -244,6 +250,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   //PO/Inward Stock Routes
   Route::get('generate-po', [InwardStock::class, 'GeneratePO'])->name('generate-po');
+  Route::post('deletePO', [InwardStock::class, 'deletePO'])->name('deletePO');
   Route::post('SavePO', [InwardStock::class, 'SavePO'])->name('SavePO');
 
   Route::get('purchase-order/{status}', [InwardStock::class, 'PurchaseOrder'])->name('purchase-order/{status}');

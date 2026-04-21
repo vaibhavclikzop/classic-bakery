@@ -178,11 +178,51 @@ class sendOTPController extends Controller
         try {
             $otp = rand(100000, 999999);
             session(['otp' => $otp]);
-              Mail::to("singh.dashmeet007@gmail.com")->send(new sendOTPs($otp, "Update Order"));
+            Mail::to("singh.dashmeet007@gmail.com")->send(new sendOTPs($otp, "Update Order"));
             //Mail::to("vaibhav@clikzopinnovations.com")->send(new sendOTPs($otp, "Update Order"));
             return response()->json(['status' => true, 'message' => 'OTP sent']);
         } catch (\Throwable $th) {
             return response()->json(['status' => false, 'message' => $th->getMessage()]);
+        }
+    }
+
+    public function sendUnAllocateOTP(Request $request)
+    {
+
+        try {
+            $otp = rand(100000, 999999);
+            session(['otp' => $otp]);
+            Mail::to("singh.dashmeet007@gmail.com")->send(new sendOTPs($otp, "UnAllocate Products"));
+          //  Mail::to("vaibhav@clikzopinnovations.com")->send(new sendOTPs($otp, "UnAllocate Products"));
+            return response()->json(['status' => true, 'message' => 'OTP sent']);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()]);
+        }
+    }
+
+    public function unAllocateProducts(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+
+
+        ]);
+
+        if ($validator->fails()) {
+
+            return redirect()->back()->with('error', $validator->errors()->first());
+        }
+
+        try {
+
+
+            DB::table("customer_type_product")->whereIn("id", explode(",", $request->id))->delete();
+
+            return redirect()->back()->with('success', "Save Successfully");
+        } catch (\Throwable $th) {
+
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 }

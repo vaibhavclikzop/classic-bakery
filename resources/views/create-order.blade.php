@@ -100,12 +100,19 @@
                         <input type="number" class="form-control" id="qty" name="qty">
 
                     </div>
-                    <div class="col-md-1 mt-3">
-                        <label for="">Discount</label>
+                    <div class="col-md-2 mt-3">
+                        <label for="">Discount %</label>
                         <input type="number" step="0.01" class="form-control" id="discount" name="discount"
                             value="0" required>
 
                     </div>
+                    <div class="col-md-2 mt-3">
+                        <label for="">Discount ₹</label>
+                        <input type="number" step="0.01" class="form-control" id="discount_price" name="discount_price"
+                            value="0" required>
+
+                    </div>
+
 
                     <div class="col-md-1 mt-3">
 
@@ -152,7 +159,7 @@
                         <div class="col-md-12 text-center">
 
 
-                            <div class="mb-3 mt-3" id="btnSection">
+                            {{-- <div class="mb-3 mt-3" id="btnSection">
                                 <button type="button" class="btn btn-dark" id="sendOtpBtn">
                                     Send OTP
                                 </button>
@@ -165,6 +172,10 @@
                             </div>
                             <button type="button" class="btn btn-danger d-none mt-3" id="verifyOtpBtn" type="button">
                                 Verify Update Order
+                            </button> --}}
+
+                             <button type="submit" class="btn btn-danger mt-3" id="" type="button">
+                                 Update Order
                             </button>
                         </div>
                     @else
@@ -213,6 +224,42 @@
         $(document).ready(function() {
 
             $("select").select2();
+
+            $("#discount_price").on("keyup", function() {
+
+                let price = $("#product_id").find(":selected").data("price");
+                let discount_amount = parseFloat($(this).val());
+
+                if (price && discount_amount >= 0) {
+
+                    let discount_percentage = (discount_amount / price) * 100;
+
+                    $("#discount").val(discount_percentage.toFixed(2));
+
+                }
+
+            });
+
+
+            // 🔹 Discount % → Discount Price
+            $("#discount").on("keyup", function() {
+
+                let price = $("#product_id").find(":selected").data("price");
+                let discount = parseFloat($(this).val());
+
+                if (price && discount >= 0) {
+
+                    // ✅ % se ₹ discount nikalo
+                    let discount_price = (price * discount) / 100;
+
+                    $("#discount_price").val(discount_price.toFixed(2));
+
+                }
+
+            });
+
+
+
         })
         var price = "";
         var location_id = "";

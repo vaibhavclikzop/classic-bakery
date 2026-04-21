@@ -351,7 +351,7 @@ class InwardStock extends Controller
                 "description" => $request->description,
                 "user_id" => $request->user->id,
                 "delivery_charges" =>  $request->delivery_charges,
-                "financial_year"=>$financialYear,
+                "financial_year" => $financialYear,
 
             ));
 
@@ -1366,5 +1366,36 @@ class InwardStock extends Controller
         $po_det = stock_inward_det_finish_goods::with(["productDetails"])->where("mst_id", $id)->get();
 
         return view("inward-challan-finish-goods-view", compact("po_mst", "po_det"));
+    }
+
+    public function deletePO(Request $request){
+ $validator = Validator::make($request->all(), [
+            'id' => 'required',
+    
+
+
+        ]);
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $count = 0;
+            foreach ($messages->all() as $error) {
+                if ($count == 0)
+                    return redirect()->back()->with('error', $error);
+                $count++;
+            }
+        }
+
+       
+
+        try {
+       
+
+    DB::table("po_mst")->where("id",$request->id)->delete();
+    DB::table("po_det")->where("mst_id",$request->id)->delete();
+           
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+        return redirect()->back()->with('success', "Save Successfully");
     }
 }

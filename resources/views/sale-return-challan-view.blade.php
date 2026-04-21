@@ -62,6 +62,7 @@
                  
                         <th>Product</th>
                         <th>Qty</th>
+                        <th>MRP</th>
                         <th>Type</th>
                         
                     </thead>
@@ -77,6 +78,7 @@
                        
                                 <td>{{ $item->product }}</td>
                                 <td>{{ $item->qty }}</td>
+                                <td>{{ $item->mrp }}</td>
                                 <td>{{ $item->type }}</td>
                                 
                    

@@ -92,12 +92,12 @@
                 <table class="w-100">
                     <thead>
                         <th style="border: solid 1px; padding:0px 4px">S.No</th>
-                        <th style="border: solid 1px; padding:0px 4px">Category</th>
+                        {{-- <th style="border: solid 1px; padding:0px 4px">Category</th> --}}
                         <th style="border: solid 1px; padding:0px 4px">Product</th>
                         <th style="border: solid 1px; padding:0px 4px">Qty</th>
                         <th style="border: solid 1px; padding:0px 4px">UOM</th>
-                        <th style="border: solid 1px; padding:0px 4px">Price</th>
-                        <th style="border: solid 1px; padding:0px 4px">Total</th>
+                        {{-- <th style="border: solid 1px; padding:0px 4px">Price</th>
+                        <th style="border: solid 1px; padding:0px 4px">Total</th> --}}
 
 
                     </thead>
@@ -115,24 +115,25 @@
                             @endphp
                             <tr>
                                 <td style="border: solid 1px; padding:0px 4px">{{ $sno++ }}</td>
-                                <td style="border: solid 1px; padding:0px 4px">{{ $item->category }}</td>
+                                {{-- <td style="border: solid 1px; padding:0px 4px">{{ $item->category }}</td> --}}
                                 <td style="border: solid 1px; padding:0px 4px">
                                     {{ request('lang') == 'Hindi' ? $item->hindi : $item->product }}
                                 </td>
 
                                 <td style="border: solid 1px; padding:0px 4px">
                                     {{ formatQtyPrice($item->qty * request('qty', 1)) }}</td>
-                                <td style="border: solid 1px; padding:0px 4px">{{ $item->uom }}</td>
-                                <td style="border: solid 1px; padding:0px 4px">{{ formatQtyPrice($item->price) }}</td>
+                                {{-- <td style="border: solid 1px; padding:0px 4px">{{ $item->uom }}</td> --}}
+                                <td style="border: solid 1px; padding:0px 4px">GM</td>
+                                {{-- <td style="border: solid 1px; padding:0px 4px">{{ formatQtyPrice($item->price) }}</td>
                                 <td style="border: solid 1px; padding:0px 4px">
-                                    {{ formatQtyPrice($item->price * $item->qty * request('qty', 1)) }}</td>
+                                    {{ formatQtyPrice($item->price * $item->qty * request('qty', 1)) }}</td> --}}
                             </tr>
                         @endforeach
                         <tr>
-                            <th colspan="3" style="border: solid 1px; padding:0px 4px">Total</th>
-                            <th colspan="3" style="border: solid 1px; padding:0px 4px">{{ formatQtyPrice($total) }}</th>
-                            <th colspan="" style="border: solid 1px; padding:0px 4px">
-                                {{ formatQtyPrice($total_price) }}</th>
+                            <th colspan="2" style="border: solid 1px; padding:0px 4px">Total</th>
+                            <th colspan="2" style="border: solid 1px; padding:0px 4px">{{ formatQtyPrice($total) }}</th>
+                            {{-- <th colspan="" style="border: solid 1px; padding:0px 4px">
+                                {{ formatQtyPrice($total_price) }}</th> --}}
                         </tr>
                     </tbody>
 

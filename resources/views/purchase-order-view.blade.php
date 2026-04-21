@@ -314,7 +314,10 @@
 
     <script>
         $(document).ready(function() {
-            $("#product_id").select2();
+            $('#product_id').select2({
+                dropdownParent: $('#addModal')
+            });
+
             $("#product_id").on("change", function() {
                 let productType = $(this).find(':selected').data('type');
                 $("#productType").val(productType)

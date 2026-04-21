@@ -8,8 +8,19 @@
             <form method="GET" {{ route('current-stock') }}>
                 <div class="d-flex mt-4">
 
-
-
+                    <div>
+                        <select name="f_product_sub_category[]" id="f_product_sub_category" class="form-control" multiple>
+                            <option value="">Select Sub Category</option>
+                            @foreach ($f_product_sub_category as $item)
+                                <option value="{{ $item->id }}"
+                                    {{ request('f_product_sub_category') == $item->id ? 'selected' : '' }}>{{ $item->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -35,18 +46,21 @@
                         @foreach ($current_stock as $item)
                             <tr>
                                 <td>{{ $sno++ }}</td>
-                                <td>{{ $item->product }}</td>
+                                <td style="white-space: normal; word-break: break-word;">
+                                    {{ $item->product }}
+                                </td>
+
                                 <td class="total_stock">{{ formatQtyPrice($item->stock) }}</td>
                                 <td style="width:10%">
-                                    <input type="number" class="add_qty form-control"  steps="0.00"
+                                    <input type="number" class="add_qty form-control" steps="0.00"
                                         data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}"
                                         name="updateStock[{{ $item->id ?? 'new' }}][{{ $item->id ?? $item->product_id }}]">
                                 </td>
                                 <td>{{ $item->updated_at }}</td>
                                 <td>
                                     <button class="updateStockBtn btn btn-primary  btn-sm"
-                                        data-product-id="{{ $item->product_id }}"
-                                        data-id="{{ $item->id }}" type="button">Update</button>
+                                        data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}"
+                                        type="button">Update</button>
                                     <button class="btn btn-secondary btn-sm view" type="button"
                                         value="{{ $item->id }}"><i class="fa fa-history"
                                             aria-hidden="true"></i></button>
@@ -55,10 +69,10 @@
                         @endforeach
 
                     </tbody>
-                    
+
 
                 </table>
-                  <div class="mt-3 text-center">
+                <div class="mt-3 text-center">
                     <button class="btn btn-primary " type="submit">Update Stock</button>
                 </div>
             </form>
@@ -81,7 +95,7 @@
                     <div class="modal-body">
                         <input type="hidden" id="id" name="id">
                         <label>Qty</label>
-                        <input type="number" step="0.01" class="form-control" name="qty" >
+                        <input type="number" step="0.01" class="form-control" name="qty">
 
                     </div>
                     <div class="modal-footer">
@@ -133,6 +147,9 @@
 
 
     <script>
+        $(document).ready(function() {
+            $("#f_product_sub_category").select2()
+        })
         $(document).on("click", ".edit", function() {
             $("#id").val($(this).val())
             $("#modalId").modal("show")

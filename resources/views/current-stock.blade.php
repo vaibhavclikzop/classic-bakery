@@ -10,6 +10,16 @@
 
                     <div class="d-flex">
                         <div>
+                            <select name="sub_category_id[]" id="sub_category_id" class="form-control" multiple>
+                                <option value="">Select Sub Category</option>
+                                @foreach ($sub_category as $item)
+                                    <option value="{{ $item->id }}"
+                                        {{ request('sub_category_id') == $item->id ? 'selected' : '' }}>{{ $item->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
                             <input type="search" class="form-control" name="search" value="{{ request('search') }}">
                         </div>
                         <div>
@@ -25,7 +35,7 @@
             @php
                 $sno = 1;
             @endphp
-            <form action="{{ route('updateStock') }}" method="POST" >
+            <form action="{{ route('updateStock') }}" method="POST">
                 @csrf
                 <table class="table" id="dataTable">
                     <thead>
@@ -52,7 +62,8 @@
                                 <td class="total_stock">{{ formatQtyPrice($item->stock) }}</td>
                                 <td style="width:10%">
                                     <input type="text" class="add_qty form-control" steps="0.00"
-                                        data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}"  name="updateStock[{{ $item->id ?? 'new' }}][{{$item->id ?? $item->product_id}}]">
+                                        data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}"
+                                        name="updateStock[{{ $item->id ?? 'new' }}][{{ $item->id ?? $item->product_id }}]">
                                 </td>
 
 
@@ -60,8 +71,8 @@
                                 @if ($user_type == 'admin')
                                     <td>
                                         <button class="updateStockBtn btn btn-primary  btn-sm"
-                                            data-product-id="{{ $item->product_id }}"
-                                            data-id="{{ $item->id }}" type="button">Update</button>
+                                            data-product-id="{{ $item->product_id }}" data-id="{{ $item->id }}"
+                                            type="button">Update</button>
                                         <button class="btn btn-secondary btn-sm view" type="button"
                                             value="{{ $item->id }}"><i class="fa fa-history"
                                                 aria-hidden="true"></i></button>
@@ -155,6 +166,9 @@
 
 
     <script>
+        $(document).ready(function() {
+            $("#sub_category_id").select2();
+        })
         $(document).on("click", ".edit", function() {
             $("#id").val($(this).val())
             $("#product_id").val($(this).data("product_id"))
