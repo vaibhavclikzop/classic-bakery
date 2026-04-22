@@ -126,17 +126,28 @@ class InwardStock extends Controller
             $nextNumber = 1;
         }
 
-         $invoice_id = $invoice_prefix->po_prefix . date('d-m-y') . "-" . $nextNumber;
+        $invoice_id = $invoice_prefix->po_prefix . date('d-m-y') . "-" . $nextNumber;
 
         $exists = DB::table('po_mst')
             ->where('po_id', $invoice_id)
             ->exists();
 
         if ($exists) {
-            return back()->with('error', 'Invoice already exists');
+
+
+            do {
+
+                $invoice_id = $invoice_prefix->po_prefix . date('d-m-y') . "-" . $nextNumber;
+
+                $exists = DB::table('po_mst')
+                    ->where('po_id', $invoice_id)
+                    ->exists();
+
+                $nextNumber++;
+            } while ($exists);
         }
 
-    
+
 
         DB::beginTransaction();
         try {
@@ -148,7 +159,7 @@ class InwardStock extends Controller
                 "description" => $request->description,
                 "status" => $status,
                 "created_at" => now(),
-                "financial_year"=>$financialYear
+                "financial_year" => $financialYear
 
             ));
 

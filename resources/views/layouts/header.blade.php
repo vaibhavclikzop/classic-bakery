@@ -120,6 +120,7 @@
              'sale-register-user-wise',
              'sale-report-tax-bifurcation',
              'reports/category-wise-sale-and-damage',
+             'reports/advance-order-sale-report',
          ];
          $purchaseReportRoutes = [
              'purchase-variation-report',
@@ -806,7 +807,9 @@
                                                      class="{{ Request::is('reports/category-wise-sale-and-damage') ? 'active' : '' }}">
                                                      Category wise sale and damage </a></li>
 
-
+                                             <li><a href="/reports/advance-order-sale-report"
+                                                     class="{{ Request::is('reports/advance-order-sale-report') ? 'active' : '' }}">
+                                                     Advance Order Sale Report </a></li>
 
 
 

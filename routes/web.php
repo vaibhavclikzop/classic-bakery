@@ -579,5 +579,9 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
 
   //reports controller 
+  
   Route::get('reports/category-wise-sale-and-damage', [SaleReportController::class, 'categoryWiseSaleDamage'])->name('category-wise-sale-and-damage');
+
+ Route::get('reports/advance-order-sale-report', [SaleReportController::class, 'advanceOrderSaleReport'])->name('advance-order-sale-report');
+
 });
