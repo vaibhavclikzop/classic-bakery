@@ -126,6 +126,7 @@
              'purchase-variation-report',
              'purchase-register-report',
              'purchase-register-tax-bifurcation',
+             'reports/department-consumption-report',
          ];
          $stockAuditRoutes = [
              'audit-setting',
@@ -773,6 +774,10 @@
                                              <li><a href="/purchase-register-tax-bifurcation"
                                                      class="{{ Request::is('purchase-register-tax-bifurcation') ? 'active' : '' }}">Purchase
                                                      Register Tax Bifurcation</a></li>
+
+                                             <li><a href="/reports/department-consumption-report"
+                                                     class="{{ Request::is('reports/department-consumption-report') ? 'active' : '' }}">Department
+                                                     Consumption Report</a></li>
 
                                          </ul>
                                      </li>

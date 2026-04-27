@@ -418,6 +418,7 @@ class StockReport extends Controller
 
                 "cs_id" => $id,
                 "qty" => $request->qty,
+                "user_id" => $request->user->id,
 
             ));
         } catch (\Throwable $th) {
@@ -429,12 +430,20 @@ class StockReport extends Controller
 
     public function GetStockAdjustmentHistory(Request $request)
     {
-        $stock_adjustment =  DB::table("stock_adjustment")->where("cs_id", $request->id)->get();
+        $stock_adjustment =  DB::table("stock_adjustment as a")
+            ->select("a.*", "b.name as user")
+            ->join("users as b", "a.user_id", "b.id")
+            ->where("a.cs_id", $request->id)
+            ->get();
         return $stock_adjustment;
     }
     public function GetFPStockAdjustmentHistory(Request $request)
     {
-        $stock_adjustment =  DB::table("fp_stock_adjustment")->where("cs_id", $request->id)->get();
+        $stock_adjustment =  DB::table("fp_stock_adjustment as a")
+            ->select("a.*", "b.name as user")
+            ->join("users as b", "a.user_id", "b.id")
+            ->where("a.cs_id", $request->id)
+            ->get();
         return $stock_adjustment;
     }
 
@@ -482,6 +491,7 @@ class StockReport extends Controller
 
                 "cs_id" => $request->id,
                 "qty" => $request->qty,
+                "user_id" => $request->user->id,
 
             ));
         } catch (\Throwable $th) {

@@ -142,6 +142,7 @@
                             <tr>
                                 <th>S.No</th>
                                 <th>Qty</th>
+                                <th>User</th>
                                 <th>Created at</th>
                             </tr>
                         </thead>
@@ -199,6 +200,7 @@
                                 <tr>
                                     <td>${sno++}</td>    
                                     <td>${element.qty}</td>    
+                                    <td>${element.user}</td>    
                                     <td>${element.created_at}</td>    
                                 </tr>
                             `;

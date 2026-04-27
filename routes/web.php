@@ -24,6 +24,7 @@ use App\Http\Controllers\Email\sendOTPController;
 use App\Http\Controllers\expenseManagement;
 use App\Http\Controllers\posOrderController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Reports\OperationsReport;
 use App\Http\Controllers\Reports\SaleReportController;
 use App\Http\Controllers\TallyController;
 use App\Mail\SendCancelInvoiceOTP;
@@ -579,9 +580,10 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
 
   //reports controller 
-  
+
   Route::get('reports/category-wise-sale-and-damage', [SaleReportController::class, 'categoryWiseSaleDamage'])->name('category-wise-sale-and-damage');
 
- Route::get('reports/advance-order-sale-report', [SaleReportController::class, 'advanceOrderSaleReport'])->name('advance-order-sale-report');
+  Route::get('reports/advance-order-sale-report', [SaleReportController::class, 'advanceOrderSaleReport'])->name('advance-order-sale-report');
 
+  Route::get('reports/department-consumption-report', [OperationsReport::class, 'departmentConsumptionReport'])->name('reports/department-consumption-report');
 });
