@@ -125,4 +125,40 @@ class expenseManagement extends Controller
         }
         return  redirect()->back()->with("success", "Save Successfully");
     }
+
+    public function expense(Request $request)
+    {
+        $fromDt   = $request->input('fromDt');
+        $toDt     = $request->input('toDt');
+        $outlet_id = $request->input('outlet_id');
+
+        $outlet = DB::table('outlet')->get();
+
+        $query = DB::table('expense as e')
+            ->leftJoin('expense_category as c', 'e.expense_cat_id', 'c.id')
+            ->leftJoin('expense_subcategory as sc', 'e.expense_subcat_id', 'sc.id')
+            ->leftJoin('outlet as o', 'e.outlet_id', 'o.id')
+
+            ->select(
+                'e.*',
+                'c.name as category_name',
+                'sc.name as sub_category_name',
+                'o.outlet_name as outlet_name'
+            );
+
+            $query->where('e.outlet_id', $outlet_id);
+    
+
+        if ($fromDt) {
+            $query->whereDate('e.expense_date', '>=', $fromDt);
+        }
+
+        if ($toDt) {
+            $query->whereDate('e.expense_date', '<=', $toDt);
+        }
+
+        $data = $query->orderBy('e.expense_date', 'desc')->get();
+
+        return view('expense', compact('data', 'outlet'));
+    }
 }

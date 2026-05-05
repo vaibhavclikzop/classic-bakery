@@ -55,18 +55,20 @@
                         <th rowspan="2">Party</th>
 
                         @foreach ($pivot as $product => $row)
-                            <th colspan="2" style="text-align:center">{{ $product }}</th>
+                            <th colspan="3" style="text-align:center">{{ $product }}</th>
                         @endforeach
 
-                        <th colspan="2" style="text-align:center">Total</th>
+                        <th colspan="3" style="text-align:center">Total</th>
                     </tr>
 
                     <tr>
                         @foreach ($pivot as $product => $row)
+                            <th>Qty</th>
                             <th>Sale</th>
                             <th>Amount</th>
                         @endforeach
 
+                        <th>Qty</th>
                         <th>Sale</th>
                         <th>Amount</th>
                     </tr>
@@ -75,12 +77,14 @@
                 <tbody>
                     @php
                         $columnTotals = [];
+                        $grandTotalQty = 0;
                         $grandQty = 0;
                         $grandAmount = 0;
                     @endphp
 
                     @foreach ($parties as $party)
                         @php
+                            $rowTotalQty = 0;
                             $rowQtyTotal = 0;
                             $rowAmountTotal = 0;
                         @endphp
@@ -90,50 +94,59 @@
 
                             @foreach ($pivot as $product => $row)
                                 @php
+                                    $total_qty = $row[$party]['total_qty'] ?? 0;
                                     $qty = $row[$party]['qty'] ?? 0;
                                     $amount = $row[$party]['amount'] ?? 0;
 
                                     // Row totals
+                                    $rowTotalQty += $total_qty;
                                     $rowQtyTotal += $qty;
                                     $rowAmountTotal += $amount;
 
-                                    // Column totals (product-wise now)
+                                    // Column totals
+                                    $columnTotals[$product]['total_qty'] =
+                                        ($columnTotals[$product]['total_qty'] ?? 0) + $total_qty;
                                     $columnTotals[$product]['qty'] = ($columnTotals[$product]['qty'] ?? 0) + $qty;
                                     $columnTotals[$product]['amount'] =
                                         ($columnTotals[$product]['amount'] ?? 0) + $amount;
                                 @endphp
 
+                                <td>{{ $total_qty }}</td>
                                 <td>{{ $qty }}</td>
                                 <td>{{ number_format($amount, 2) }}</td>
                             @endforeach
 
                             {{-- Row Total --}}
+                            <td><strong>{{ $rowTotalQty }}</strong></td>
                             <td><strong>{{ $rowQtyTotal }}</strong></td>
                             <td><strong>{{ number_format($rowAmountTotal, 2) }}</strong></td>
 
                             @php
+                                $grandTotalQty += $rowTotalQty;
                                 $grandQty += $rowQtyTotal;
                                 $grandAmount += $rowAmountTotal;
                             @endphp
                         </tr>
                     @endforeach
 
-                    {{-- Footer Total Row --}}
+                    {{-- Grand Total Row --}}
                     <tr style="background:#f2f2f2; font-weight:bold;">
                         <td>Total</td>
 
                         @foreach ($pivot as $product => $row)
+                            <td>{{ $columnTotals[$product]['total_qty'] ?? 0 }}</td>
                             <td>{{ $columnTotals[$product]['qty'] ?? 0 }}</td>
                             <td>{{ number_format($columnTotals[$product]['amount'] ?? 0, 2) }}</td>
                         @endforeach
 
+                        <td>{{ $grandTotalQty }}</td>
                         <td>{{ $grandQty }}</td>
                         <td>{{ number_format($grandAmount, 2) }}</td>
                     </tr>
+
                 </tbody>
-
-
             </table>
+
 
 
         </div>

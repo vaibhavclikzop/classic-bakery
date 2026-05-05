@@ -37,7 +37,7 @@
             @endphp
             <form action="{{ route('updateStock') }}" method="POST">
                 @csrf
-                <table class="table" id="dataTable">
+                <table class="table dataTable">
                     <thead>
                         <tr>
                             <th>S.No</th>
@@ -57,7 +57,7 @@
                         @foreach ($current_stock as $item)
                             <tr>
                                 <td>{{ $sno++ }}</td>
-                                <td>{{ $item->product }}</td>
+                                <td class="text-wrap">{{ $item->product }}</td>
                                 <td>{{ $item->article_no }}</td>
                                 <td class="total_stock">{{ formatQtyPrice($item->stock) }}</td>
                                 <td style="width:10%">
@@ -90,12 +90,7 @@
                 </div>
             </form>
         </div>
-        <div class="card-footer">
-            <div>
-                {{ $current_stock->appends(['search' => request('search')])->links() }}
-            </div>
-        </div>
-
+       
     </div>
 
 
@@ -229,10 +224,10 @@
             let input = $('.add_qty[data-id="' + id + '"]');
             let addQty = input.val();
 
-            if (!addQty || isNaN(addQty) || parseFloat(addQty) <= 0) {
-                alert('Please enter a valid quantity');
-                return;
-            }
+            // if (!addQty || isNaN(addQty) || parseFloat(addQty) <= 0) {
+            //     alert('Please enter a valid quantity');
+            //     return;
+            // }
 
             $.ajax({
                 url: '{{ route('SaveStock') }}',

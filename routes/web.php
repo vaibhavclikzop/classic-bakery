@@ -564,6 +564,8 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('expense-sub-category', [expenseManagement::class, 'expenseSubCategory'])->name('expense-sub-category');
   Route::post('saveExpenseSubCategory', [expenseManagement::class, 'saveExpenseSubCategory'])->name('saveExpenseSubCategory');
 
+  Route::get('expense', [expenseManagement::class, 'expense'])->name('expense');
+
 
   //pos management
 
@@ -586,4 +588,12 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::get('reports/advance-order-sale-report', [SaleReportController::class, 'advanceOrderSaleReport'])->name('advance-order-sale-report');
 
   Route::get('reports/department-consumption-report', [OperationsReport::class, 'departmentConsumptionReport'])->name('reports/department-consumption-report');
+
+  Route::get('reports/po-generated-report', [OperationsReport::class, 'poGeneratedReport'])->name('reports/po-generated-report');
+
+  Route::get('reports/rm-purchase-history-report', [OperationsReport::class, 'rmPurchaseHistoryReport'])->name('reports/rm-purchase-history-report');
+
+  Route::get('reports/department-sale-report', [OperationsReport::class, 'departmentSaleReport'])->name('reports/department-sale-report');
+
+  Route::get('reports/rm-product-ledger-report', [OperationsReport::class, 'rmProductledgerReport'])->name('reports/rm-product-ledger-report');
 });

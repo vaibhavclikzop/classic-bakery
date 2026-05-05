@@ -31,7 +31,7 @@ class StockReport extends Controller
         if ($sub_category_id) {
             $where->whereIn("b.sub_category_id", $sub_category_id);
         }
-        $current_stock = $where->paginate(50);
+        $current_stock = $where->get();
 
 
         $user_type = $request->user->user_type;
@@ -400,9 +400,9 @@ class StockReport extends Controller
                 $id = $request->id;
                 $stock = DB::table('current_stock')->where('id', $request->id)->first();
 
-                if (!$stock || $stock->stock + $request->qty < 0) {
-                    return response()->json(['error' => 'Stock cannot be negative'], 400);
-                }
+                // if (!$stock || $stock->stock + $request->qty < 0) {
+                //     return response()->json(['error' => 'Stock cannot be negative'], 400);
+                // }
                 DB::table('current_stock')->where("id", $request->id)->increment("stock", $request->qty);
                 $total_stock = DB::table('current_stock')->where('id', $request->id)->value('stock');
             } else {
@@ -860,8 +860,6 @@ class StockReport extends Controller
         $validator = Validator::make($request->all(), [
             'updateStock' => 'required',
 
-
-
         ]);
 
         if ($validator->fails()) {
@@ -897,6 +895,7 @@ class StockReport extends Controller
                             DB::table('stock_adjustment')->insertGetId(array(
                                 "cs_id" => $id,
                                 "qty" => $v,
+                                 "user_id" =>$request-> user->id
                             ));
                         }
                     }
@@ -907,15 +906,17 @@ class StockReport extends Controller
                             $id = $i;
                             $stock = DB::table('current_stock')->where('id', $i)->first();
 
-                            if (!$stock || $stock->stock + $request->qty < 0) {
-                                return true;
-                            }
+                            // if (!$stock || $stock->stock + $request->qty < 0) {
+                                
+                            //     return true;
+                            // }
                             DB::table('current_stock')->where("id", $i)->increment("stock", $j);
 
                             DB::table('stock_adjustment')->insertGetId(array(
 
                                 "cs_id" => $id,
                                 "qty" => $j,
+                                 "user_id" =>$request-> user->id
 
                             ));
                         }
@@ -934,9 +935,6 @@ class StockReport extends Controller
     {
         $validator = Validator::make($request->all(), [
             'updateStock' => 'required',
-
-
-
         ]);
 
         if ($validator->fails()) {
@@ -972,6 +970,7 @@ class StockReport extends Controller
                             DB::table('fp_stock_adjustment')->insertGetId(array(
                                 "cs_id" => $id,
                                 "qty" => $v,
+                                 "user_id" =>$request-> user->id
                             ));
                         }
                     }
@@ -991,6 +990,7 @@ class StockReport extends Controller
 
                                 "cs_id" => $id,
                                 "qty" => $j,
+                                "user_id" =>$request-> user->id
 
                             ));
                         }

@@ -42,7 +42,7 @@
 
             </div>
             <div>
-                <button id="exportToExcel" data-name="sale report gst bifurcation"
+                <button id="exportToExcel" data-name="Purchase report gst bifurcation"
                     class="btn btn-success float-end btn-sm mx-2">Export
                     to Excel</button>
                 <button type="button" onclick="printcontent()" class="btn btn-primary btn-sm"><i class="fa fa-print"
@@ -54,73 +54,81 @@
             <div class="page-title">
                 <h4>Purchase Register</h4>
             </div>
-            <table class="myTable " id="exportTable">
-                <thead>
-                    <tr>
-                        <th style="border: solid 1px;padding: 5px;">Status.</th>
-                        <th style="border: solid 1px;padding: 5px; min-width: 150px;">Invoice No.</th>
-                        <th style="border: solid 1px;padding: 5px;min-width: 100px;">Supplier Invoice Date</th>
-                        <th style="border: solid 1px;padding: 5px;min-width: 170px;">Vendor Name</th>
-                        @foreach ($gstRates as $gst)
-                            <th style="border: solid 1px;padding: 5px;">Taxable {{ $gst }}%</th>
-                            <th style="border: solid 1px;padding: 5px;">GST {{ $gst }}%</th>
-                        @endforeach
-                        <th style="border: solid 1px;padding: 5px;">Total GST</th>
-                        <th style="border: solid 1px;padding: 5px;">Delivery Charges</th>
-                        <th style="border: solid 1px;padding: 5px;">Total Amount</th>
-                    </tr>
-                </thead>
+          <table class="myTable" id="exportTable">
+    <thead>
+        <tr>
+            <th style="border: solid 1px;padding: 5px;">Status</th>
+            <th style="border: solid 1px;padding: 5px; min-width: 150px;">Invoice No.</th>
+            <th style="border: solid 1px;padding: 5px;min-width: 100px;">Supplier Invoice Date</th>
+            <th style="border: solid 1px;padding: 5px;min-width: 170px;">Vendor Name</th>
 
-                <tbody>
-                    @foreach ($data as $item)
-                        <tr>
-                            <td style="border: solid 1px;padding: 5px;">
+            @foreach ($gstRates as $gst)
+                <th style="border: solid 1px;padding: 5px;">Taxable {{ $gst }}%</th>
+                <th style="border: solid 1px;padding: 5px;">GST {{ $gst }}%</th>
+            @endforeach
 
-                                @if ($item->status == 'cancel')
-                                @php
-                                    $item->{'taxable_' . $gst}=0;
-                                    $item->{'gst_' . $gst} =0;
-                                    $item->total_gst=0;
-                                    $item->delivery_charges=0;
-                                    $item->grand_total=0;
-                                @endphp
-                                    <span class="badge bg-danger">Cancel</span>
-                                @else
-                                    <span class="badge bg-success">Complete</span>
-                                @endif
-                            </td>
-                            <td style="border: solid 1px;padding: 5px;">{{ $item->invoice_id }}</td>
-                            <td style="border: solid 1px;padding: 5px;">{{  myDateFormat($item->invoice_date) }}</td>
-                            <td style="border: solid 1px;padding: 5px;">{{ $item->vendor }}</td>
-                            @foreach ($gstRates as $gst)
-                                {{-- TAXABLE --}}
-                                <td style="border: solid 1px;padding: 5px;">
-                                    {{ round($item->{'taxable_' . $gst} ?? 0, 2) }}
-                                </td style="border: solid 1px;padding: 5px;">
+            <th style="border: solid 1px;padding: 5px;">Total GST</th>
+            <th style="border: solid 1px;padding: 5px;">Delivery Charges</th>
+            <th style="border: solid 1px;padding: 5px;">Total Amount</th>
+        </tr>
+    </thead>
 
-                                {{-- GST --}}
-                                <td style="border: solid 1px;padding: 5px;">
-                                    {{ round($item->{'gst_' . $gst} ?? 0, 2) }}
-                                </td>
-                            @endforeach
+    <tbody>
+        @foreach ($data as $item)
 
-                            {{-- TOTAL GST --}}
-                            <td style="border: solid 1px;padding: 5px;">
-                                {{ round($item->total_gst ?? 0, 2) }}
-                            </td>
+            @php
+                $isCancel = $item->status == 'cancel';
+            @endphp
 
-                            {{-- TOTAL AMOUNT --}}
-                            <td style="border: solid 1px;padding: 5px;">
-                                {{ round($item->delivery_charges ?? 0, 2) }}
-                            </td>
-                            <td style="border: solid 1px;padding: 5px;">
-                                {{ round($item->grand_total + $item->delivery_charges ?? 0, 2) }}
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
+            <tr style="{{ $isCancel ? 'background:#f8d7da;' : '' }}">
+                
+                {{-- STATUS --}}
+                <td style="border: solid 1px;padding: 5px;">
+                    @if ($isCancel)
+                        <span class="badge bg-danger">Cancel</span>
+                    @else
+                        <span class="badge bg-success">Complete</span>
+                    @endif
+                </td>
 
-            </table>
+                {{-- BASIC DETAILS --}}
+                <td style="border: solid 1px;padding: 5px;">{{ $item->invoice_id }}</td>
+                <td style="border: solid 1px;padding: 5px;">{{ myDateFormat($item->invoice_date) }}</td>
+                <td style="border: solid 1px;padding: 5px;">{{ $item->vendor }}</td>
+
+                {{-- GST LOOP --}}
+                @foreach ($gstRates as $gst)
+
+                    <td style="border: solid 1px;padding: 5px;">
+                        {{ $isCancel ? 0 : round($item->{'taxable_' . $gst} ?? 0, 2) }}
+                    </td>
+
+                    <td style="border: solid 1px;padding: 5px;">
+                        {{ $isCancel ? 0 : round($item->{'gst_' . $gst} ?? 0, 2) }}
+                    </td>
+
+                @endforeach
+
+                {{-- TOTAL GST --}}
+                <td style="border: solid 1px;padding: 5px;">
+                    {{ $isCancel ? 0 : round($item->total_gst ?? 0, 2) }}
+                </td>
+
+                {{-- DELIVERY --}}
+                <td style="border: solid 1px;padding: 5px;">
+                    {{ $isCancel ? 0 : round($item->delivery_charges ?? 0, 2) }}
+                </td>
+
+                {{-- GRAND TOTAL --}}
+                <td style="border: solid 1px;padding: 5px;">
+                    {{ $isCancel ? 0 : round(($item->grand_total ?? 0) + ($item->delivery_charges ?? 0), 2) }}
+                </td>
+
+            </tr>
+        @endforeach
+    </tbody>
+</table>
+
 
 
         </div>

@@ -163,6 +163,7 @@ class SaleReportController extends Controller
         "),
 
                 DB::raw('SUM(d.weight) as qty'),
+                DB::raw('SUM(d.qty) as total_qty'),
                 DB::raw('SUM(d.outlet_price) as amount')
 
             )
@@ -196,6 +197,7 @@ class SaleReportController extends Controller
             }
 
             $pivot[$row->product_name][$row->party_name] = [
+                'total_qty' => $row->total_qty,
                 'qty' => $row->qty,
                 'amount' => $row->amount
             ];
