@@ -21,7 +21,7 @@
 
             </div>
             <div class="">
-                <button id="exportToExcel" data-name="purchase variation report"
+                <button id="exportToExcelTally" data-name="purchase variation report"
                     class="btn btn-success float-end   mx-2">Export
                     to Excel</button>
                 <button type="button" onclick="printcontent()" class="btn btn-primary"><i class="fa fa-print"
@@ -32,7 +32,7 @@
             <div class="page-title">
                 <h4>Purchase Variation</h4>
             </div>
-            <table class="table dataTable" id="exportTable">
+            <table class="table dataTable" id="exportTablePurchaseVariation">
                 <thead>
                     <tr>
                         <th>S.No</th>
@@ -62,4 +62,33 @@
 
         </div>
     </div>
+        <script>
+        $('#exportToExcelTally').click(function() {
+            var name = $(this).data("name");
+
+            var table = document.getElementById('exportTablePurchaseVariation');
+
+            var ws = XLSX.utils.table_to_sheet(table, {
+                raw: true
+            });
+
+            // Loop through all cells
+            Object.keys(ws).forEach(function(cell) {
+                if (cell[0] === '!') return;
+
+                let value = ws[cell].v;
+
+                // match dd/mm/yyyy
+                if (typeof value === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+                    ws[cell].t = 's'; // force STRING
+                    ws[cell].z = '@'; // text format
+                }
+            });
+
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Report");
+
+            XLSX.writeFile(wb, name + '.xlsx');
+        });
+    </script>
 @endsection

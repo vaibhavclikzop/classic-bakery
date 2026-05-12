@@ -71,9 +71,9 @@ class Reports extends Controller
             ->get();
 
         /* ================= GROUP ================= */
-$grouped = $records->groupBy(function ($item) {
-    return trim($item->product);
-});
+        $grouped = $records->groupBy(function ($item) {
+            return trim($item->product);
+        });
 
         /* ================= VARIATION LOGIC ================= */
         $latestFive = $grouped->map(function ($items) {
@@ -147,9 +147,9 @@ $grouped = $records->groupBy(function ($item) {
             ->values();
 
 
-    // echo "<pre>";
-    // print_r($filter);
-    // die;
+        // echo "<pre>";
+        // print_r($filter);
+        // die;
 
         return view("purchase-variation-report", compact("filter"));
     }
@@ -1189,12 +1189,12 @@ LIMIT ? OFFSET ?
 
     public function departmentWiseTreadingReport(Request $request)
     {
-
         $date = request("date");
+        $customer_type = request("customer_type");  
 
-
-        // Step 1: Get ALL customers (Outlet + Customer)
-        $customers = DB::table('order_mst as a')
+      
+        $customersQuery = DB::table('order_mst as a')
+            ->join('order_det as b', 'b.mst_id', '=', 'a.id')
             ->leftJoin('outlet as o', function ($join) {
                 $join->on('a.customer_id', '=', 'o.id')
                     ->where('a.order_type', 'outlet');
@@ -1205,21 +1205,30 @@ LIMIT ? OFFSET ?
             })
             ->select(
                 'a.customer_id',
+                'a.order_type',
                 DB::raw("
             CASE 
-                WHEN a.order_type = 'outlet' THEN CONCAT('', o.nickname)
-                ELSE CONCAT(' ', c.name)
+                WHEN a.order_type = 'outlet' THEN o.nickname
+                ELSE c.name
             END as outlet_name
         ")
             )
             ->whereDate("a.delivery_date", $date)
             ->whereIn('a.order_type', ['outlet', 'customer'])
+            ->where('b.qty', '>', 0);
+
+        // customer_type filter
+        if (!empty($customer_type)) {
+            $customersQuery->where('a.order_type', $customer_type);
+        }
+
+        $customers = $customersQuery
             ->distinct()
             ->orderBy('outlet_name')
             ->get();
 
 
-        // Step 2: Build dynamic columns
+ 
         $columns = [];
 
         foreach ($customers as $cust) {
@@ -1230,6 +1239,7 @@ LIMIT ? OFFSET ?
         SUM(
             CASE 
                 WHEN a.customer_id = {$cust->customer_id}
+                AND a.order_type = '{$cust->order_type}'
                 THEN b.qty
                 ELSE 0
             END
@@ -1237,45 +1247,58 @@ LIMIT ? OFFSET ?
     ";
         }
 
-        $dynamicColumns = !empty($columns) ? implode(",\n", $columns) . "," : "";
+        $dynamicColumns = !empty($columns)
+            ? implode(",\n", $columns) . ","
+            : "";
 
 
-        // Step 3: Final Query
+ 
         $query = "
-        SELECT
-            p.name AS product,
+    SELECT
+        p.name AS product,
 
-            $dynamicColumns
+        $dynamicColumns
 
-            SUM(b.qty) AS total_qty
+        SUM(b.qty) AS total_qty
 
-        FROM order_det b
+    FROM order_det b
 
-        JOIN order_mst a 
-            ON b.mst_id = a.id
+    JOIN order_mst a
+        ON b.mst_id = a.id
 
-        JOIN finish_products_mst p 
-            ON b.product_id = p.id
+    JOIN finish_products_mst p
+        ON b.product_id = p.id
 
-        WHERE 
-            p.f_category_id = 2
-            AND DATE(a.delivery_date) = ?
-            AND a.order_type IN ('outlet', 'customer')
+    WHERE
+        p.f_category_id = 2
+        AND DATE(a.delivery_date) = ?
+        AND a.order_type IN ('outlet', 'customer')
+        AND b.qty > 0
+";
 
-        GROUP BY 
-            b.product_id, 
-            p.name
+ 
+        $params = [$date];
 
-        ORDER BY p.name
-        ";
+        if (!empty($customer_type)) {
+            $query .= " AND a.order_type = ? ";
+            $params[] = $customer_type;
+        }
+
+        $query .= "
+    GROUP BY
+        b.product_id,
+        p.name
+
+    ORDER BY p.name
+";
 
 
-        // Step 4: Execute Query
-        $data = DB::select($query, [$date]);
+ 
+        $data = DB::select($query, $params);
 
 
 
-        // Step 5: Pass BOTH data + customers
+ 
         return view("report.department-wise-trading-report", compact("data", "customers"));
     }
 

@@ -29,7 +29,7 @@
 
                     </div>
 
-                    <div>
+                    <div class="mx-2">
                         <label for="">To</label>
                         <input type="date" name="toDt" class="form-control" onchange="this.form.submit()"
                             value="{{ request('toDt') ?? \Carbon\Carbon::now()->toDateString() }}">
@@ -37,8 +37,8 @@
                     </div>
                     <div class="">
                         <label for="">Customer Type</label>
-                        <select name="order_type" id="order_type" onchange="this.form.submit()" class="form-control select2"
-                            required>
+                        <select name="order_type" id="order_type" onchange="this.form.submit()"
+                            class="form-control select2 " required>
                             <option value="">Select</option>
                             <option value="customer" {{ request('order_type') == 'customer' ? 'selected' : '' }}>
                                 Customer
@@ -53,6 +53,13 @@
             </div>
             <div>
 
+                <form action="{{ route('bulk-invoice-view') }}" method="POST">
+                    @csrf
+                    <input type="text" name="printBulkInvoiceID" id="printBulkInvoiceID" hidden>
+                    <button class="btn btn-primary" id="btnPrintBulkInvoice"><i class="fa fa-print" aria-hidden="true"></i>
+                        Print Bulk
+                        Invoice</button>
+                </form>
             </div>
         </div>
         <div class="card-body">
@@ -60,6 +67,7 @@
                 <thead>
                     <tr>
                         <th>S.No</th>
+                        <th> <input type="checkbox" id="checkAll"> </th>
                         <th>Order Type </th>
                         <th>Customer </th>
 
@@ -79,11 +87,12 @@
                     @foreach ($data as $item)
                         <tr>
                             <td>{{ $sno++ }}</td>
-
+                            <td> <input type="checkbox" class="checkAll" data-id="{{ $item->id }}"
+                                    data-type="{{ $item->ordType }}"> </td>
                             <td>{{ $item->ordType }}</td>
                             <td class="wrap-text" style="width:25%">{{ $item->customer }}</td>
                             <td>{{ $item->order_no }}</td>
-                            <td>{{  myDateFormat($item->invoice_date )}}</td>
+                            <td>{{ myDateFormat($item->invoice_date) }}</td>
                             <td>
                                 <p class="mb-1">{{ $item->transport }}</p>
                                 <p class="mb-1">Vehicle : {{ $item->vehicle_no }}</p>
@@ -316,5 +325,36 @@
 
             })
         });
+
+        $("#checkAll").on("click", function() {
+            $(".checkAll").prop("checked", $(this).prop("checked"));
+            getSelectedOrders();
+        });
+
+        $(document).on("change", ".checkAll", function() {
+            getSelectedOrders();
+        });
+        $("#btnPrintBulkInvoice").hide();
+
+        function getSelectedOrders() {
+
+            let orders = [];
+
+            $(".checkAll:checked").each(function() {
+
+                orders.push({
+                    id: $(this).data("id"),
+                    order_type: $(this).data("type")
+                });
+
+            });
+
+            $("#printBulkInvoiceID").val(JSON.stringify(orders));
+            if (orders.length > 1) {
+                $("#btnPrintBulkInvoice").show();
+            } else {
+                $("#btnPrintBulkInvoice").hide();
+            }
+        }
     </script>
 @endsection

@@ -93,8 +93,8 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('sendUnAllocateOTP', [sendOTPController::class, "sendUnAllocateOTP"])->name("sendUnAllocateOTP");
   Route::post('unAllocateProducts', [sendOTPController::class, "unAllocateProducts"])->name("unAllocateProducts");
 
-
-
+  Route::post('sendCancelAdvanceOTP', [cancelInvoiceController::class, "sendCancelAdvanceOTP"])->name("sendCancelAdvanceOTP");
+  Route::post('/verifyCancelAdvanceOrderOTP', [cancelInvoiceController::class, 'verifyCancelAdvanceOrderOTP'])->name("verifyCancelAdvanceOrderOTP");
 
 
   //ajax call 
@@ -438,6 +438,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   Route::get('invoices', [OutwardStock::class, 'Invoices'])->name('invoices');
   Route::get('invoice-view/{id}', [OutwardStock::class, 'InvoiceView'])->name('invoice-view');
+  Route::post('bulk-invoice-view', [OutwardStock::class, 'bulkInvoiceView'])->name('bulk-invoice-view');
 
   Route::get('kot', [Masters::class, 'Kot'])->name('kot');
   Route::post('delete_kot', [Masters::class, 'deletekot'])->name('delete_kot');
@@ -510,11 +511,9 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   Route::post('GetAdvProduct', [AdvanceOrder::class, 'GetAdvProduct'])->name('GetAdvProduct');
   Route::post('Cancel_order', [AdvanceOrder::class, 'Cancel_Order'])->name('Cancel_order');
 
-  Route::post('/sendCancelOrderOTP', [AdvanceOrder::class, 'sendCancelOrderOTP']);
+  // Route::post('/sendCancelOrderOTP', [AdvanceOrder::class, 'sendCancelOrderOTP']);
 
-  Route::post('/verifyCancelOrderOTP', [AdvanceOrder::class, 'verifyCancelOrderOTP']);
   Route::post('advConvertToInvoice', [AdvanceOrder::class, 'advConvertToInvoice'])->name('advConvertToInvoice');
-
 
   Route::get('advance-invoice-view/{id}', [AdvanceOrder::class, 'advanceInvoiceView'])->name('advance-invoice-view');
 

@@ -713,4 +713,130 @@ class OutwardStock extends Controller
             ->first();
         return view("invoice-view", compact("order_mst", "order_det", "nextProduct", "previousProduct"));
     }
+
+    public function bulkInvoiceView(Request $request)
+    {
+
+
+        $invoiceIDS = json_decode($request->printBulkInvoiceID);
+
+        $invoices = [];
+
+        foreach ($invoiceIDS as $value) {
+
+            if ($value->order_type == "Regular Order") {
+
+                $id = $value->id;
+
+                $customer = DB::table("outward_customer_order_mst as a")
+                    ->select(
+                        "a.*",
+                        "c.name as customer_name",
+                        "c.name as customer",
+                        "c.number",
+                        "c.*",
+                        "d.name as mot",
+                        "d.vehicle_no",
+                        "a.order_no"
+                    )
+                    ->join("order_mst as b", "a.order_id", "b.id")
+                    ->join("customers as c", "b.customer_id", "c.id")
+                    ->join("mode_of_transport as d", "a.mode_of_transport", "d.id")
+                    ->where("a.id", $id)
+                    ->where("b.order_type", "customer")
+                    ->first();
+
+                $outlet = DB::table("outward_customer_order_mst as a")
+                    ->select(
+                        "a.*",
+                        "c.outlet_name as customer_name",
+                        "c.number",
+                        "e.*",
+                        "d.name as mot",
+                        "d.vehicle_no",
+                        "e.gst_no as gst",
+                        "e.fssai_no as ship_fssai_no",
+                        "e.gst_no as ship_gst",
+                        "e.address as ship_address",
+                        "a.order_no",
+                        DB::raw("'pincode' as pincode,'city' as city,'state' as state,'ship_city','ship_state','ship_pincode'")
+                    )
+                    ->join("order_mst as b", "a.order_id", "=", "b.id")
+                    ->join("outlet as c", "b.customer_id", "=", "c.id")
+                    ->join("mode_of_transport as d", "a.mode_of_transport", "=", "d.id")
+                    ->join("company_settings as e", "c.id", "=", "e.outlet_id")
+                    ->where("a.id", $id)
+                    ->where("b.order_type", "outlet")
+                    ->first();
+
+                $order_mst = $customer ?? $outlet;
+
+                $order_det = DB::table("outward_customer_order_det as a")
+                    ->select(
+                        "a.*",
+                        "b.name as product",
+                        "b.article_no",
+                        "c.name as sub_category",
+                        "d.price",
+                        "b.*",
+                        "e.name as uom",
+                        "a.mrp as mrp",
+                        "d.cess_amt",
+                        "d.gst_type",
+                        "d.gst as gst",
+                        DB::raw("d.price-d.price/100*d.discount as price")
+                    )
+                    ->join("outward_customer_order_mst as f", "a.mst_id", "=", "f.id")
+                    ->join("order_det as d", function ($join) {
+                        $join->on("a.product_id", "=", "d.product_id")
+                            ->whereColumn("d.mst_id", "=", "f.order_id");
+                    })
+                    ->join("finish_products_mst as b", "a.product_id", "=", "b.id")
+                    ->join("f_product_sub_category as c", "b.f_sub_category_id", "=", "c.id")
+                    ->join("unit_type as e", "b.uom", "=", "e.id")
+                    ->where("a.mst_id", $id)
+                    ->orderByRaw("LOWER(c.name) ASC")
+                    ->orderByRaw("LOWER(b.name) ASC")
+                    ->get();
+
+                $invoices[] = [
+                    'order_mst' => $order_mst,
+                    'order_det' => $order_det,
+                    "order_type"=>$value->order_type,
+                ];
+            } else if ($value->order_type == "Advance Order") {
+                         $id = $value->id;
+                $outlet = DB::table("adv_order_mst as a")
+                    ->select("a.*", "b.outlet_name as name", "b.number", "b.address", "b.city", "b.state")
+                    ->join("outlet as b", "a.outlet_id", "b.id")
+                    ->orderBy("a.id", "desc")
+                    ->where("a.id", $id)
+                    ->where("a.customer_type", "outlet")
+                    ->first();
+
+                $customer = DB::table("adv_order_mst as a")
+                    ->select("a.*", "b.name as name", "b.number", "b.address", "b.city", "b.state")
+                    ->join("customers as b", "a.outlet_id", "b.id")
+                    ->orderBy("a.id", "desc")
+                    ->where("a.id", $id)
+                    ->where("a.customer_type", "customer")
+                    ->first();
+
+                $order_det = DB::table("adv_order_det as a")
+                    ->select("a.*", "a.outlet_price as price", "b.name as flavour", "c.name as product", DB::raw("'Inner Gst' as gst_type,'0' as cess_amt"))
+                    ->join("adv_order_flavour as b", "a.flavour_id", "b.id")
+                    ->join("adv_order_item_mst as c", "a.product_id", "c.id")
+                    ->where("a.mst_id", $id)
+                    ->get();
+                $order_mst = $outlet ?? $customer;
+                $invoices[] = [
+                    'order_mst' => $order_mst,
+                    'order_det' => $order_det,
+                         "order_type"=>$value->order_type,
+                ];
+            }
+        }
+       
+        return view("bulk-invoice-view", compact("invoices"));
+    }
 }

@@ -108,4 +108,47 @@ class cancelInvoiceController extends Controller
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
+
+    public function sendCancelAdvanceOTP(Request $request)
+    {
+        try {
+            $otp = rand(100000, 999999);
+
+            session(['order_cancel_otp' => $otp]);
+
+            Mail::to("singh.dashmeet007@gmail.com")
+                ->send(new SendOTPs($otp, 'Cancel Advance Order OTP'));
+
+            return response()->json([
+                'status' => true,
+                'message' => 'OTP sent successfully'
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ]);
+        }
+    }
+
+
+    public function verifyCancelAdvanceOrderOTP(Request $request)
+    {
+        if ($request->otp == session('order_cancel_otp')) {
+
+            session(['order_cancel_verified' => true]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'OTP Verified'
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid & Wrong OTP'
+        ]);
+    }
+
+    
 }

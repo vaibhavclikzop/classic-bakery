@@ -988,7 +988,12 @@ class InwardStock extends Controller
         $gst_type = "";
         $po_mst = DB::table("po_mst")->where("id", $request->mst_id)->first();
         $vendor = DB::table("vendor")->where("id", $po_mst->vendor_id)->first();
-        $products = DB::table("products")->where("id", $request->product_id)->first();
+        if ($request->productType=="raw material") {
+       $products = DB::table("products")->where("id", $request->product_id)->first();
+        }else{
+               $products = DB::table("finish_products_mst")->where("id", $request->product_id)->first();
+        }
+     
         $company_setting = DB::table("company_settings")->where("id", 1)->first();
         if ($vendor->gst) {
             $gst_number = substr($vendor->gst, 0, 2);

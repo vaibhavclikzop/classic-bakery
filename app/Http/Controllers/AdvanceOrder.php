@@ -54,6 +54,7 @@ class AdvanceOrder extends Controller
 
         return  redirect()->back()->with("success", "Save Successfully");
     }
+
     public function AdvanceOrderFlavour(Request $request)
     {
         $data = DB::table("adv_order_flavour")->get();
@@ -240,6 +241,7 @@ class AdvanceOrder extends Controller
         $gst = DB::table("gst")->get();
         return view("advance-order-items", compact("data", "category", "gst"));
     }
+
     public function SaveAdvanceOrderItem(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -698,7 +700,6 @@ class AdvanceOrder extends Controller
         return view("customer-type-advance-items", compact("customer_type_product", "customer_type", "products", "sub_category"));
     }
 
-
     public function AllocateAdvanceItem(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -738,7 +739,6 @@ class AdvanceOrder extends Controller
         }
         return  redirect()->back()->with("success", "Save Successfully");
     }
-
 
     public function UpdateAdvanceItem(Request $request)
     {
@@ -794,100 +794,27 @@ class AdvanceOrder extends Controller
             ->where("a.customer_type_id", $customer_type_id->customer_type_id)->get();
     }
 
-    // public function Cancel_Order(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
 
-    //         'id' => 'required',
-    //         'order_pwd' => 'required',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         $messages = $validator->errors();
-    //         $count = 0;
-    //         foreach ($messages->all() as $error) {
-    //             if ($count == 0)
-    //                 return redirect()->back()->with('error', $error);
-
-    //             $count++;
-    //         }
-    //     }
-
-
-    //     try {
-
-    //         $company_setting = DB::table("company_settings")->where("id", $request->user->id)->select('order_pwd')->first();
-    //         if ($request->order_pwd !== $company_setting->order_pwd) {
-    //             return  redirect()->back()->with("error", 'Incorrect password.');
-    //         }
-
-    //         DB::table('adv_order_mst')->where("id", $request->id)->update(array(
-    //             "status" => "cancel",
-
-    //         ));
-    //     } catch (\Throwable $th) {
-    //         return  redirect()->back()->with("error", $th->getMessage());
-    //     }
-
-    //     return  redirect()->back()->with("success", "Cancel Successfully");
-    // }
-    public function Cancel_Order(Request $request)
+    public function Cancel_order(Request $request)
     {
-        if (!session()->has('order_cancel_verified')) {
-            return redirect()->back()->with('error', 'Please verify OTP first');
+    
+        if (!session('order_cancel_verified')) {
+            return redirect()->back()->with('error', 'OTP not verified');
         }
 
-        DB::table('adv_order_mst')
-            ->where("id", $request->id)
+        $id = $request->id;
+
+        DB::table('adv_order_mst') 
+            ->where('id', $id)
             ->update([
-                "status" => "cancel"
+                'status' => 'cancel'
             ]);
 
-        session()->forget('order_cancel_verified');
+        session()->forget(['order_cancel_verified', 'order_cancel_otp']);
 
-        return redirect()->back()->with("success", "Order Cancelled Successfully");
+        return redirect()->back()->with('success', 'Order cancelled successfully');
     }
 
-    public function verifyCancelOrderOTP(Request $request)
-    {
-        if ($request->otp == session('order_cancel_otp')) {
-
-            session(['order_cancel_verified' => true]);
-
-            return response()->json([
-                'status' => true,
-                'message' => 'OTP Verified'
-            ]);
-        }
-
-        return response()->json([
-            'status' => false,
-            'message' => 'Invalid OTP'
-        ]);
-    }
-
-    public function sendCancelOrderOTP(Request $request)
-    {
-        $otp = rand(100000, 999999);
-
-        session([
-            'order_cancel_otp' => $otp,
-            'order_cancel_verified' => false
-        ]);
-
-        // Company Email
-        $company = DB::table('company_settings')->where('id', 1)->first();
-
-        Mail::raw("Your OTP for cancel order is: $otp", function ($message) use ($company) {
-            $message->to($company->email)
-                ->subject('Order Cancel OTP');
-        });
-
-        return response()->json([
-            'status' => true,
-            'message' => 'OTP sent to company email'
-        ]);
-    }
     public function advConvertToInvoice(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -924,7 +851,6 @@ class AdvanceOrder extends Controller
 
         return  redirect()->back()->with("success", "Cancel Successfully");
     }
-
 
     public function advanceInvoiceView(Request $request, $id)
     {

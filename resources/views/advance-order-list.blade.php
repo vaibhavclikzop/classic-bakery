@@ -1,326 +1,321 @@
 @extends('layouts.main')
 @section('main-section')
-    <div class="card">
-        <div class="card-header d-flex justify-content-between">
-            <div class="page-title">
-                <h4> Advance Order</h4>
-            </div>
-            <div class="">
-                <form class="d-flex" method="GET">
-
-                    <a class="btn btn-info" href="?date={{ date('Y-m-d', strtotime(request('date') . ' -1 day')) }}">
-                        << </a>
-                            <input type="date" name="date" class="form-control" required
-                                value="{{ request('date') ?? date('Y-m-d', strtotime('+1 day')) }}"
-                                onchange="this.form.submit()">
-                            <a class="btn btn-info"
-                                href="?date={{ date('Y-m-d', strtotime(request('date') . ' +1 day')) }}">
-                                >>
-                            </a>
-
-
-
-
-                </form>
-
-            </div>
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <div class="page-title">
+            <h4> Advance Order</h4>
         </div>
-        <div class="card-body">
-            <form action="">
-                <div>
-                    <button type="submit" value="printOrder" name="printOrder" class="btn btn-primary mx-2">Print Bulk
-                        Order</button>
-                </div>
-                <div>
-                    <table class="table dataTable">
-                        <thead>
-                            <tr>
-                                <th>S.No</th>
-                                <th><input type="checkbox" id="all_check"></th>
-                                <th>Order ID</th>
-                                <th>Outlet</th>
-                                <th>Order Date</th>
-                                <th>Delivery Date Time</th>
-                                <th>Order Type</th>
-                                <th>Created at</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        @php
-                            $sno = 1;
-                        @endphp
-                        <tbody>
-                            @foreach ($data as $item)
-                                <tr>
-                                    <td>{{ $sno++ }}</td>
-                                    <td><input type="checkbox" name="ids[]" value="{{ $item->id }}" class="all_check">
-                                    </td>
-                                    <td>{{ $item->order_id }}</td>
-                                    <td>{{ $item->name }}</td>
-                                    <td>{{  myDateFormat($item->order_date) }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($item->delivery_date . ' ' . $item->delivery_time)->format('d-m-Y g:i A') }}
-                                    </td>
-                                    <td>{{ $item->type }}</td>
-                                    <td>{{ $item->created_at }}</td>
-                                    <td>
-                                        @if ($item->is_invoice == 1)
-                                            <a class="btn btn-sm btn-primary"
-                                                href="/advance-invoice-view/{{ $item->id }}">
-                                                <i class="fa fa-eye" aria-hidden="true"></i> </a>
-                                        @else
-                                            <a class="btn btn-sm btn-primary"
-                                                href="/advance-order-view/{{ $item->id }}">
-                                                <i class="fa fa-eye" aria-hidden="true"></i> </a>
-                                        @endif
+        <div class="">
+            <form class="d-flex" method="GET">
 
-                                        @if ($item->status != 'cancel')
-                                            @if ($item->status != 'delivered')
-                                                <button class="btn btn-dark btn-sm change_status"
-                                                    value="{{ $item->id }}" data-status="{{ $item->status }}"
-                                                    type="button"><i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                            @endif
-                                        @endif
-                                        @if ($item->status == 'pending')
-                                            <button class="btn btn-danger btn-sm cancel_status" value="{{ $item->id }}"
-                                                data-status="{{ $item->status }}" type="button"><i class="fa fa-xmark"
-                                                    aria-hidden="true"></i></button>
-                                        @endif
-
-                                        @if ($item->is_invoice == 0)
-                                            <button class="btn btn-dark btn-sm convertToInvoice"
-                                                value="{{ $item->id }}" type="button">Convert to invoice</button>
-                                        @endif
-
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                <a class="btn btn-info" href="?date={{ date('Y-m-d', strtotime(request('date') . ' -1 day')) }}">
+                    << </a>
+                        <input type="date" name="date" class="form-control" required
+                            value="{{ request('date') ?? date('Y-m-d', strtotime('+1 day')) }}"
+                            onchange="this.form.submit()">
+                        <a class="btn btn-info"
+                            href="?date={{ date('Y-m-d', strtotime(request('date') . ' +1 day')) }}">
+                            >>
+                        </a>
             </form>
         </div>
-
     </div>
+    <div class="card-body">
+        <form action="">
+            <div>
+                <button type="submit" value="printOrder" name="printOrder" class="btn btn-primary mx-2">Print Bulk
+                    Order</button>
+            </div>
+            <div>
+                <table class="table dataTable">
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th><input type="checkbox" id="all_check"></th>
+                            <th>Order ID</th>
+                            <th>Outlet</th>
+                            <th>Order Date</th>
+                            <th>Delivery Date Time</th>
+                            <th>Order Type</th>
+                            <th>Created at</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    @php
+                    $sno = 1;
+                    @endphp
+                    <tbody>
+                        @foreach ($data as $item)
+                        <tr>
+                            <td>{{ $sno++ }}</td>
+                            <td><input type="checkbox" name="ids[]" value="{{ $item->id }}" class="all_check">
+                            </td>
+                            <td>{{ $item->order_id }}</td>
+                            <td>{{ $item->name }}</td>
+                            <td>{{ myDateFormat($item->order_date) }}</td>
+                            <td>{{ \Carbon\Carbon::parse($item->delivery_date . ' ' . $item->delivery_time)->format('d-m-Y g:i A') }}
+                            </td>
+                            <td>{{ $item->type }}</td>
+                            <td>{{ $item->created_at }}</td>
+                            <td>
+                                @if ($item->is_invoice == 1)
+                                <a class="btn btn-sm btn-primary"
+                                    href="/advance-invoice-view/{{ $item->id }}">
+                                    <i class="fa fa-eye" aria-hidden="true"></i> </a>
+                                @else
+                                <a class="btn btn-sm btn-primary"
+                                    href="/advance-order-view/{{ $item->id }}">
+                                    <i class="fa fa-eye" aria-hidden="true"></i> </a>
+                                @endif
+
+                                @if ($item->status != 'cancel')
+                                @if ($item->status != 'delivered')
+                                <button class="btn btn-dark btn-sm change_status"
+                                    value="{{ $item->id }}" data-status="{{ $item->status }}"
+                                    type="button"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                                @endif
+                                @endif
+                                @if ($item->status == 'pending')
+                                <button class="btn btn-danger btn-sm cancel_status" value="{{ $item->id }}"
+                                    data-status="{{ $item->status }}" type="button"><i class="fa fa-xmark"
+                                        aria-hidden="true"></i></button>
+                                @endif
+
+                                @if ($item->is_invoice == 0)
+                                <button class="btn btn-dark btn-sm convertToInvoice"
+                                    value="{{ $item->id }}" type="button">Convert to invoice</button>
+                                @endif
+
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
 
 
+<form action="{{ route('UpdateStatus') }}" method="POST" class="needs-validation" novalidate>
+    @csrf
 
-    <form action="{{ route('UpdateStatus') }}" method="POST" class="needs-validation" novalidate>
-        @csrf
+    <div class="modal fade" id="modalId" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+        role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitleId">
+                        Change Status
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="id">
+                    <select name="status" id="status" class="form-control" required>
+                        <option value="">Select</option>
+                        <option value="dispatch">Dispatch</option>
+                        <option value="complete">Out for Delivery</option>
+                        <option value="delivered">Delivered</option>
 
-        <div class="modal fade" id="modalId" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
-            role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitleId">
-                            Change Status
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- new cancel form -->
+<form action="{{ route('Cancel_order') }}" method="POST" id="cancelOrderForm">
+    @csrf
+
+    <div class="modal fade" id="cancelOrderModal" tabindex="-1" data-bs-backdrop="static"
+        data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title text-white">Cancel Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div style="text-align: center">
+                        <span style="font-size: 24px; color: red"><i class="fa-solid fa-ban"></i></span>
+                        <h4 class="text-danger fw-bold">Are you sure you want to cancel this Order?</h4>
+                        <input type="hidden" name="id" id="cancelID" hidden>
                     </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="id" id="id">
-                        <select name="status" id="status" class="form-control" required>
-                            <option value="">Select</option>
-                            <option value="dispatch">Dispatch</option>
-                            <option value="complete">Out for Delivery</option>
-                            <option value="delivered">Delivered</option>
-
-                        </select>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            Close
+                    <div class="mb-3 mt-3" id="btnSection">
+                        <button type="button" class="btn btn-dark w-100" id="sendOtpBtn">
+                            Send OTP
                         </button>
-                        <button type="submit" class="btn btn-primary">Save</button>
                     </div>
+
+                    <!-- OTP Input -->
+                    <div class=" mt-3 d-none" id="otpSection">
+                        <label>Enter OTP</label>
+                        <input type="text" id="otp" class="form-control" placeholder="Enter OTP">
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-danger d-none w-100" id="verifyOtpBtn" type="button">
+                        Verify & Cancel
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+<!-- new form end -->
+
+<form action="{{ route('advConvertToInvoice') }}" method="POST" class="needs-validation" novalidate>
+    @csrf
+    <div class="modal fade" id="convertModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+        role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitleId">
+                        Convert to Invoice
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" name="convertID" id="convertID" hidden>
+                    Are you sure you want to convert this into an invoice?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </div>
         </div>
+    </div>
+</form>
 
-    </form>
-
-    {{-- <form action="{{ route('Cancel_order') }}" method="POST" class="needs-validation" novalidate>
-        @csrf
-        <div class="modal fade" id="cancelOrderModal">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="page-wrapper-new p-0">
-                        <div class="content p-5 px-3 text-center">
-                            <span class="rounded-circle d-inline-flex p-2 bg-danger-transparent mb-2"><i
-                                    class="fa fa-trash fs-24 text-danger"></i></span>
-                            <h4 class="fs-20 text-gray-9 fw-bold mb-2 mt-1">Cancel Order</h4>
-                            <input type="hidden" id="deleteId" name="id">
-                            <p class="text-gray-6 mb-0 fs-16">Enter password to cancel order?</p>
-                            <div class="pass-group" style="position: relative;max-width: 300px; margin: 0 auto;">
-                                <input type="password" class="pass-input form-control" value="" name="order_pwd"
-                                    required>
-
-                            </div>
-                            <i class="fa toggle-password fa-eye "></i>
-
-                            <div class="modal-footer-btn mt-3 d-flex justify-content-center">
-                                <button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
-                                    data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3">Yes
-                                    Cancel</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form> --}}
-
-    <form action="{{ route('Cancel_order') }}" method="POST" id="cancelOrderForm">
-        @csrf
-
-        <div class="modal fade" id="cancelOrderModal">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="page-wrapper-new p-0">
-                        <div class="content p-5 px-3 text-center">
-
-                            <span class="rounded-circle d-inline-flex p-2 bg-danger-transparent mb-2">
-                                <i class="fa fa-trash fs-24 text-danger"></i>
-                            </span>
-
-                            <h4 class="fs-20 fw-bold mb-2">Cancel Order</h4>
-
-                            <input type="hidden" id="deleteId" name="id">
-
-                            <p class="mb-2">OTP will be sent to company email</p>
-
-                            <div id="btnSection">
-                                <button type="button" class="btn btn-dark w-100" id="sendOtpBtn">
-                                    Send OTP
-                                </button>
-                            </div>
-
-                            <div class="mt-3 d-none" id="otpSection">
-                                <input type="text" id="otp" class="form-control" placeholder="Enter OTP">
-                            </div>
-
-                            <div class="mt-3 d-none" id="verifySection">
-                                <button type="button" class="btn btn-primary w-100" id="verifyOtpBtn">
-                                    Verify & Cancel
-                                </button>
-                            </div>
-
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                    Close
-                                </button>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
-    <form action="{{ route('advConvertToInvoice') }}" method="POST" class="needs-validation" novalidate>
-        @csrf
-        <div class="modal fade" id="convertModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
-            role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitleId">
-                            Convert to Invoice
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="text" name="convertID" id="convertID" hidden>
-                        Are you sure you want to convert this into an invoice?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            Close
-                        </button>
-                        <button type="submit" class="btn btn-primary">Save</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
+<script>
+    $("#all_check").on("click", function() {
+        if ($(this).prop("checked") == true) {
+            $(".all_check").prop("checked", true)
+        } else {
+            $(".all_check").prop("checked", false)
+        }
+    });
 
 
+    $(document).on("click", ".change_status", function() {
+
+        $("#id").val($(this).val())
+        $("#status").val($(this).data("status"))
+        $("#modalId").modal("show")
+    });
+
+    $(document).on("click", ".cancel_status", function() {
+        $("#cancelID").val($(this).val())
+        $("#cancelOrderModal").modal("show")
+    });
+
+    $(document).on("click", ".convertToInvoice", function() {
+        $("#convertID").val($(this).val())
+        $("#convertModal").modal("show")
+    });
+
+  
 
 
-    <script>
-        $("#all_check").on("click", function() {
-            if ($(this).prop("checked") == true) {
-                $(".all_check").prop("checked", true)
-            } else {
-                $(".all_check").prop("checked", false)
+   
+
+
+    // SEND OTP
+    $("#sendOtpBtn").on("click", function() {
+
+        $.ajax({
+            url: "{{ route('sendCancelAdvanceOTP') }}",
+            type: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function() {
+                $("#sendOtpBtn").attr("disabled", true);
+                $("#sendOtpBtn").text("Sending OTP...");
+            },
+            success: function(res) {
+
+                if (res.status) {
+
+                    $("#otpSection").removeClass("d-none");
+                    $("#verifyOtpBtn").removeClass("d-none");
+                    $("#btnSection").addClass("d-none");
+
+                    toastr.success(res.message);
+
+                } else {
+                    toastr.error(res.message, "Error");
+                }
+            },
+            complete: function() {
+                $("#sendOtpBtn").removeAttr("disabled");
+                $("#sendOtpBtn").text("Send OTP");
             }
         });
+    });
 
-        $(document).on("click", ".change_status", function() {
 
-            $("#id").val($(this).val())
-            $("#status").val($(this).data("status"))
-            $("#modalId").modal("show")
-        });
+    // VERIFY OTP
+    $("#verifyOtpBtn").on("click", function() {
 
-        $(document).on("click", ".cancel_status", function() {
-            $("#deleteId").val($(this).val())
-            $("#cancelOrderModal").modal("show")
-        });
+        let otp = $("#otp").val().trim();
 
-        $(document).on("click", ".convertToInvoice", function() {
-            $("#convertID").val($(this).val())
-            $("#convertModal").modal("show")
-        });
-        $(document).on("click", ".cancel_status", function() {
-            $("#deleteId").val($(this).val());
-            $("#cancelOrderModal").modal("show");
-        });
+        if (otp === "") {
+            toastr.warning("Please enter OTP first", "Warning");
+            return;
+        }
 
-        $("#sendOtpBtn").click(function() {
+        $.ajax({
+            url: "{{ route('verifyCancelAdvanceOrderOTP') }}",
+            type: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                otp: otp
+            },
+            beforeSend: function() {
+                $("#verifyOtpBtn").attr("disabled", true);
+                $("#verifyOtpBtn").text("Verifying...");
+            },
+            success: function(res) {
 
-            $.ajax({
-                url: '/sendCancelOrderOTP',
-                type: 'POST',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(res) {
-
-                    if (res.status) {
-                        $("#otpSection").removeClass("d-none");
-                        $("#verifySection").removeClass("d-none");
-                        $("#btnSection").addClass("d-none");
-
-                        toastr.success(res.message);
-                    } else {
-                        toastr.error(res.message);
-                    }
+                if (!res.status) {
+                    toastr.error(res.message);
+                    return;
                 }
-            });
+
+                toastr.success("OTP Verified Successfully. Cancelling order...", "Success");
+
+                // slight delay for UX
+                setTimeout(function() {
+                    $("#cancelOrderForm").submit();
+                }, 1000);
+
+            },
+            complete: function() {
+                $("#verifyOtpBtn").removeAttr("disabled");
+                $("#verifyOtpBtn").text("Verify & Cancel");
+            }
         });
-
-        $("#verifyOtpBtn").click(function() {
-
-            let otp = $("#otp").val();
-
-            $.ajax({
-                url: '/verifyCancelOrderOTP',
-                type: 'POST',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    otp: otp
-                },
-                success: function(res) {
-
-                    if (res.status) {
-                        $("#cancelOrderForm").submit();
-                    } else {
-                        toastr.error(res.message);
-                    }
-                }
-            });
-        });
-    </script>
+    });
+</script>
 @endsection
