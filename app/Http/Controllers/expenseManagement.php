@@ -58,9 +58,6 @@ class expenseManagement extends Controller
                 }
             }
         } catch (Exception $e) {
-
-
-
             return redirect()->back()->with('error', $e->getMessage());
         }
         return  redirect()->back()->with("success", "Save Successfully");
@@ -140,14 +137,19 @@ class expenseManagement extends Controller
             ->leftJoin('outlet as o', 'e.outlet_id', 'o.id')
 
             ->select(
-                'e.*',
+                'e.id',
+                'e.name',
+                'e.amount',
+                'e.expense_date',
+                'e.note',
+                'e.status',
                 'c.name as category_name',
                 'sc.name as sub_category_name',
                 'o.outlet_name as outlet_name'
             );
 
-            $query->where('e.outlet_id', $outlet_id);
-    
+        $query->where('e.outlet_id', $outlet_id);
+
 
         if ($fromDt) {
             $query->whereDate('e.expense_date', '>=', $fromDt);
@@ -160,5 +162,33 @@ class expenseManagement extends Controller
         $data = $query->orderBy('e.expense_date', 'desc')->get();
 
         return view('expense', compact('data', 'outlet'));
+    }
+
+    public function updateExpenseStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required',
+            'ids' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $messages = $validator->errors();
+            $count = 0;
+            foreach ($messages->all() as $error) {
+                if ($count == 0)
+                    return redirect()->back()->with('error', $error);
+
+                $count++;
+            }
+        }
+
+        try {
+            DB::table("expense")->whereIn("id", explode(",", $request->ids))->update(array(
+                "status" => $request->status
+            ));
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+        return  redirect()->back()->with("success", "Save Successfully");
     }
 }

@@ -188,7 +188,7 @@ class ReportController extends Controller
         $toDt   = $request->input("toDt") ?: Carbon::now()->toDateString();
 
         $page = $request->page ?? 1;
-        $limit = 100;
+        $limit = 10000;
         $offset = ($page - 1) * $limit;
 
         $data = DB::select("

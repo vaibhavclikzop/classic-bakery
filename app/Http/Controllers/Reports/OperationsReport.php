@@ -88,8 +88,9 @@ class OperationsReport extends Controller
 
     public function rmPurchaseHistoryReport(Request $request)
     {
-        $fromDt = $request->input("fromDt") ?? date("Y-m-d");
-        $toDt   = $request->input("toDt") ?? date("Y-m-d");
+        $fromDt = $request->input("fromDt")  ;
+        $toDt   = $request->input("toDt")  ;
+        $product_id   = $request->input("product_id");
 
         $query = DB::table("stock_inward_mst as a")
             ->select(
@@ -101,7 +102,9 @@ class OperationsReport extends Controller
             )
             ->join("stock_inward_det as b", "a.id", "b.mst_id")
             ->join("products as c", "b.product_id", "c.id")
-            ->join("vendor as v", "a.vendor_id", "v.id");
+            ->join("vendor as v", "a.vendor_id", "v.id")
+            ->where("c.id",$product_id)
+            ;
 
         if ($fromDt) {
             $query->whereDate("a.received_material_date", ">=", $fromDt);
@@ -121,7 +124,9 @@ class OperationsReport extends Controller
             ->orderBy("a.received_material_date", "desc")
             ->get();
 
-        return view("report.rm-purchase-history-report", compact("data"));
+         $products=   DB::table("products")->get();
+
+        return view("report.rm-purchase-history-report", compact("data","products"));
     }
 
 
@@ -214,21 +219,21 @@ class OperationsReport extends Controller
                 "od.qty as out_qty"
             );
 
-      
-            $inward->where("b.product_id", $product_id);
-            $outward->where("od.product_id", $product_id);
+
+        $inward->where("b.product_id", $product_id);
+        $outward->where("od.product_id", $product_id);
 
 
-         
-                $inward->whereDate("a.received_material_date", ">=", $fromDt);
-                $outward->whereDate("o.created_at", ">=", $fromDt);
-         
 
-         
-                $inward->whereDate("a.received_material_date", "<=", $toDt);
-                $outward->whereDate("o.created_at", "<=", $toDt);
-      
-        
+        $inward->whereDate("a.received_material_date", ">=", $fromDt);
+        $outward->whereDate("o.created_at", ">=", $fromDt);
+
+
+
+        $inward->whereDate("a.received_material_date", "<=", $toDt);
+        $outward->whereDate("o.created_at", "<=", $toDt);
+
+
 
         $union = $inward->unionAll($outward);
 
@@ -247,4 +252,28 @@ class OperationsReport extends Controller
         return view("report.rm-product-ledger-report", compact("data", "products"));
     }
 
+    public function reOrderReport(Request $request)
+    {
+
+        $data = DB::table("vendor as a")
+            ->select(
+                "a.company_name as vendor",
+                "c.name as product",
+                "c.re_order_qty",
+                "c.min_stock",
+                DB::raw("COALESCE(d.stock, 0) as stock"),
+                "e.name as sub_category",
+            )
+            ->join("vendor_product as b", "a.id", "b.vendor_id")
+            ->join("products as c", "b.product_id", "c.id")
+
+
+            ->leftJoin("current_stock as d", "c.id", "d.product_id")
+
+            ->join("sub_category as e", "c.sub_category_id", "e.id")
+            ->where("a.id", request("vendor_id"))
+            ->get();
+        $vendor =  DB::table('vendor')->get();
+        return view("report.re-order-report", compact("data", "vendor"));
+    }
 }

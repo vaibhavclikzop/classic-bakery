@@ -1190,9 +1190,10 @@ LIMIT ? OFFSET ?
     public function departmentWiseTreadingReport(Request $request)
     {
         $date = request("date");
-        $customer_type = request("customer_type");  
+        $customer_type = request("customer_type");
+        $order_type = request("order_type");
 
-      
+
         $customersQuery = DB::table('order_mst as a')
             ->join('order_det as b', 'b.mst_id', '=', 'a.id')
             ->leftJoin('outlet as o', function ($join) {
@@ -1221,6 +1222,9 @@ LIMIT ? OFFSET ?
         if (!empty($customer_type)) {
             $customersQuery->where('a.order_type', $customer_type);
         }
+        if (!empty($order_type)) {
+            $customersQuery->where('a.order_type_id', $order_type);
+        }
 
         $customers = $customersQuery
             ->distinct()
@@ -1228,7 +1232,7 @@ LIMIT ? OFFSET ?
             ->get();
 
 
- 
+
         $columns = [];
 
         foreach ($customers as $cust) {
@@ -1252,7 +1256,7 @@ LIMIT ? OFFSET ?
             : "";
 
 
- 
+
         $query = "
     SELECT
         p.name AS product,
@@ -1276,12 +1280,16 @@ LIMIT ? OFFSET ?
         AND b.qty > 0
 ";
 
- 
+
         $params = [$date];
 
         if (!empty($customer_type)) {
             $query .= " AND a.order_type = ? ";
             $params[] = $customer_type;
+        }
+         if (!empty($order_type)) {
+            $query .= " AND a.order_type_id = ? ";
+            $params[] = $order_type;
         }
 
         $query .= "
@@ -1293,13 +1301,13 @@ LIMIT ? OFFSET ?
 ";
 
 
- 
+
         $data = DB::select($query, $params);
+        $orderType = DB::table("order_type")->get();
 
 
 
- 
-        return view("report.department-wise-trading-report", compact("data", "customers"));
+        return view("report.department-wise-trading-report", compact("data", "customers", "orderType"));
     }
 
 

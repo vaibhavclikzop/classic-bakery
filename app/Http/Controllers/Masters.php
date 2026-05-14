@@ -716,6 +716,7 @@ class Masters extends Controller
 
                     "price" => $request->price,
                     "min_stock" => $request->minimum_stock,
+                    "re_order_qty" => $request->re_order_qty,
                     "uom" => $request->uom,
                     "warranty_days" => $request->warranty_days,
                     "active" => $request->active,
@@ -737,6 +738,7 @@ class Masters extends Controller
 
                     "price" => $request->price,
                     "min_stock" => $request->minimum_stock,
+                    "re_order_qty" => $request->re_order_qty,
                     "uom" => $request->uom,
                     "warranty_days" => $request->warranty_days,
 

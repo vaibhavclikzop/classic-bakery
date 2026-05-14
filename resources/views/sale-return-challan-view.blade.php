@@ -35,6 +35,7 @@
                     <div style="text-align: right;">
                       
                         <p>
+                            {{ $po_mst->invoice_no }} <br>
                             {{ $po_mst->customer }} <br>
                             {{ $po_mst->address }}, {{ $po_mst->state }}, {{ $po_mst->city }}, ,
                       

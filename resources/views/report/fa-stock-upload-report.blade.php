@@ -100,7 +100,7 @@
 
 <script>
     let page = 1;
-    const perPage = 100;
+    const perPage = 1000;
 
     function fetchRMData() {
 

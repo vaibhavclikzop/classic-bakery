@@ -84,7 +84,10 @@
                                     <td>{{ $sno++ }}</td>
 
                                     <td>{{ $item->product }}</td>
-                                    <td>{{ $item->qty }}</td>
+                                    <td>
+                                        <input type="number" step="0.001" class="form-control"
+                                            value="{{ formatQtyPrice($item->qty) }}" name="qty[{{ $item->id }}][]">
+                                    </td>
                                     <td> <input type="number" step="0.001" class="form-control"
                                             value="{{ $item->price }}" name="price[{{ $item->id }}][]"> </td>
                                     <td>

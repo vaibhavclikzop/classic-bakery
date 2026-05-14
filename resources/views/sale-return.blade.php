@@ -32,6 +32,7 @@
                     <tr>
                         <th>S.no</th>
                         <th> Customer</th>
+                        <th> Invoice No.</th>
                         <th> Return Date</th>
                         <th> Description</th>
                         <th> Status</th>
@@ -48,6 +49,7 @@
                         <tr>
                             <td>{{ $sno++ }}</td>
                             <td>{{ $item->customer }}</td>
+                            <td>{{ $item->invoice_no }}</td>
 
                             <td>{{  myDateFormat($item->return_date) }}</td>
                             <td>{{ $item->description }}</td>

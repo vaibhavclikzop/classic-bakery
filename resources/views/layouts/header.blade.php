@@ -131,6 +131,8 @@
      'reports/rm-purchase-history-report',
      'reports/department-sale-report',
      'reports/rm-product-ledger-report',
+     'reports/re-order-report',
+     
 
      ];
      $stockAuditRoutes = [
@@ -801,6 +803,12 @@
                                      <li><a href="/reports/rm-product-ledger-report"
                                              class="{{ Request::is('reports/rm-product-ledger-report') ? 'active' : '' }}">
                                              RM Product ledger Report</a></li>
+
+                                                 <li><a href="/reports/re-order-report"
+                                             class="{{ Request::is('reports/re-order-report') ? 'active' : '' }}">
+                                             Re-Order Report</a></li>
+
+                                             
 
                                  </ul>
                              </li>

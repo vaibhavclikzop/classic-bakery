@@ -219,20 +219,22 @@ class SaleReturn extends Controller
 
 
                     $price = $request->price[$key][0] ?? 0;
+                    $qty = $request->qty[$key][0] ?? 0;
                     DB::table("sale_return_det")->where("id", $key)->update(array(
                         "type" => $value[0],
-                        "mrp" => $price
+                        "mrp" => $price,
+                        "qty" => $qty
                     ));
                     if ($value[0] == "current_stock") {
 
 
                         $cs =  DB::table("finish_product_stock")->where("product_id", $sale_return_det->product_id)->first();
                         if ($cs) {
-                            DB::table("finish_product_stock")->where("product_id", $sale_return_det->product_id)->increment("stock", $sale_return_det->qty);
+                            DB::table("finish_product_stock")->where("product_id", $sale_return_det->product_id)->increment("stock", $qty);
                         } else {
                             DB::table("finish_product_stock")->insertGetId(array(
                                 "product_id" => $sale_return_det->product_id,
-                                "stock" => $sale_return_det->qty,
+                                "stock" => $qty,
                             ));
                         }
                     }

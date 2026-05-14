@@ -167,6 +167,7 @@
                                     data-warranty_days="{{ $item->warranty_days }}" data-active="{{ $item->active }}"
                                     data-raw_material="{{ $item->raw_material }}" data-gst="{{ $item->gst }}"
                                     data-manual_barcode="{{ $item->manual_barcode }}"
+                                    data-re_order_qty="{{ $item->re_order_qty }}"
                                     data-cess_tax="{{ $item->cess_tax }}" data-hindi="{{ $item->hindi }}"><i
                                         class="fa fa-pencil" aria-hidden="true"></i></button>
                             </td>
@@ -276,6 +277,12 @@
                             <label for="">Minimum Stock</label>
                             <input type="number" id="minimum_stock" name="minimum_stock" class="form-control"
                                 placeholder="Enter Minimum Stock" required>
+
+                        </div>
+                         <div class="col-md-4 mt-4 ">
+                            <label for="">Re-Order Qty</label>
+                            <input type="number" id="re_order_qty" name="re_order_qty" class="form-control"
+                                placeholder="Enter Re-Order Qty" required>
 
                         </div>
 
@@ -391,6 +398,7 @@
             $("#hindi").val($(this).data("hindi"));
             $("#manual_barcode").val($(this).data("manual_barcode"));
             $("#cess_tax").val($(this).data("cess_tax"));
+            $("#re_order_qty").val($(this).data("re_order_qty"));
             $("#modal_name").text("Update  Product");
             var raw_material = $(this).data("raw_material")
             $(".checkb").prop("checked", false);

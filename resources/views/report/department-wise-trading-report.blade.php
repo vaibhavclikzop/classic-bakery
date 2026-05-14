@@ -7,7 +7,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
-                <h4>Department wise trading report </h4>
+                <h4>Department <br> wise trading report </h4>
             </div>
 
             <form method="get" class="mx-4 d-flex">
@@ -19,6 +19,14 @@
                     <option value="customer" {{ request('customer_type') == 'customer' ? 'selected' : '' }}>Customer
                     </option>
                     <option value="outlet" {{ request('customer_type') == 'outlet' ? 'selected' : '' }}>Outlet</option>
+                </select>
+                <select name="order_type" id="" class="form-control mx-2">
+                    <option value="">Select</option>
+                    @foreach ($orderType as $item)
+                        <option value="{{$item->id}}" {{ request('order_type') == $item->id ? 'selected' : '' }}>{{$item->name}}
+                        </option>
+                    @endforeach
+
                 </select>
                 <button type="submit" class="btn btn-primary">Search</button>
 
