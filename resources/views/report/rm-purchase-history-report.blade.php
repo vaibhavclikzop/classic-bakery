@@ -49,8 +49,12 @@
                         <th>Product Name</th>
                         <th>Date</th>
                         <th>Vendor Name</th>
-                        <th>Price</th>
                         <th>Qty</th>
+                        <th>Price</th>
+                        <th>GST</th>
+                        <th>Amount</th>
+                        <th>Total</th>
+
                     </tr>
                 </thead>
 
@@ -61,8 +65,12 @@
                             <td>{{ $item->product_name }}</td>
                             <td>{{ \Carbon\Carbon::parse($item->date)->format('d-m-Y') }}</td>
                             <td>{{ $item->vendor_name }}</td>
-                            <td>{{ formatQtyPrice($item->price) }}</td>
                             <td>{{ formatQtyPrice($item->qty) }}</td>
+                            <td>{{ formatQtyPrice($item->price) }}</td>
+                            <td>{{ formatQtyPrice($item->gst) }}</td>
+                            <td>{{ formatQtyPrice($item->price+ $item->price/100*$item->gst) }}</td>
+                            <td>{{ formatQtyPrice($item->qty* ($item->price+ $item->price/100*$item->gst)) }}</td>
+
                         </tr>
                     @endforeach
                 </tbody>
@@ -71,7 +79,7 @@
         </div>
     </div>
     <script>
-        $(document).ready(function(){
+        $(document).ready(function() {
             $("#product_id").select2();
         })
     </script>

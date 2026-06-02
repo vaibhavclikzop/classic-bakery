@@ -42,8 +42,18 @@ class InwardStock extends Controller
 
     public function GeneratePO(Request $request)
     {
+        $vendor_id = null;
+        $productList = collect();
+        if ($request->vendor_id) {
+            $vendor_id = $request->vendor_id;
+            $productList = DB::table("products")->whereIn("id", $request->product_ids)->where("re_order_qty",">",0)->geT();
+        }
+
+
+
+
         $vendor = DB::table("vendor")->orderBy("name", "asc")->get();
-        return view("generate-po", compact("vendor"));
+        return view("generate-po", compact("vendor","vendor_id","productList"));
     }
     public function SavePO(Request $request)
     {
@@ -988,12 +998,12 @@ class InwardStock extends Controller
         $gst_type = "";
         $po_mst = DB::table("po_mst")->where("id", $request->mst_id)->first();
         $vendor = DB::table("vendor")->where("id", $po_mst->vendor_id)->first();
-        if ($request->productType=="raw material") {
-       $products = DB::table("products")->where("id", $request->product_id)->first();
-        }else{
-               $products = DB::table("finish_products_mst")->where("id", $request->product_id)->first();
+        if ($request->productType == "raw material") {
+            $products = DB::table("products")->where("id", $request->product_id)->first();
+        } else {
+            $products = DB::table("finish_products_mst")->where("id", $request->product_id)->first();
         }
-     
+
         $company_setting = DB::table("company_settings")->where("id", 1)->first();
         if ($vendor->gst) {
             $gst_number = substr($vendor->gst, 0, 2);

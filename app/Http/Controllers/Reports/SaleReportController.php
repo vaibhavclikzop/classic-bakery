@@ -18,21 +18,22 @@ class SaleReportController extends Controller
         $f_product_sub_category = $request->f_product_sub_category;
 
         // ================= PARTY CASE =================
-        $partyCase = "(CASE 
-        WHEN b.order_type = 'outlet' THEN o.outlet_name
-        WHEN b.order_type = 'customer' THEN cu.name
-    END)";
+        $partyCase = "(CASE
+    WHEN b.order_type = 'outlet' THEN o.outlet_name
+    WHEN b.order_type = 'customer' THEN cu.name
+END)";
 
-        // ================= BASE QUERY (NO DUPLICATION) =================
-        $base = DB::table('order_det as a')
-            ->select(
-                'a.product_id',
-                DB::raw("$partyCase as party_name"),
-                DB::raw("SUM(a.qty) as qty"),
-                DB::raw("SUM(a.booked_qty) as sale_qty"),
-                DB::raw("SUM(a.price * a.booked_qty) as amount")
-            )
-            ->join("order_mst as b", "a.mst_id", "b.id")
+        // ================= BASE QUERY =================
+        $base = DB::table('outward_customer_order_det as od')
+
+            ->join('outward_customer_order_mst as om', 'od.mst_id', '=', 'om.id')
+
+            ->join('order_mst as b', 'om.order_id', '=', 'b.id')
+
+            ->join('order_det as a', function ($join) {
+                $join->on('od.product_id', '=', 'a.product_id')
+                    ->on('om.order_id', '=', 'a.mst_id');
+            })
 
             ->leftJoin('outlet as o', function ($join) {
                 $join->on('b.customer_id', '=', 'o.id')
@@ -44,26 +45,56 @@ class SaleReportController extends Controller
                     ->where('b.order_type', 'customer');
             })
 
-            ->whereBetween('b.delivery_date', [$fromDt, $toDt])
+            ->whereBetween('om.invoice_date', [$fromDt, $toDt])
 
-            ->when($order_type, fn($q) => $q->where("b.order_type_id", $order_type))
-
-            ->when($f_product_sub_category, function ($q) use ($f_product_sub_category) {
-                $q->join("finish_products_mst as c", "a.product_id", "c.id")
-                    ->where("c.f_sub_category_id", $f_product_sub_category);
+            ->when($order_type, function ($q) use ($order_type) {
+                $q->where('b.order_type_id', $order_type);
             })
 
-            ->groupBy('a.product_id', 'party_name');
+            ->when($f_product_sub_category, function ($q) use ($f_product_sub_category) {
+                $q->join('finish_products_mst as c', 'od.product_id', '=', 'c.id')
+                    ->where('c.f_sub_category_id', $f_product_sub_category);
+            })
+
+            ->select(
+                'od.product_id',
+
+                DB::raw("$partyCase as party_name"),
+
+                // outward qty
+                DB::raw('SUM(od.qty) as qty'),
+
+                // actual sold qty
+                DB::raw('SUM(od.qty) as sale_qty'),
+
+                // outward amount
+                DB::raw("
+            ROUND(
+                SUM(
+                    (od.qty * a.price)
+                    * (1 - a.discount / 100)
+                ),
+            2) as amount
+        ")
+            )
+
+            ->groupBy(
+                'od.product_id',
+                DB::raw($partyCase)
+            );
+
 
         // ================= FINAL DATA =================
         $rows = DB::query()
             ->fromSub($base, 'x')
 
-            ->join("finish_products_mst as c", "x.product_id", "c.id")
-            ->join("f_product_category as fpc", "c.f_category_id", "fpc.id")
-            ->join("f_product_sub_category as fpsc", "c.f_sub_category_id", "fpsc.id")
+            ->join('finish_products_mst as c', 'x.product_id', '=', 'c.id')
+            ->join('f_product_category as fpc', 'c.f_category_id', '=', 'fpc.id')
+            ->join('f_product_sub_category as fpsc', 'c.f_sub_category_id', '=', 'fpsc.id')
 
-            ->when($f_product_sub_category, fn($q) => $q->where("fpsc.id", $f_product_sub_category))
+            ->when($f_product_sub_category, function ($q) use ($f_product_sub_category) {
+                $q->where('fpsc.id', $f_product_sub_category);
+            })
 
             ->select(
                 'c.name as product',
@@ -71,16 +102,24 @@ class SaleReportController extends Controller
                 'fpsc.name as sub_category',
                 'x.party_name',
 
-                DB::raw("SUM(x.qty) as order_qty"),
-                DB::raw("SUM(x.sale_qty) as sale_qty"),
-                DB::raw("SUM(x.amount) as amount")
+                DB::raw('SUM(x.qty) as order_qty'),
+                DB::raw('SUM(x.sale_qty) as sale_qty'),
+                DB::raw('SUM(x.amount) as amount')
             )
 
-            ->groupBy("c.name", "fpc.name", "fpsc.name", "x.party_name")
+            ->groupBy(
+                'c.name',
+                'fpc.name',
+                'fpsc.name',
+                'x.party_name'
+            )
+
             ->get();
 
-        // ================= GET PARTIES FROM DATA ONLY =================
+
+        // ================= GET PARTIES =================
         $parties = $rows->pluck('party_name')->unique()->values();
+
 
         // ================= PIVOT FORMAT =================
         $result = [];
@@ -90,20 +129,19 @@ class SaleReportController extends Controller
             $key = $row->product . '|' . $row->category . '|' . $row->sub_category;
 
             if (!isset($result[$key])) {
+
                 $result[$key] = [
-                    'product' => $row->product,
-                    'category' => $row->category,
-                    'sub_category' => $row->sub_category
+                    'product'      => $row->product,
+                    'category'     => $row->category,
+                    'sub_category' => $row->sub_category,
                 ];
             }
 
             $safe = preg_replace('/[^A-Za-z0-9]/', '_', $row->party_name);
 
-            $result[$key]["order_qty_$safe"] = $row->order_qty;
-            $result[$key]["sale_qty_$safe"]  = $row->sale_qty;
-            $result[$key]["amount_$safe"]    = $row->amount;
-
-            // return optional (set 0 for now)
+            $result[$key]["order_qty_$safe"]  = $row->order_qty;
+            $result[$key]["sale_qty_$safe"]   = $row->sale_qty;
+            $result[$key]["amount_$safe"]     = $row->amount;
             $result[$key]["return_qty_$safe"] = 0;
         }
 

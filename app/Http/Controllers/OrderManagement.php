@@ -401,30 +401,30 @@ class OrderManagement extends Controller
         try {
             DB::beginTransaction();
 
-         
 
 
-                $gst_type = "";
 
-                if ($request->order_type == "customer") {
-                    $city = DB::table("customers")->where("id", $request->customer_id)->select("city")->first();
+            $gst_type = "";
+
+            if ($request->order_type == "customer") {
+                $city = DB::table("customers")->where("id", $request->customer_id)->select("city")->first();
+            } else {
+                $city = DB::table("company_settings")->where("outlet_id", $request->customer_id)->select("city")->first();
+            }
+
+            $company_setting = DB::table("company_settings")->where("id", 1)->first();
+            if ($city->city && $company_setting->city) {
+                if ($city->city == $company_setting->city) {
+                    $gst_type = "Inner GST";
                 } else {
-                    $city = DB::table("company_settings")->where("outlet_id", $request->customer_id)->select("city")->first();
+                    $gst_type = "Outer GST";
                 }
-
-                $company_setting = DB::table("company_settings")->where("id", 1)->first();
-                if ($city->city && $company_setting->city) {
-                    if ($city->city == $company_setting->city) {
-                        $gst_type = "Inner GST";
-                    } else {
-                        $gst_type = "Outer GST";
-                    }
-                } else {
-                    return redirect()->back()->with('error', "Select Outlet City");
-                }
+            } else {
+                return redirect()->back()->with('error', "Select Outlet City");
+            }
 
 
-   if (!$request->id) {
+            if (!$request->id) {
                 $inv_no =   DB::table("order_mst")->whereDate("created_at", now())->count();
                 if (!$inv_no) {
                     $inv_no = 1;
@@ -451,8 +451,8 @@ class OrderManagement extends Controller
 
                 ));
                 $company_setting = DB::table("company_settings")->where("id", 1)->increment("order_no");
-            }else{
-                $mst_id=$request->id;
+            } else {
+                $mst_id = $request->id;
             }
 
             DB::table("order_det")->where("mst_id", $request->id)->delete();

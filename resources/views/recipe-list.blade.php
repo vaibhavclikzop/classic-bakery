@@ -1,13 +1,16 @@
 @extends('layouts.main')
 @section('main-section')
-<style>
-     .wrap-text{
-             word-wrap: break-word!important; /* older browsers */
-        overflow-wrap: break-word!important; /* modern browsers */
-        white-space: normal!important; /* allow line breaks */
-        max-width: 200px!important;
+    <style>
+        .wrap-text {
+            word-wrap: break-word !important;
+            /* older browsers */
+            overflow-wrap: break-word !important;
+            /* modern browsers */
+            white-space: normal !important;
+            /* allow line breaks */
+            max-width: 200px !important;
         }
-</style>
+    </style>
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
@@ -15,7 +18,19 @@
             </div>
             <div class="">
 
-                {{-- <a href="generate-po-product" class="btn btn-dark">Generate PO Via Products</a> --}}
+                <form action="">
+                    <label for="">Department</label>
+                    <select name="department_id" id="" class="form-control" onchange="this.form.submit();">
+                        <option value="">Select</option>
+                        @foreach ($department as $item)
+                            <option value="{{ $item->id }}" {{ request('department_id') == $item->id ? 'selected' : '' }}>
+                                {{ $item->name }} </option>
+                        @endforeach
+                    </select>
+                </form>
+
+            </div>
+            <div>
 
             </div>
 
@@ -42,16 +57,19 @@
                             <td>{{ $sno++ }}</td>
                             <td>{{ $item->name }}</td>
                             <td>{{ $item->dname }}</td>
-                             <td class="wrap-text" style="width: 20%">{{ $item->description }}</td>
+                            <td class="wrap-text" style="width: 20%">{{ $item->description }}</td>
                             <td>{{ $item->batch }}</td>
-                            
+
                             <td>
                                 {{-- <a href="/recipe-view/{{ $item->id }}" class="btn btn-primary btn-sm"> <i class="fa fa-eye"
                                         aria-hidden="true"></i> </a> --}}
-                                        <a href="/make-recipe/{{$item->id}}" class="btn btn-dark btn-sm"> Make Recipe </a>
-                                
-                                 <a href="javascript:void(0)" class="btn btn-danger btn-sm" onclick="deleteReceipe('{{ $item->id }}')"> <i class="fa fa-trash"
-                                        aria-hidden="true"></i> </a>        
+                                <a href="/make-recipe/{{ $item->id }}" class="btn btn-dark btn-sm"> Make Recipe </a>
+                                <a href="/create-recipe?id={{ $item->id }}" class="btn btn-primary btn-sm"><i
+                                        class="fa fa-pencil" aria-hidden="true"></i> </a>
+
+                                <a href="javascript:void(0)" class="btn btn-danger btn-sm"
+                                    onclick="deleteReceipe('{{ $item->id }}')"> <i class="fa fa-trash"
+                                        aria-hidden="true"></i> </a>
                             </td>
                         </tr>
                     @endforeach
@@ -62,47 +80,47 @@
         </div>
 
     </div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-         function deleteReceipe(id) {
-        Swal.fire({
-            title: "Are you sure?",
-            text: `Are you sure you want to delete this?`,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, Delete it!",
-            cancelButtonText: "No",
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
+        function deleteReceipe(id) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: `Are you sure you want to delete this?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Delete it!",
+                cancelButtonText: "No",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
 
-                fetch("{{ route('delete-recipe') }}", {
-                        method: "POST",
-                        headers: {
-                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            id: id,
+                    fetch("{{ route('delete-recipe') }}", {
+                            method: "POST",
+                            headers: {
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                id: id,
+                            })
                         })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        console.log(data);
-                         if (data.success) {
-                            Swal.fire("Updated!", data.message, "success")
-                                .then(() => location.reload());
-                        } else {
-                            Swal.fire("Error!", data.message, "error");
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        
-                    });
-            }
-        });
-    }
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log(data);
+                            if (data.success) {
+                                Swal.fire("Updated!", data.message, "success")
+                                    .then(() => location.reload());
+                            } else {
+                                Swal.fire("Error!", data.message, "error");
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+
+                        });
+                }
+            });
+        }
     </script>
 @endsection

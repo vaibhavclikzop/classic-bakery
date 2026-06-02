@@ -16,7 +16,19 @@ class RecipeController extends Controller
         $products =  products::with("unitType")->get();
         $department = DB::table('department')->orderBy("name", "ASC")->get();
         $finish_products_mst =  finish_products_mst::get();
-        return view("create-recipe", compact("products", "department", "finish_products_mst"));
+
+        $order_mst = collect();
+        $order_det = collect();
+        if (request("id")) {
+            $id = request("id");
+            $order_mst = DB::table("recipe_mst")->where("id", $id)->first();
+            $order_det =  DB::table("recipe_det as a")
+                ->select("a.*", "b.name", "b.id as product_id")
+                ->join("finish_products_mst as b", "a.product_id", "b.id")
+                ->where("a.mst_id", $id)->get();
+        }
+
+        return view("create-recipe", compact("products", "department", "finish_products_mst", "order_mst", "order_det"));
     }
 
     public function saveRecipe(Request $request)
@@ -29,16 +41,31 @@ class RecipeController extends Controller
 
         DB::beginTransaction();
         try {
-            $wo_no = 'WO_' . date('dmyhis');
-            $mst_id = DB::table("recipe_mst")->insertGetId(array(
-                "name" => $request->name,
-                "department_id" => $request->department_id,
-                "description" => $request->description,
-                "batch" => $request->batch,
-                "wo_no" => $wo_no,
-                "user_id" => $request->user->id,
-            ));
 
+            if ($request->mst_id) {
+                $mst_id = $request->mst_id;
+                DB::table("recipe_mst")->where("id", $mst_id)->update(array(
+                    "name" => $request->name,
+                    "department_id" => $request->department_id,
+                    "description" => $request->description,
+                    "batch" => $request->batch,
+
+                    "user_id" => $request->user->id,
+                ));
+            } else {
+
+
+                $wo_no = 'WO_' . date('dmyhis');
+                $mst_id = DB::table("recipe_mst")->insertGetId(array(
+                    "name" => $request->name,
+                    "department_id" => $request->department_id,
+                    "description" => $request->description,
+                    "batch" => $request->batch,
+                    "wo_no" => $wo_no,
+                    "user_id" => $request->user->id,
+                ));
+            }
+            DB::table("recipe_det")->where("mst_id", $request->mst_id)->delete();
             foreach ($prod_list as $key => $value) {
 
 
@@ -60,11 +87,17 @@ class RecipeController extends Controller
 
     public function recipeList(Request $request)
     {
-        $data = DB::table('recipe_mst as a')
+
+        $department_id = request("department_id");
+        $query = DB::table('recipe_mst as a')
             ->select("a.*", "d.name as dname")
-            ->Leftjoin('department as d', "a.department_id", "d.id")
-            ->orderBy("a.id", "desc")->get();
-        return view("recipe-list", compact("data"));
+            ->Leftjoin('department as d', "a.department_id", "d.id");
+            if ($department_id) {
+                $query->where("a.department_id",$department_id);
+            }
+           $data= $query->orderBy("a.id", "desc")->get();
+        $department = DB::table('department')->orderBy("name", "ASC")->get();
+        return view("recipe-list", compact("data", "department"));
     }
 
     public function recipeView(Request $request, $id)

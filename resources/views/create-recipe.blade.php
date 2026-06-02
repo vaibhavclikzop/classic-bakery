@@ -21,6 +21,7 @@
 
             <form method="POST" id="frmMain" action="{{ route('SaveRecipe') }}">
                 @csrf
+                <input type="hidden" hidden name="mst_id" value="{{request("id")}}">
 
                 <div class="row">
 
@@ -168,8 +169,9 @@
                 var html = `<tr class="product${product_id}">
                             <td>${sno++}</td>    
                             <td>${product_name}</td>    
-                            <td>${qty}</td>    
-                            <td>${uom}</td>    
+                            <td> <input type="number" step="0.01" value="${qty}" class="form-control editQty" 
+                                data-id="${product_id}" ></td>    
+                            <td>GM</td>    
                        
                                        
                             <td> 
@@ -185,7 +187,7 @@
                 product_list.push({
                     product_id,
                     qty,
-                    uom,
+                    uom: "GM",
                 });
                 calculate_total(product_list);
                 $("#qty").val("")
@@ -195,12 +197,30 @@
 
             });
 
+
+
+            $(document).on("keyup", ".editQty", function() {
+                let id = parseInt($(this).data("id"));
+                let qty = parseFloat($(this).val()) || 0;
+
+                let product = product_list.find(item => item.product_id === id);
+
+                if (product) {
+                    product.qty = qty;
+                }
+
+                console.log(product_list);
+            });
+
+
+
             $(document).on("click", ".remove", function() {
                 let id = parseInt($(this).data("id"))
 
                 $(`.product${id}`).remove();
                 product_list = product_list.filter(item => item.product_id !== id);
                 calculate_total(product_list)
+                console.log(product_list);
 
             });
             $("#SavePO").on("click", function() {
@@ -303,6 +323,64 @@
                 calculate_total(product_list);
                 $('#editProductModal').modal('hide');
             });
+
+
+            let order_mst = @json($order_mst);
+            let order_det = @json($order_det);
+            if (order_mst) {
+
+                $.each(order_mst, function(i, o) {
+
+                    $("input[name=" + i + "]").val(o)
+                    $("select[name=" + i + "]").val(o)
+                    $("textarea[name=" + i + "]").val(o)
+                })
+                $("#customer_id").trigger("change")
+                $("#ship_state").trigger("change")
+                setTimeout(() => {
+                    $("#ship_city").val(order_mst.ship_city)
+                }, 2000);
+
+
+
+                order_det.forEach(element => {
+                    id = sno;
+                    product_id = element.product_id;
+
+
+                    var html = `<tr class="product${product_id}">
+                            <td>${sno}</td>    
+                              
+                                
+                            <td>${element.name}</td>    
+        
+                         <td> <input type="number" step="0.01" value="${element.qty}" class="form-control editQty" 
+                                data-id="${product_id}" ></td>    
+                            <td>GM</td>    
+                       
+                                       
+                            <td> 
+
+                                <button type="button"  class="btn btn-danger remove btn-sm"  data-id="${product_id}">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                </button>
+                          
+                            </td>   
+                        </tr>`;
+
+                    $("#prodList").append(html)
+                    product_list.push({
+                        product_id,
+                        qty: element.qty,
+                        uom: "GM",
+
+                    });
+                    sno++;
+                });
+                console.log(product_list);
+                $('.product_id').select2();
+            }
+
         });
     </script>
 @endsection

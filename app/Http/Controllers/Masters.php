@@ -615,6 +615,7 @@ class Masters extends Controller
 
         $category_id = $request->input("category_id");
         $sub_category_id = $request->input("sub_category_id");
+      
         $search = $request->input('search');
         $perPage = $request->input('perPage', 0);
 
@@ -629,7 +630,7 @@ class Masters extends Controller
             $product->where("a.category_id", "=", $category_id);
         }
         if ($sub_category_id) {
-            $product->where("a.sub_category_id", "=", $sub_category_id);
+            $product->whereIn("a.sub_category_id",  $sub_category_id);
         }
 
         if (!empty($search)) {
@@ -641,10 +642,10 @@ class Masters extends Controller
             });
         }
         if ($perPage > 0) {
-            $products = $product->paginate($perPage);
+            $products = $product->orderby("d.name","asc")->orderby("a.name","asc")->paginate($perPage);
         } else {
             $perPage = PHP_INT_MAX;
-            $products = $product->paginate($perPage);
+            $products = $product->orderby("d.name","asc")->orderby("a.name","asc")->paginate($perPage);
         }
 
 
@@ -970,7 +971,7 @@ class Masters extends Controller
         $f_category_id = $request->input("f_category_id");
         $f_sub_category_id = $request->input("f_sub_category_id");
         $search = $request->input('search');
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('perPage', 0);
 
         $product = DB::table("finish_products_mst as a")
             ->select(
@@ -987,7 +988,7 @@ class Masters extends Controller
             $product->where("a.f_category_id", "=", $f_category_id);
         }
         if ($f_sub_category_id) {
-            $product->where("a.f_sub_category_id", "=", $f_sub_category_id);
+            $product->whereIn("a.f_sub_category_id", $f_sub_category_id);
         }
 
         if (!empty($search)) {
@@ -1000,10 +1001,10 @@ class Masters extends Controller
 
 
         if ($perPage > 0) {
-            $products = $product->paginate($perPage);
+            $products = $product->orderby("c.name","asc")->orderby("a.name","asc")->paginate($perPage);
         } else {
             $perPage = PHP_INT_MAX;
-            $products = $product->paginate($perPage);
+            $products = $product->orderby("c.name","asc")->orderby("a.name","asc")->paginate($perPage);
         }
 
 

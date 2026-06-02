@@ -39,4 +39,19 @@ class AjaxController extends Controller
 
         return $data?->price;
     }
+
+    public function getRMorTradingItems(Request $request)
+    {
+        if ($request->type == "raw_material") {
+            return  DB::table("products as a")
+                ->select("a.*", DB::raw("CASE WHEN b.stock > 0 THEN b.stock ELSE 0 END as stock"))
+                ->leftJoin("current_stock as b", "a.id", "b.product_id")
+                ->get();
+        } else {
+            return DB::table("finish_products_mst as a")
+                ->select("a.*", DB::raw("CASE WHEN b.stock > 0 THEN b.stock ELSE 0 END as stock"))
+                ->leftJoin("finish_product_stock as b", "a.id", "b.product_id")
+                ->where("a.f_category_id", 2)->get();
+        }
+    }
 }

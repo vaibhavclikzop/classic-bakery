@@ -30,9 +30,9 @@
 
     </div>
     <div class="card-body" id="PrintOrder">
-        <div class="text-center">
+        {{-- <div class="text-center">
             <img src="/logo/{{ $setting->img }}" width="180px">
-        </div>
+        </div> --}}
 
         <div style="display: flex; justify-content: space-between; border: solid 1px; padding: 8px;">
             <div>

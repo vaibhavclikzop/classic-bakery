@@ -87,18 +87,30 @@
             }, false)
         })
     })()
-    $(".dataTable").DataTable({
-        "responsive": true,
-        "lengthChange": true,
-        "autoWidth": false,
-        "ordering": true,
-        "buttons": ["excel", 'csv'],
-        "pageLength": -1,
-        "lengthMenu": [
-            [10, 25, 50, -1],
-            [10, 25, 50, "All"]
-        ],
-    }).buttons().container().appendTo('.col-md-6:eq()');
+  let table = $(".dataTable").DataTable({
+    responsive: true,
+    lengthChange: true,
+    autoWidth: false,
+    ordering: true,
+    searching: true,
+    smart: false,
+    buttons: ["excel", "csv"],
+    pageLength: -1,
+    lengthMenu: [
+        [10, 25, 50, -1],
+        [10, 25, 50, "All"]
+    ]
+});
+
+table.buttons().container().appendTo('.col-md-6:eq(0)');
+$('.dataTables_filter input')
+    .off()
+    .on('keyup', function () {
+
+        let value = $.fn.dataTable.util.escapeRegex($(this).val());
+
+        table.search(value, true, false).draw();
+    });
 
 
     $("#dataTable").DataTable({

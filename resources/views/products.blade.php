@@ -3,6 +3,21 @@
     @push('title')
         <title> Product</title>
     @endpush
+    <style>
+        .table th,
+        .table td {
+            padding: 5px 10px !important;
+            vertical-align: middle;
+            line-height: 1;
+            font-size: 12px !important;
+            white-space: nowrap;
+        }
+
+        th,
+        td {
+            color: black !important;
+        }
+    </style>
     <div class="card">
         <div class="card-header ">
             <div class="page-title">
@@ -67,7 +82,7 @@
                     {{-- Sub Category --}}
                     <div class="col-md-3">
                         <label for="sub_category_id" class="form-label">Sub Category</label>
-                        <select name="sub_category_id" class="form-select" onchange="this.form.submit()">
+                        <select name="sub_category_id[]" id="sub_category_id_select2" multiple class="form-select">
                             <option value="">Select</option>
                             @foreach ($sub_category as $item)
                                 <option value="{{ $item->id }}"
@@ -107,7 +122,7 @@
 
                         <th> Name</th>
                         <th> Article No</th>
-                        <th> Barcode</th>
+       
                         <th> Price</th>
                         <th> Min Stock</th>
                         <th> Unit Type</th>
@@ -115,6 +130,7 @@
                         <th> GST</th>
                         <th> Cess Tax</th>
                         <th> Active</th>
+                        <th> Re-Order Qty</th>
 
 
                         <th>Action</th>
@@ -140,18 +156,22 @@
 
 
                             {{-- <td>{{ $item->brand_name }}</td> --}}
-                            <td>{{ $item->category_name }}</td>
-                            <td>{{ $item->sub_category }}</td>
+                            <td style="white-space: normal; word-wrap: break-word;">{{ $item->category_name }}</td>
+                            <td style="white-space: normal; word-wrap: break-word;">{{ $item->sub_category }}</td>
 
-                            <td>{{ $item->name }} <br> {{ $item->hindi }} </td>
+                            <td style="white-space: normal; word-wrap: break-word;">
+                                {{ $item->name }} <br>
+                                {{ $item->hindi }}
+                            </td>
                             <td>{{ $item->article_no }}</td>
-                            <td>{{ $item->manual_barcode }}</td>
+ 
                             <td>{{ $item->price }}</td>
                             <td>{{ $item->min_stock }}</td>
                             <td>{{ $item->unit_type }}</td>
 
                             <td>{{ $item->gst }}</td>
                             <td>{{ $item->cess_tax }}</td>
+                            <td>{{ $item->re_order_qty }}</td>
                             <td>{!! $active !!}</td>
 
 
@@ -167,9 +187,9 @@
                                     data-warranty_days="{{ $item->warranty_days }}" data-active="{{ $item->active }}"
                                     data-raw_material="{{ $item->raw_material }}" data-gst="{{ $item->gst }}"
                                     data-manual_barcode="{{ $item->manual_barcode }}"
-                                    data-re_order_qty="{{ $item->re_order_qty }}"
-                                    data-cess_tax="{{ $item->cess_tax }}" data-hindi="{{ $item->hindi }}"><i
-                                        class="fa fa-pencil" aria-hidden="true"></i></button>
+                                    data-re_order_qty="{{ $item->re_order_qty }}" data-cess_tax="{{ $item->cess_tax }}"
+                                    data-hindi="{{ $item->hindi }}"><i class="fa fa-pencil"
+                                        aria-hidden="true"></i></button>
                             </td>
 
                         </tr>
@@ -279,7 +299,7 @@
                                 placeholder="Enter Minimum Stock" required>
 
                         </div>
-                         <div class="col-md-4 mt-4 ">
+                        <div class="col-md-4 mt-4 ">
                             <label for="">Re-Order Qty</label>
                             <input type="number" id="re_order_qty" name="re_order_qty" class="form-control"
                                 placeholder="Enter Re-Order Qty" required>
@@ -379,6 +399,16 @@
     </form>
 
     <script>
+        $(document).ready(function() {
+            $("#sub_category_id_select2").select2();
+            let selectedValues = @json(request('sub_category_id', []));
+
+            if (selectedValues.length > 0) {
+                $('#sub_category_id_select2')
+                    .val(selectedValues)
+                    .trigger('change');
+            }
+        })
         $(document).on("click", ".edit", function() {
             $("#id").val($(this).data("id"));
             $("#name").val($(this).data("name"));

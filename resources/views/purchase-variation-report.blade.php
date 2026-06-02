@@ -1,12 +1,12 @@
 @extends('layouts.main')
 @section('main-section')
     @push('title')
-        <title>Purchase Variation</title>
+        <title>Purchase Variation {{request("fromDt")}} </title>
     @endpush
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <div class="page-title">
-                <h4>Purchase Variation</h4>
+                <h4>Purchase Variation {{request("fromDt", date("Y-m-d"))}} </h4>
             </div>
             <div>
                 <form action="" method="GET" class="d-flex">
@@ -16,7 +16,7 @@
                             value="{{ request('fromDt') }}">
                     </div>
 
-                    
+
                 </form>
 
             </div>
@@ -29,9 +29,7 @@
             </div>
         </div>
         <div class="card-body" id="PrintOrder">
-            <div class="page-title">
-                <h4>Purchase Variation</h4>
-            </div>
+            
             <table class="table dataTable" id="exportTablePurchaseVariation">
                 <thead>
                     <tr>
@@ -51,7 +49,7 @@
                         <tr>
                             <td>{{ $sno++ }}</td>
                             <td>{{ $item->vendor }}</td>
-                            <td>{{date("d-m-Y",strtotime($item->invoice_date )) }}</td>
+                            <td>{{ date('d-m-Y', strtotime($item->invoice_date)) }}</td>
                             <td>{{ $item->product }}</td>
                             <td>{{ formatQtyPrice($item->price) }}</td>
                             <td>{{ formatQtyPrice($item->qty) }}</td>
@@ -62,7 +60,7 @@
 
         </div>
     </div>
-        <script>
+    <script>
         $('#exportToExcelTally').click(function() {
             var name = $(this).data("name");
 

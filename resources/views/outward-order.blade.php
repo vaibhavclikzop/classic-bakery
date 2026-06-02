@@ -49,14 +49,19 @@
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th colspan="">
+                                        <label for="">Product Type</label> <br>
+                                        <select name="type" id="type" class="form-control ">
+                                            <option value="">Select Type</option>
+                                            <option value="raw_material">Raw Material</option>
+                                            <option value="trading">Trading</option>
+                                        </select>
+                                    </th>
                                     <th colspan="4">
                                         <label for="">Products</label> <br>
                                         <select name="product_id" id="product_id" class="form-control ">
                                             <option value="">Select Product</option>
-                                            @foreach ($products as $item)
-                                                <option value="{{ $item->id }}" data-stock="{{ $item->stock }}">
-                                                    {{ $item->name }} / Stock - {{ $item->stock }}</option>
-                                            @endforeach
+
                                         </select>
                                     </th>
                                     <th>
@@ -76,6 +81,7 @@
                                 </tr>
                                 <tr>
                                     <th>S.No</th>
+                                    <th>Type </th>
                                     <th colspan="3">Product </th>
                                     <th>Current Stock </th>
                                     <th>Qty</th>
@@ -131,6 +137,7 @@
             var product_id = parseInt($("#product_id").val())
             var product_name = $("#product_id").find(":selected").text()
             var qty = parseFloat($("#qty").val())
+            var type = ($("#type").val())
             var stock = parseFloat($("#product_id").find(":selected").data("stock"))
 
 
@@ -150,7 +157,8 @@
             }
 
 
-            let existingProduct = product_list.find(product => product.product_id === product_id);
+            let existingProduct = product_list.find(product => product.product_id === product_id && product.type ===
+                type);
             if (existingProduct) {
                 toastr.error("Product already exists");
                 return;
@@ -158,6 +166,7 @@
 
             var html = `<tr class="product${product_id}">
                             <td>${sno++}</td>    
+                            <td  >${type}</td>    
                             <td colspan="3">${product_name}</td>    
                             <td>${stock}</td>    
                             <td><input type="number" step="0.01" value="${qty}" class="updateQty form-control" data-id="${product_id}" data-stock="${stock}"></td>    
@@ -175,6 +184,7 @@
             product_list.push({
                 product_id,
                 qty,
+                type,
 
             });
             $("#product_id").val(null).trigger("change");
@@ -230,7 +240,7 @@
             let product_id = $(this).data("id");
             let qty = parseFloat($(this).val()).toFixed(2);
 
-            let stock =parseFloat($(this).data("stock")).toFixed(2);
+            let stock = parseFloat($(this).data("stock")).toFixed(2);
 
             if (qty > stock) {
                 toastr.error("Qty can not be more then stock");
@@ -265,6 +275,40 @@
                 }
             });
 
+            $("#type").on("change", function() {
+                $.ajax({
+                    url: "/getRMorTradingItems",
+                    type: "POST",
+                    data: {
+                        type: $(this).val(),
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    beforeSend: function() {
+                        $("#loader").show();
+                    },
+                    success: function(result) {
+                        var html = "";
+                        html += '<option value="">----Select----</option>';
+                        result.forEach(element => {
+
+                            html += '<option value="' + element.id + '" data-stock="' +
+                                element.stock + '">' + element
+                                .name +
+                                '</option>';
+                        });
+                        $("#product_id").html(html)
+                    },
+                    complete: function() {
+                        $("#loader").hide();
+                    },
+                    error: function(result) {
+                        toastr.error(result.responseJSON.message);
+                    }
+                });
+
+            });
         });
     </script>
 @endsection

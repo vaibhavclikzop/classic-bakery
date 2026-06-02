@@ -102,7 +102,10 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
   Route::post('getLastPurchasePriceRM', [AjaxController::class, 'getLastPurchasePriceRM'])->name('getLastPurchasePriceRM');
   Route::post('getLastPurchasePriceFG', [AjaxController::class, 'getLastPurchasePriceFG'])->name('getLastPurchasePriceFG');
+  Route::post('getRMorTradingItems', [AjaxController::class, 'getRMorTradingItems'])->name('getRMorTradingItems');
 
+
+  
 
   Route::post('GetCity', [Masters::class, 'GetCity'])->name('GetCity');
   Route::post('GetCategory', [Masters::class, 'GetCategory'])->name('GetCategory');
@@ -250,7 +253,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
   // Route::post('InitiateOrder', [OrderManagement::class, 'InitiateOrder'])->name('InitiateOrder'); 
 
   //PO/Inward Stock Routes
-  Route::get('generate-po', [InwardStock::class, 'GeneratePO'])->name('generate-po');
+  Route::any('generate-po', [InwardStock::class, 'GeneratePO'])->name('generate-po');
   Route::post('deletePO', [InwardStock::class, 'deletePO'])->name('deletePO');
   Route::post('SavePO', [InwardStock::class, 'SavePO'])->name('SavePO');
 
@@ -600,4 +603,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
 
   Route::get('reports/re-order-report', [OperationsReport::class, 'reOrderReport'])->name('reports/re-order-report');
+  Route::post('reports/getVendorBySubCategory', [OperationsReport::class, 'getVendorBySubCategory'])->name('reports/getVendorBySubCategory');
+
+  
 });

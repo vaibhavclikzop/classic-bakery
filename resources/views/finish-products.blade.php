@@ -47,6 +47,20 @@
             white-space: normal !important;
             max-width: 200px;
         }
+
+        .table th,
+        .table td {
+            padding: 5px 10px !important;
+            vertical-align: middle;
+            line-height: 1;
+            font-size: 12px !important;
+            white-space: nowrap;
+        }
+
+        th,
+        td {
+            color: black !important;
+        }
     </style>
 
 
@@ -88,7 +102,10 @@
                             <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
                             <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
                             <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
-                            <option value="0" {{ request('perPage') == '0' ? 'selected' : '' }}>All</option>
+                            <option value="0"
+                                {{ request('perPage') == '0' || request('perPage') == '' ? 'selected' : '' }}>
+                                All
+                            </option>
                         </select>
                     </div>
 
@@ -109,8 +126,7 @@
 
                     <div class="col-md-3">
                         <label for="f_sub_category_id" class="form-label">Sub Category</label>
-                        <select name="f_sub_category_id" id="f_sub_category_id" class="form-select"
-                            onchange="this.form.submit()">
+                        <select name="f_sub_category_id[]" multiple id="f_sub_category_id" class="form-select">
                             <option value="">Select</option>
                             @foreach ($sub_category as $item)
                                 <option value="{{ $item->id }}"
@@ -144,11 +160,15 @@
                         <th> Category</th>
                         <th> Name</th>
                         <th> Price</th>
+                        <th> GST</th>
+                        <th> Cess</th>
                         <th> Article No</th>
                         <th> HSN Code</th>
-                        <th> Bar Code</th>
+
                         <th> UOM</th>
-                        <th> Minimum Stock</th>
+                        <th> Min. Stock</th>
+                        <th> Best Before</th>
+                        <th> Active</th>
 
 
 
@@ -162,24 +182,36 @@
                         $sno = 1;
                     @endphp
                     @foreach ($products as $item)
+                      @php
+                            $active = '';
+                            if ($item->active == 1) {
+                                $active = "<span class='badge bg-success'>Active</span>";
+                            } else {
+                                $active = "<span class='badge bg-danger'>In Active</span>";
+                            }
+                        @endphp
                         <tr>
                             <td>{{ $sno++ }}</td>
-                            <td>
-                                <p class="mb-1">Category : {{ $item->category_name }}</p>
-                                <p class="mb-1">Subcategory :{{ $item->sub_category }}</p>
+                            <td style="min-width: 150px; max-width: 150px">
+                                <p class="mb-1 wrap-text"><strong> Category :</strong> {{ $item->category_name }}</p>
+                                <p class="mb-1 wrap-text"><strong>Subcategory :</strong>{{ $item->sub_category }}</p>
                             </td>
-                            <td class="mb-1 wrap-text" style="width: 25%!important">{{ $item->name }}
+                            <td class="mb-1 wrap-text" style="min-width: 150px; max-width: 150px">{{ $item->name }}
                             </td>
 
                             <td>
-                                <p class="mb-0">Price : {{ $item->price }}</p>
-                                <p class="mb-0">GST : {{ $item->gst }}</p>
+                            {{ $item->price }}
+                             
                             </td>
+                            <td>{{ $item->gst }}</td>
+                            <td>{{ $item->cess_tax }}</td>
                             <td>{{ $item->article_no }}</td>
                             <td>{{ $item->hsn_code }}</td>
-                            <td>{{ $item->manual_barcode }}</td>
+
                             <td>{{ $item->unit_type }}</td>
                             <td>{{ $item->min_stock }}</td>
+                            <td>{{ $item->warranty_days }}</td>
+                            <td>{!!$active!!}</td>
 
                             <td>
                                 <button class="btn btn-sm btn-primary Edit" data-id="{{ $item->id }}"
@@ -610,6 +642,16 @@
 
 
     <script>
+        $(document).ready(function() {
+            $("#f_sub_category_id").select2();
+            let selectedValues = @json(request('f_sub_category_id', []));
+
+            if (selectedValues.length > 0) {
+                $('#f_sub_category_id')
+                    .val(selectedValues)
+                    .trigger('change');
+            }
+        })
         $(".add").on("click", function() {
             $("#modal_name").text("Add  Product");
             $("#id").val("");

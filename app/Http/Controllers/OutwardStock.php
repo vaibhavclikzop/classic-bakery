@@ -130,10 +130,14 @@ class OutwardStock extends Controller
                     "mst_id" => $mst_id,
                     "product_id" => $v->product_id,
                     "qty" => $v->qty,
+                    "type" => $v->type,
                 ));
 
-
-                DB::table('current_stock')->where("product_id", $v->product_id)->decrement("stock", $v->qty);
+                if ($v->type == "raw_material") {
+                    DB::table('current_stock')->where("product_id", $v->product_id)->decrement("stock", $v->qty);
+                } elseif ($v->type == "trading") {
+                    DB::table('finish_product_stock')->where("product_id", $v->product_id)->decrement("stock", $v->qty);
+                }
             }
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
@@ -230,9 +234,37 @@ class OutwardStock extends Controller
             ->where("a.id", $id)
             ->first();
         $order_det = DB::table("outward_det as a")
-            ->select("a.*", "b.name as product", "b.article_no", "c.name as sub_category")
-            ->join("products as b", "a.product_id", "b.id")
-            ->join("sub_category as c", "b.sub_category_id", "c.id")
+            ->select(
+                "a.*",
+                DB::raw("
+            CASE 
+                WHEN a.type = 'raw_material' THEN p.name
+                WHEN a.type = 'trading' THEN fp.name
+            END as product
+        "),
+                DB::raw("
+            CASE 
+                WHEN a.type = 'raw_material' THEN p.article_no
+                WHEN a.type = 'trading' THEN fp.article_no
+            END as article_no
+        "),
+                DB::raw("
+            CASE 
+                WHEN a.type = 'raw_material' THEN sc.name
+                WHEN a.type = 'trading' THEN fsc.name
+            END as sub_category
+        ")
+            )
+            ->leftJoin("products as p", function ($join) {
+                $join->on("a.product_id", "=", "p.id")
+                    ->where("a.type", "raw_material");
+            })
+            ->leftJoin("finish_products_mst as fp", function ($join) {
+                $join->on("a.product_id", "=", "fp.id")
+                    ->where("a.type", "trading");
+            })
+            ->leftJoin("sub_category as sc", "p.sub_category_id", "sc.id")
+            ->leftJoin("f_product_sub_category as fsc", "fp.f_sub_category_id", "fsc.id")
             ->where("a.mst_id", $id)
             ->get();
 
@@ -802,10 +834,10 @@ class OutwardStock extends Controller
                 $invoices[] = [
                     'order_mst' => $order_mst,
                     'order_det' => $order_det,
-                    "order_type"=>$value->order_type,
+                    "order_type" => $value->order_type,
                 ];
             } else if ($value->order_type == "Advance Order") {
-                         $id = $value->id;
+                $id = $value->id;
                 $outlet = DB::table("adv_order_mst as a")
                     ->select("a.*", "b.outlet_name as name", "b.number", "b.address", "b.city", "b.state")
                     ->join("outlet as b", "a.outlet_id", "b.id")
@@ -832,11 +864,11 @@ class OutwardStock extends Controller
                 $invoices[] = [
                     'order_mst' => $order_mst,
                     'order_det' => $order_det,
-                         "order_type"=>$value->order_type,
+                    "order_type" => $value->order_type,
                 ];
             }
         }
-       
+
         return view("bulk-invoice-view", compact("invoices"));
     }
 }

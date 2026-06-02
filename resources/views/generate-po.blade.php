@@ -475,10 +475,60 @@
                     $("#po_id").val("")
                 }
             });
+
+            let vendor_id = "{{ $vendor_id }}";
+            if (vendor_id) {
+                $("#vendor_id").val(vendor_id).trigger("change")
+                let productList = @json($productList);
+                let type = "raw material";
+
+                productList.forEach(element => {
+                    let product_name = element.name;
+                    let price = element.price;
+                    let qty = element.re_order_qty;
+                    let cess = element.cess_tax;
+                    let gst = element.gst;
+                    let product_id=element.id;
+                    var html = `<tr class="product${product_id}">
+                            <td>${sno++}</td>    
+                            <td>${type}</td>    
+                            <td>${product_name}</td>    
+                            <td>${qty}</td>    
+                            <td>${price}</td>    
+                            <td>${cess}</td>   
+                            <td>${gst}</td>    
+                            <td>${((price*qty) + (price*qty*gst/100) + (price*qty*cess/100)).toFixed(2)}</td>
+                            <td> 
+
+                                <button type="button"  class="btn btn-primary edit btn-sm"  data-id="${product_id}" data-price="${price}" data-qty="${qty}">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                                </button>
+
+                                <button type="button"  class="btn btn-danger remove btn-sm"  data-id="${product_id}">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                </button>
+                          
+                            </td>    
+                        </tr>`;
+
+                    $("#prodList").append(html)
+                    product_list.push({
+                        product_id,
+                        qty,
+                        price,
+                        gst,
+                        cess,
+                        type
+                    });
+                });
+                console.log(product_list);
+                calculate_total(product_list);
+            }
+
         });
 
         $(document).ready(function() {
-            // Bind keydown event on all relevant inputs
+
             $('#product_id, #qty, #price').on('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();

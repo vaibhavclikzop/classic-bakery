@@ -15,42 +15,104 @@ class OperationsReport extends Controller
         $fromDt = request("fromDt") ?? date("Y-m-d");
         $toDt = request("toDt")  ?? date("Y-m-d");
         $department = DB::table('department')->get();
-        $latestPurchase = DB::table("stock_inward_det")
-            ->select("product_id", DB::raw("MAX(id) as last_id"))
-            ->groupBy("product_id");
+      $latestPurchase = DB::table('stock_inward_det')
+    ->select(
+        'product_id',
+        DB::raw("
+            CASE
+                WHEN type = 'raw material' THEN 'raw_material'
+                WHEN type = 'finished product' THEN 'trading'
+            END as outward_type
+        "),
+        DB::raw('MAX(id) as last_id')
+    )
+    ->whereIn('type', ['raw material', 'finished product'])
+    ->groupBy(
+        'product_id',
+        DB::raw("
+            CASE
+                WHEN type = 'raw material' THEN 'raw_material'
+                WHEN type = 'finished product' THEN 'trading'
+            END
+        ")
+    );
 
-        $filter = DB::table("outward_mst as a")
-            ->select(
-                "b.product_id",
-                "c.name",
-                "c.price",
-                DB::raw("COALESCE(sid.price, 'NA') as last_purchase_price"),
-                DB::raw("SUM(b.qty) as qty")
-            )
-            ->join("outward_det as b", "a.id", "b.mst_id")
-            ->join("products as c", "b.product_id", "c.id")
+$filter = DB::table("outward_mst as a")
+    ->select(
+        "b.product_id",
+        "b.type",
 
+        DB::raw("
+            CASE
+                WHEN b.type = 'raw_material' THEN p.name
+                WHEN b.type = 'trading' THEN fp.name
+            END as name
+        "),
 
-            ->leftJoinSub($latestPurchase, "latest", function ($join) {
-                $join->on("b.product_id", "latest.product_id");
-            })
+        DB::raw("
+            CASE
+                WHEN b.type = 'raw_material' THEN p.price
+                WHEN b.type = 'trading' THEN fp.price
+            END as price
+        "),
 
+        DB::raw("
+            CASE
+                WHEN b.type = 'raw_material' THEN p.article_no
+                WHEN b.type = 'trading' THEN fp.article_no
+            END as article_no
+        "),
 
-            ->leftJoin("stock_inward_det as sid", "latest.last_id", "sid.id");
+        DB::raw("COALESCE(sid.price, 0) as last_purchase_price"),
 
-        if ($department_id) {
-            $filter->where("a.department_id", $department_id);
-        }
+        DB::raw("SUM(b.qty) as qty")
+    )
 
-        if ($fromDt) {
-            $filter->whereDate("a.invoice_date", ">=", $fromDt);
-        }
-        if ($toDt) {
-            $filter->whereDate("a.invoice_date", "<=", $toDt);
-        }
-        $data = $filter
-            ->groupBy("b.product_id", "c.name", "c.price", "sid.price")
-            ->get();
+    ->join("outward_det as b", "a.id", "=", "b.mst_id")
+
+    ->leftJoin("products as p", function ($join) {
+        $join->on("b.product_id", "=", "p.id")
+             ->where("b.type", "raw_material");
+    })
+
+    ->leftJoin("finish_products_mst as fp", function ($join) {
+        $join->on("b.product_id", "=", "fp.id")
+             ->where("b.type", "trading");
+    })
+
+    ->leftJoinSub($latestPurchase, "latest", function ($join) {
+        $join->on("b.product_id", "=", "latest.product_id")
+             ->on("b.type", "=", "latest.outward_type");
+    })
+
+    ->leftJoin("stock_inward_det as sid", "latest.last_id", "=", "sid.id");
+
+if (!empty($department_id)) {
+    $filter->where("a.department_id", $department_id);
+}
+
+if (!empty($fromDt)) {
+    $filter->whereDate("a.invoice_date", ">=", $fromDt);
+}
+
+if (!empty($toDt)) {
+    $filter->whereDate("a.invoice_date", "<=", $toDt);
+}
+
+$data = $filter
+    ->groupBy(
+        "b.product_id",
+        "b.type",
+        "p.name",
+        "fp.name",
+        "p.price",
+        "fp.price",
+        "p.article_no",
+        "fp.article_no",
+        "sid.price"
+    )
+    ->orderBy("name")
+    ->get();
 
 
         // echo "<pre>";
@@ -88,8 +150,8 @@ class OperationsReport extends Controller
 
     public function rmPurchaseHistoryReport(Request $request)
     {
-        $fromDt = $request->input("fromDt")  ;
-        $toDt   = $request->input("toDt")  ;
+        $fromDt = $request->input("fromDt");
+        $toDt   = $request->input("toDt");
         $product_id   = $request->input("product_id");
 
         $query = DB::table("stock_inward_mst as a")
@@ -98,13 +160,13 @@ class OperationsReport extends Controller
                 "a.received_material_date as date",
                 "v.name as vendor_name",
                 "b.price",
+                "b.gst",
                 DB::raw("SUM(b.qty) as qty")
             )
             ->join("stock_inward_det as b", "a.id", "b.mst_id")
             ->join("products as c", "b.product_id", "c.id")
             ->join("vendor as v", "a.vendor_id", "v.id")
-            ->where("c.id",$product_id)
-            ;
+            ->where("c.id", $product_id);
 
         if ($fromDt) {
             $query->whereDate("a.received_material_date", ">=", $fromDt);
@@ -119,14 +181,15 @@ class OperationsReport extends Controller
                 "c.name",
                 "a.received_material_date",
                 "v.name",
-                "b.price"
+                "b.price",
+                "b.gst"
             )
             ->orderBy("a.received_material_date", "desc")
             ->get();
 
-         $products=   DB::table("products")->get();
+        $products =   DB::table("products")->get();
 
-        return view("report.rm-purchase-history-report", compact("data","products"));
+        return view("report.rm-purchase-history-report", compact("data", "products"));
     }
 
 
@@ -217,7 +280,7 @@ class OperationsReport extends Controller
                 "d.name as particular",
                 DB::raw("0 as in_qty"),
                 "od.qty as out_qty"
-            );
+            )->where("od.type","raw_material");
 
 
         $inward->where("b.product_id", $product_id);
@@ -254,9 +317,14 @@ class OperationsReport extends Controller
 
     public function reOrderReport(Request $request)
     {
+        $vendor_id = request("vendor_id");
+        $sub_category_id = request("sub_category_id");
+        $data = collect();
 
-        $data = DB::table("vendor as a")
+
+        $query = DB::table("vendor as a")
             ->select(
+                "c.id as product_id",
                 "a.company_name as vendor",
                 "c.name as product",
                 "c.re_order_qty",
@@ -266,14 +334,66 @@ class OperationsReport extends Controller
             )
             ->join("vendor_product as b", "a.id", "b.vendor_id")
             ->join("products as c", "b.product_id", "c.id")
-
-
             ->leftJoin("current_stock as d", "c.id", "d.product_id")
-
             ->join("sub_category as e", "c.sub_category_id", "e.id")
-            ->where("a.id", request("vendor_id"))
-            ->get();
-        $vendor =  DB::table('vendor')->get();
-        return view("report.re-order-report", compact("data", "vendor"));
+            ->whereColumn("c.min_stock", ">", "d.stock");
+        if ($vendor_id) {
+            $query->where("a.id", $vendor_id);
+        }
+        if (!in_array('all', $sub_category_id ?? []) &&    !empty($sub_category_id)) {
+
+            $query->whereIn("e.id", (array) $sub_category_id);
+        }
+        $data = $query->orderBy("e.name", "asc")->orderBy("c.name", "asc")->get();
+
+
+
+        if ($sub_category_id) {
+            $vendor =  DB::table("products as a")
+                ->select(
+                    "c.id",
+                    "c.company_name"
+                )
+                ->join("vendor_product as b", "a.id", "b.product_id")
+                ->join("vendor as c", "b.vendor_id", "c.id")
+                ->where("a.sub_category_id", $sub_category_id)
+                ->distinct()
+                ->get();
+        } else {
+            $vendor =  DB::table('vendor')->get();
+        }
+        $sub_category = DB::table("sub_category")->get();
+
+
+
+        return view("report.re-order-report", compact("data", "vendor", "sub_category"));
+    }
+
+    public function getVendorBySubCategory(Request $request)
+    {
+
+        if (!in_array('all', $request->id ?? []) &&    !empty($request->id)) {
+            return DB::table("products as a")
+                ->select(
+                    "c.id",
+                    "c.company_name as vendor"
+                )
+                ->join("vendor_product as b", "a.id", "b.product_id")
+                ->join("vendor as c", "b.vendor_id", "c.id")
+                ->whereIn("a.sub_category_id", $request->id)
+                ->distinct()
+                ->get();
+        }else {
+            return DB::table("products as a")
+                ->select(
+                    "c.id",
+                    "c.company_name as vendor"
+                )
+                ->join("vendor_product as b", "a.id", "b.product_id")
+                ->join("vendor as c", "b.vendor_id", "c.id")
+    
+                ->distinct()
+                ->get();
+        }
     }
 }
