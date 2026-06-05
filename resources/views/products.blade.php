@@ -121,8 +121,9 @@
                         <th> Sub category</th>
 
                         <th> Name</th>
+                        <th>Hindi Name</th>
                         <th> Article No</th>
-       
+
                         <th> Price</th>
                         <th> Min Stock</th>
                         <th> Unit Type</th>
@@ -160,11 +161,13 @@
                             <td style="white-space: normal; word-wrap: break-word;">{{ $item->sub_category }}</td>
 
                             <td style="white-space: normal; word-wrap: break-word;">
-                                {{ $item->name }} <br>
-                                {{ $item->hindi }}
+                                {{ $item->name }}  
+                            </td>
+                              <td style="white-space: normal; word-wrap: break-word;">
+                                {{ $item->hindi }}  
                             </td>
                             <td>{{ $item->article_no }}</td>
- 
+
                             <td>{{ $item->price }}</td>
                             <td>{{ $item->min_stock }}</td>
                             <td>{{ $item->unit_type }}</td>

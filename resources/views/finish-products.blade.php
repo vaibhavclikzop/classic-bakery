@@ -158,6 +158,7 @@
                     <tr>
                         <th>S.no</th>
                         <th> Category</th>
+                        <th>Sub Category</th>
                         <th> Name</th>
                         <th> Price</th>
                         <th> GST</th>
@@ -182,7 +183,7 @@
                         $sno = 1;
                     @endphp
                     @foreach ($products as $item)
-                      @php
+                        @php
                             $active = '';
                             if ($item->active == 1) {
                                 $active = "<span class='badge bg-success'>Active</span>";
@@ -192,16 +193,19 @@
                         @endphp
                         <tr>
                             <td>{{ $sno++ }}</td>
-                            <td style="min-width: 150px; max-width: 150px">
-                                <p class="mb-1 wrap-text"><strong> Category :</strong> {{ $item->category_name }}</p>
-                                <p class="mb-1 wrap-text"><strong>Subcategory :</strong>{{ $item->sub_category }}</p>
+                            <td >
+                              {{ $item->category_name }}
+                              
+                            </td>
+                            <td style="min-width: 100px; max-width: 100px">
+                                  <p class="mb-1 wrap-text"> {{ $item->sub_category }}</p>
                             </td>
                             <td class="mb-1 wrap-text" style="min-width: 150px; max-width: 150px">{{ $item->name }}
                             </td>
 
                             <td>
-                            {{ $item->price }}
-                             
+                                {{ $item->price }}
+
                             </td>
                             <td>{{ $item->gst }}</td>
                             <td>{{ $item->cess_tax }}</td>
@@ -211,7 +215,7 @@
                             <td>{{ $item->unit_type }}</td>
                             <td>{{ $item->min_stock }}</td>
                             <td>{{ $item->warranty_days }}</td>
-                            <td>{!!$active!!}</td>
+                            <td>{!! $active !!}</td>
 
                             <td>
                                 <button class="btn btn-sm btn-primary Edit" data-id="{{ $item->id }}"
